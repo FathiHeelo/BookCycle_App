@@ -1,13 +1,23 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, Button, View } from 'react-native';
+import { signOut } from 'firebase/auth';
+import { FIREBASE_AUTH } from '@/firebaseConfig';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 export default function HomeScreen() {
+  const handleLogout = async () => {
+    try {
+      await signOut(FIREBASE_AUTH);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -65,14 +75,18 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
+        <ThemedText type="subtitle">Step 3: Account</ThemedText>
         <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+          Manage your account settings or safely sign out.
         </ThemedText>
+        <View style={{ marginTop: 10, gap: 12 }}>
+          <Button
+            title="Change Password"
+            onPress={() => router.push('/change-password')}
+            color="#5B21B6"
+          />
+          <Button title="Sign Out" onPress={handleLogout} color="#EF4444" />
+        </View>
       </ThemedView>
     </ParallaxScrollView>
   );
