@@ -1,6 +1,9 @@
 import { Link, router } from 'expo-router';
-import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
-import React, { useState } from 'react';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri } from 'expo-auth-session';
+import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -14,6 +17,8 @@ import {
 } from 'react-native';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 
+WebBrowser.maybeCompleteAuthSession();
+
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,6 +29,34 @@ export default function LoginScreen() {
   const [passError, setPassError] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // Google Auth Hook
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: '480877114724-giupl40beccvaoeem5r0ejmahk409et3.apps.googleusercontent.com',
+    redirectUri: makeRedirectUri({
+      scheme: 'bookcycleapp',
+      preferLocalhost: true,
+    }),
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      setLoading(true);
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(FIREBASE_AUTH, credential)
+        .then(() => {
+          router.replace('/');
+        })
+        .catch((error) => {
+          console.error(error);
+          setGlobalError('Google Sign-In failed. Please try again.');
+          setLoading(false);
+        });
+    } else if (response?.type === 'error') {
+      setGlobalError('Google Sign-In was cancelled or failed.');
+    }
+  }, [response]);
 
   const clearErrors = () => {
     setEmailError(null);
@@ -77,22 +110,8 @@ export default function LoginScreen() {
     }
   };
 
-  const handleForgotPassword = async () => {
-    clearErrors();
-    const emailValidationErr = validateEmail(email);
-    if (emailValidationErr) {
-      setGlobalError('Please enter a valid email address above, then tap "Forgot Password".');
-      return;
-    }
-
-    try {
-      await sendPasswordResetEmail(FIREBASE_AUTH, email.trim().toLowerCase());
-      setSuccessMsg('Reset Email Sent! Check your inbox for instructions.');
-    } catch (error: any) {
-      let message = 'Could not send reset email.';
-      if (error.code === 'auth/user-not-found') message = 'No account found with this email.';
-      setGlobalError(message);
-    }
+  const handleForgotPassword = () => {
+    router.push('/forgot-password');
   };
 
   return (
@@ -195,6 +214,20 @@ export default function LoginScreen() {
             ) : (
               <Text style={styles.loginBtnText}>Login</Text>
             )}
+          </Pressable>
+
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [styles.googleBtn, pressed && styles.googleBtnPressed]}
+            onPress={() => promptAsync()}
+            disabled={!request || loading}
+          >
+            <Text style={styles.googleBtnText}>Continue with Google</Text>
           </Pressable>
 
           {/* Footer */}
@@ -359,6 +392,44 @@ const styles = StyleSheet.create({
   },
   loginBtnPressed: { opacity: 0.85 },
   loginBtnText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.3 },
+
+  // OR Divider
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E5E7EB',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    color: '#9CA3AF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  // Google Button
+  googleBtn: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    borderRadius: 14,
+    height: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+    marginBottom: 5,
+  },
+  googleBtnPressed: { opacity: 0.7, backgroundColor: '#FAFAFA' },
+  googleBtnText: { color: '#374151', fontSize: 15, fontWeight: '700' },
 
   // Footer
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },

@@ -25,7 +25,7 @@ function AuthGuard({ user }: { user: User | null | undefined }) {
       // Not signed in → send to login
       router.replace('/login');
     }
-    // We let the login and signup screens explicitly handle the redirect to `/`
+    // We let the login, signup, and verify screens explicitly handle the redirect to `/`
     // upon successful authentication to bypass web-router race conditions.
   }, [user, segments]);
 

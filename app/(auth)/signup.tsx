@@ -1,7 +1,18 @@
 import { Link, router } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from 'firebase/auth';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri } from 'expo-auth-session';
 import { ref, set } from 'firebase/database';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -15,86 +26,99 @@ import {
 } from 'react-native';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/firebaseConfig';
 
-// Generic Email Validator
-const validateEmailFormat = (email: string): string | null => {
-  const trimmed = email.trim().toLowerCase();
-  if (!trimmed) return 'Email is required.';
-  
-  // Standard basic email regex checkout
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(trimmed)) {
-    return 'Please enter a valid email address.';
-  }
-  return null;
-};
+WebBrowser.maybeCompleteAuthSession();
+
+// Define Form Schema with Zod
+const signupSchema = z
+  .object({
+    fullName: z.string().min(2, 'Full Name must be at least 2 characters'),
+    email: z.string().email('Please enter a valid email address'),
+    phoneNumber: z.string().min(8, 'Phone number must be at least 8 characters (including country code)'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+type SignupFormData = z.infer<typeof signupSchema>;
 
 export default function SignupScreen() {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
-  // Error States
-  const [nameError, setNameError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [passError, setPassError] = useState<string | null>(null);
-  const [confirmErrorText, setConfirmErrorText] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-  const clearErrors = () => {
-    setNameError(null);
-    setEmailError(null);
-    setPassError(null);
-    setConfirmErrorText(null);
+  // React Hook Form
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      phoneNumber: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  // Google Auth Hook
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: '480877114724-giupl40beccvaoeem5r0ejmahk409et3.apps.googleusercontent.com',
+    redirectUri: makeRedirectUri({
+      scheme: 'bookcycleapp',
+      preferLocalhost: true,
+    }),
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      setLoading(true);
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(FIREBASE_AUTH, credential)
+        .then(async (userCredential) => {
+          const userId = userCredential.user.uid;
+          await set(ref(FIREBASE_DB, 'users/' + userId), {
+            fullName: userCredential.user.displayName || 'Google User',
+            email: userCredential.user.email || '',
+            createdAt: new Date().toISOString(),
+          });
+          router.replace('/');
+        })
+        .catch((error) => {
+          console.error(error);
+          setGlobalError('Google Sign-In failed. Please try again.');
+          setLoading(false);
+        });
+    } else if (response?.type === 'error') {
+      setGlobalError('Google Sign-In was cancelled or failed.');
+    }
+  }, [response]);
+
+  const onSubmit = async (data: SignupFormData) => {
     setGlobalError(null);
-  };
-
-  const handleSignup = async () => {
-    clearErrors();
-    let hasError = false;
-
-    if (!fullName.trim()) {
-      setNameError('Please enter your full name.');
-      hasError = true;
-    }
-
-    const emailValidationErr = validateEmailFormat(email);
-    if (emailValidationErr) {
-      setEmailError(emailValidationErr);
-      hasError = true;
-    }
-
-    if (password.length < 6) {
-      setPassError('Password must be at least 6 characters.');
-      hasError = true;
-    }
-
-    if (password !== confirmPassword) {
-      setConfirmErrorText('Passwords do not match. Please try again.');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(
         FIREBASE_AUTH,
-        email.trim().toLowerCase(),
-        password
+        data.email.trim().toLowerCase(),
+        data.password
       );
 
       // Set the display name on the Firebase user profile
-      await updateProfile(userCredential.user, { displayName: fullName.trim() });
+      await updateProfile(userCredential.user, { displayName: data.fullName.trim() });
 
       // Save additional user defaults into the realtime database
       const userId = userCredential.user.uid;
       await set(ref(FIREBASE_DB, 'users/' + userId), {
-        fullName: fullName.trim(),
-        email: email.trim().toLowerCase(),
+        fullName: data.fullName.trim(),
+        email: data.email.trim().toLowerCase(),
+        phoneNumber: data.phoneNumber.trim(),
         createdAt: new Date().toISOString(),
       });
 
@@ -106,7 +130,7 @@ export default function SignupScreen() {
       else if (error.code === 'auth/invalid-email') message = 'Invalid email address format.';
       else if (error.code === 'auth/weak-password')
         message = 'Password is too weak. Use at least 6 characters.';
-        
+
       setGlobalError(message);
     } finally {
       setLoading(false);
@@ -145,105 +169,147 @@ export default function SignupScreen() {
           {/* Full Name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Full Name</Text>
-            <View style={[styles.inputWrapper, nameError && styles.inputErrorBorder]}>
-              <Text style={styles.inputIcon}>👤</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g. Ahmad Khalil"
-                placeholderTextColor="#9CA3AF"
-                value={fullName}
-                onChangeText={(val) => {
-                  setFullName(val);
-                  if (nameError) setNameError(null);
-                }}
-                autoCapitalize="words"
-                returnKeyType="next"
-              />
-            </View>
-            {nameError && <Text style={styles.errorText}>⚠️ {nameError}</Text>}
+            <Controller
+              control={control}
+              name="fullName"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={[styles.inputWrapper, errors.fullName && styles.inputErrorBorder]}>
+                  <Text style={styles.inputIcon}>👤</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="e.g. Ahmad Khalil"
+                    placeholderTextColor="#9CA3AF"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    autoCapitalize="words"
+                    returnKeyType="next"
+                  />
+                </View>
+              )}
+            />
+            {errors.fullName && <Text style={styles.errorText}>⚠️ {errors.fullName.message}</Text>}
           </View>
 
           {/* Email */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Email Address</Text>
-            <View style={[styles.inputWrapper, emailError && styles.inputErrorBorder]}>
-              <Text style={styles.inputIcon}>✉️</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g. name@example.com"
-                placeholderTextColor="#9CA3AF"
-                value={email}
-                onChangeText={(val) => {
-                  setEmail(val);
-                  if (emailError) setEmailError(null);
-                }}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                returnKeyType="next"
-              />
-            </View>
-            {emailError && <Text style={styles.errorText}>⚠️ {emailError}</Text>}
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={[styles.inputWrapper, errors.email && styles.inputErrorBorder]}>
+                  <Text style={styles.inputIcon}>✉️</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="e.g. name@example.com"
+                    placeholderTextColor="#9CA3AF"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    returnKeyType="next"
+                  />
+                </View>
+              )}
+            />
+            {errors.email && <Text style={styles.errorText}>⚠️ {errors.email.message}</Text>}
+          </View>
+
+          {/* Phone Number */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Phone Number</Text>
+            <Controller
+              control={control}
+              name="phoneNumber"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={[styles.inputWrapper, errors.phoneNumber && styles.inputErrorBorder]}>
+                  <Text style={styles.inputIcon}>📞</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="+970xxxxxxxxx"
+                    placeholderTextColor="#9CA3AF"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    keyboardType="phone-pad"
+                    returnKeyType="next"
+                  />
+                </View>
+              )}
+            />
+            {errors.phoneNumber && (
+              <Text style={styles.errorText}>⚠️ {errors.phoneNumber.message}</Text>
+            )}
           </View>
 
           {/* Password */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Password</Text>
-            <View style={[styles.inputWrapper, passError && styles.inputErrorBorder]}>
-              <Text style={styles.inputIcon}>🔒</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Minimum 6 characters"
-                placeholderTextColor="#9CA3AF"
-                value={password}
-                onChangeText={(val) => {
-                  setPassword(val);
-                  if (passError) setPassError(null);
-                }}
-                secureTextEntry={!showPassword}
-                returnKeyType="next"
-              />
-              <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
-              </Pressable>
-            </View>
-            {passError && <Text style={styles.errorText}>⚠️ {passError}</Text>}
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={[styles.inputWrapper, errors.password && styles.inputErrorBorder]}>
+                  <Text style={styles.inputIcon}>🔒</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Minimum 6 characters"
+                    placeholderTextColor="#9CA3AF"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    secureTextEntry={!showPassword}
+                    returnKeyType="next"
+                  />
+                  <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
+                    <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+                  </Pressable>
+                </View>
+              )}
+            />
+            {errors.password && <Text style={styles.errorText}>⚠️ {errors.password.message}</Text>}
           </View>
 
           {/* Confirm Password */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Confirm Password</Text>
-            <View style={[
-              styles.inputWrapper,
-              confirmErrorText && styles.inputErrorBorder,
-            ]}>
-              <Text style={styles.inputIcon}>🔑</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Re-enter your password"
-                placeholderTextColor="#9CA3AF"
-                value={confirmPassword}
-                onChangeText={(val) => {
-                  setConfirmPassword(val);
-                  if (confirmErrorText) setConfirmErrorText(null);
-                }}
-                secureTextEntry={!showConfirm}
-                returnKeyType="done"
-                onSubmitEditing={handleSignup}
-              />
-              <Pressable onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn}>
-                <Text style={styles.eyeIcon}>{showConfirm ? '🙈' : '👁️'}</Text>
-              </Pressable>
-            </View>
-            {confirmErrorText && (
-              <Text style={styles.errorText}>⚠️ {confirmErrorText}</Text>
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View
+                  style={[styles.inputWrapper, errors.confirmPassword && styles.inputErrorBorder]}
+                >
+                  <Text style={styles.inputIcon}>🔑</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Re-enter your password"
+                    placeholderTextColor="#9CA3AF"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    secureTextEntry={!showConfirm}
+                    returnKeyType="done"
+                    onSubmitEditing={handleSubmit(onSubmit)}
+                  />
+                  <Pressable onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn}>
+                    <Text style={styles.eyeIcon}>{showConfirm ? '🙈' : '👁️'}</Text>
+                  </Pressable>
+                </View>
+              )}
+            />
+            {errors.confirmPassword && (
+              <Text style={styles.errorText}>⚠️ {errors.confirmPassword.message}</Text>
             )}
           </View>
 
           {/* Sign Up Button */}
           <Pressable
             style={({ pressed }) => [styles.signupBtn, pressed && styles.signupBtnPressed]}
-            onPress={handleSignup}
+            onPress={handleSubmit(onSubmit)}
             disabled={loading}
           >
             {loading ? (
@@ -251,6 +317,21 @@ export default function SignupScreen() {
             ) : (
               <Text style={styles.signupBtnText}>Create Account</Text>
             )}
+          </Pressable>
+
+          {/* Google Button */}
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [styles.googleBtn, pressed && styles.googleBtnPressed]}
+            onPress={() => promptAsync()}
+            disabled={!request || loading}
+          >
+            <Text style={styles.googleBtnText}>Continue with Google</Text>
           </Pressable>
 
           {/* Footer */}
@@ -361,7 +442,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Button
+  // Sign Up Button
   signupBtn: {
     backgroundColor: PURPLE,
     borderRadius: 14,
@@ -377,6 +458,44 @@ const styles = StyleSheet.create({
   },
   signupBtnPressed: { opacity: 0.85 },
   signupBtnText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.3 },
+
+  // OR Divider
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E5E7EB',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    color: '#9CA3AF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  // Google Button
+  googleBtn: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    borderRadius: 14,
+    height: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+    marginBottom: 5,
+  },
+  googleBtnPressed: { opacity: 0.7, backgroundColor: '#FAFAFA' },
+  googleBtnText: { color: '#374151', fontSize: 15, fontWeight: '700' },
 
   // Footer
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
