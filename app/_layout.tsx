@@ -6,7 +6,6 @@ import { router, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View, Image } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -14,16 +13,19 @@ import Animated, {
   withDelay, 
   Easing,
 } from 'react-native-reanimated';
+import { ActivityIndicator, View , Image , Text, StyleSheet} from 'react-native';
+import 'react-native-reanimated';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import '@/i18n/config';
 
+
 export const unstable_settings = {
   initialRouteName: '(tabs)',
 };
 
-function AuthGuard({ user, splashVisible }: { user: User | null | undefined, splashVisible: boolean }) {
+function AuthGuard({ user, splashVisible }: { user: User | null | undefined; splashVisible: boolean }) {
   const segments = useSegments();
 
   useEffect(() => {
