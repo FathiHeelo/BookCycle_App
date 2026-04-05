@@ -1,53 +1,58 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import { Platform } from 'react-native';
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    primary: '#001B39',        // Deep Navy from mockup
+    background: '#FFFFFF',     // Clean White
+    surface: '#F1F4F7',        // Soft Gray-Blue for inputs/secondary buttons
+    text: '#1A1A1A',           // Dark Charcoal
+    textSecondary: '#8E9BAE',  // Light Gray for placeholders
+    border: '#E5E7EB',
+    error: '#DC2626',
+    success: '#10B981',
+    tint: '#001B39',
+    card: '#FFFFFF',
+    icon: '#8E9BAE',
+    tabIconDefault: '#8E9BAE',
+    tabIconSelected: '#001B39',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    primary: '#4D80B3',        // Softer Blue for Dark Mode
+    background: '#0F172A',
+    surface: '#1E293B',
+    text: '#F8FAFC',
+    textSecondary: '#94A3B8',
+    border: '#334155',
+    error: '#EF4444',
+    success: '#34D399',
+    tint: '#4D80B3',
+    card: '#1E293B',
+    icon: '#94A3B8',
+    tabIconDefault: '#94A3B8',
+    tabIconSelected: '#4D80B3',
   },
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+};
+
+export const Radius = {
+  sm: 4,
+  md: 12,      // Modern rounded corners for inputs
+  lg: 20,
+  xl: 28,
+  pill: 99,    // Perfect for buttons
+};
+
+export const Fonts = {
+  bold: 'Inter_700Bold',
+  semiBold: 'Inter_600SemiBold',
+  regular: 'Inter_400Regular',
+  rounded: 'Outfit_Bold',
+};

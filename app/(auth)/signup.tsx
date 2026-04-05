@@ -1,15 +1,7 @@
 import { Link, router } from 'expo-router';
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-  GoogleAuthProvider,
-  signInWithCredential,
-} from 'firebase/auth';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
-import { makeRedirectUri } from 'expo-auth-session';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -23,114 +15,106 @@ import {
   Text,
   TextInput,
   View,
+  Modal,
+  FlatList,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/firebaseConfig';
+import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useI18n } from '@/hooks/use-i18n';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
-WebBrowser.maybeCompleteAuthSession();
-
-// Define Form Schema with Zod
-const signupSchema = z
-  .object({
-    fullName: z.string().min(2, 'Full Name must be at least 2 characters'),
-    email: z.string().email('Please enter a valid email address'),
-    phoneNumber: z.string().min(8, 'Phone number must be at least 8 characters (including country code)'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
-
-type SignupFormData = z.infer<typeof signupSchema>;
+const FACULTIES = [
+  { id: 'med', icon: 'medical', color: '#EF4444' },
+  { id: 'eng', icon: 'construct', color: '#F59E0B' },
+  { id: 'bus', icon: 'business', color: '#3B82F6' },
+  { id: 'grad', icon: 'school', color: '#8B5CF6' },
+  { id: 'hon', icon: 'star', color: '#FACC15' },
+  { id: 'sha', icon: 'library', color: '#10B981' },
+  { id: 'vet', icon: 'leaf', color: '#059669' },
+  { id: 'sci', icon: 'flask', color: '#6366F1' },
+  { id: 'hum', icon: 'people', color: '#EC4899' },
+  { id: 'art', icon: 'brush', color: '#F43F5E' },
+  { id: 'law', icon: 'book', color: '#475569' },
+  { id: 'it', icon: 'hardware-chip', color: '#06B6D4' },
+  { id: 'den', icon: 'medical', color: '#2DD4BF' },
+  { id: 'pha', icon: 'flask', color: '#84CC16' },
+  { id: 'nur', icon: 'medkit', color: '#0EA5E9' },
+];
 
 export default function SignupScreen() {
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [globalError, setGlobalError] = useState<string | null>(null);
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
+  const { t } = useI18n();
 
-  // React Hook Form
+  const signupSchema = z.object({
+    fullName: z.string().min(2, t('auth.errors.fullNameMinLength')),
+    email: z.string()
+      .min(1, t('auth.errors.emailRequired'))
+      .email(t('auth.errors.invalidEmail'))
+      .endsWith('@stu.najah.edu', t('auth.errors.useUniversityEmail')),
+    password: z.string()
+      .min(1, t('auth.errors.passwordRequired'))
+      .min(6, t('auth.errors.passwordMinLength')),
+    confirmPassword: z.string(),
+    facultyId: z.string().min(1, t('auth.errors.selectFaculty')),
+    major: z.string().min(1, t('auth.errors.selectMajor')),
+    universityID: z.string()
+      .min(8, t('auth.errors.universityIdLength'))
+      .max(10, t('auth.errors.universityIdLength')),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('auth.errors.passwordsDoNotMatch'),
+    path: ["confirmPassword"],
+  });
+
+  type SignupData = z.infer<typeof signupSchema>;
+  const [loading, setLoading] = useState(false);
+  const [globalError, setGlobalError] = useState<string | null>(null);
+  const [facultyModalVisible, setFacultyModalVisible] = useState(false);
+  const [majorModalVisible, setMajorModalVisible] = useState(false);
+
   const {
     control,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
-  } = useForm<SignupFormData>({
+  } = useForm<SignupData>({
     resolver: zodResolver(signupSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      phoneNumber: '',
-      password: '',
-      confirmPassword: '',
+    defaultValues: { 
+      fullName: '', email: '', password: '', confirmPassword: '',
+      facultyId: '', major: '', universityID: '',
     },
   });
 
-  // Google Auth Hook
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: '480877114724-giupl40beccvaoeem5r0ejmahk409et3.apps.googleusercontent.com',
-    redirectUri: makeRedirectUri({
-      scheme: 'bookcycleapp',
-      preferLocalhost: true,
-    }),
-  });
+  const selectedFacultyId = watch('facultyId');
+  const majorOptions = selectedFacultyId ? t(`majors.${selectedFacultyId}`, { returnObjects: true }) as string[] : [];
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      setLoading(true);
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(FIREBASE_AUTH, credential)
-        .then(async (userCredential) => {
-          const userId = userCredential.user.uid;
-          await set(ref(FIREBASE_DB, 'users/' + userId), {
-            fullName: userCredential.user.displayName || 'Google User',
-            email: userCredential.user.email || '',
-            createdAt: new Date().toISOString(),
-          });
-          router.replace('/');
-        })
-        .catch((error) => {
-          console.error(error);
-          setGlobalError('Google Sign-In failed. Please try again.');
-          setLoading(false);
-        });
-    } else if (response?.type === 'error') {
-      setGlobalError('Google Sign-In was cancelled or failed.');
-    }
-  }, [response]);
-
-  const onSubmit = async (data: SignupFormData) => {
-    setGlobalError(null);
+  const onSignup = async (data: SignupData) => {
     setLoading(true);
+    setGlobalError(null);
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        FIREBASE_AUTH,
-        data.email.trim().toLowerCase(),
-        data.password
-      );
-
-      // Set the display name on the Firebase user profile
-      await updateProfile(userCredential.user, { displayName: data.fullName.trim() });
-
-      // Save additional user defaults into the realtime database
-      const userId = userCredential.user.uid;
-      await set(ref(FIREBASE_DB, 'users/' + userId), {
-        fullName: data.fullName.trim(),
+      const userCredential = await createUserWithEmailAndPassword(FIREBASE_AUTH, data.email.trim().toLowerCase(), data.password);
+      const user = userCredential.user;
+      await updateProfile(user, { displayName: data.fullName });
+      
+      const facultyNameEn = t(`faculties.${data.facultyId}`, { lng: 'en' });
+      
+      await set(ref(FIREBASE_DB, `users/${user.uid}`), {
+        uid: user.uid,
+        fullName: data.fullName,
         email: data.email.trim().toLowerCase(),
-        phoneNumber: data.phoneNumber.trim(),
+        facultyId: data.facultyId,
+        facultyName: facultyNameEn, // Store EN name for consistent DB records
+        major: data.major,
+        universityID: data.universityID,
         createdAt: new Date().toISOString(),
       });
-
-      router.replace('/');
+      router.replace('/verify-phone');
     } catch (error: any) {
-      let message = 'Something went wrong. Please try again.';
-      if (error.code === 'auth/email-already-in-use')
-        message = 'An account with this email already exists.';
-      else if (error.code === 'auth/invalid-email') message = 'Invalid email address format.';
-      else if (error.code === 'auth/weak-password')
-        message = 'Password is too weak. Use at least 6 characters.';
-
+      let message = t('auth.errors.failedToSignup');
+      if (error.code === 'auth/email-already-in-use') message = t('auth.errors.emailAlreadyInUse');
       setGlobalError(message);
     } finally {
       setLoading(false);
@@ -138,367 +122,191 @@ export default function SignupScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.headerContainer}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoIcon}>📚</Text>
+    <View style={[styles.flex, { backgroundColor: '#FFFFFF' }]}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <Pressable onPress={() => router.back()} style={styles.backBtn}>
+              <Ionicons name="arrow-back" size={24} color="#001B39" />
+            </Pressable>
+            <Text style={[styles.headerTitle, { color: '#001B39' }]}>BookCycle</Text>
+            <LanguageToggle />
           </View>
-          <Text style={styles.appName}>BookCycle</Text>
-          <Text style={styles.subtitle}>Create your account to get started.</Text>
-        </View>
 
-        {/* Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Create Account</Text>
+          <View style={styles.heroSection}>
+            <Text style={[styles.heroTitle, { color: '#001B39' }]}>{t('auth.signup.title')}</Text>
+            <Text style={[styles.heroSubtitle, { color: '#6B7280' }]}>
+              {t('auth.signup.subtitle')}
+            </Text>
+          </View>
 
-          {globalError && (
-            <View style={styles.globalErrorBox}>
-              <Text style={styles.globalErrorText}>{globalError}</Text>
+          <View style={styles.formContainer}>
+            {!!globalError && (
+              <View style={[styles.errorBox, { backgroundColor: theme.error + '10', borderColor: theme.error }]}>
+                <Text style={[styles.errorText, { color: theme.error }]}>{globalError}</Text>
+              </View>
+            )}
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>{t('auth.signup.fullNameLabel')}</Text>
+              <Controller control={control} name="fullName" render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.fullNamePlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} />
+              )} />
+              {!!errors.fullName && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.fullName.message}</Text>}
             </View>
-          )}
 
-          {/* Full Name */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Full Name</Text>
-            <Controller
-              control={control}
-              name="fullName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View style={[styles.inputWrapper, errors.fullName && styles.inputErrorBorder]}>
-                  <Text style={styles.inputIcon}>👤</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="e.g. Ahmad Khalil"
-                    placeholderTextColor="#9CA3AF"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    autoCapitalize="words"
-                    returnKeyType="next"
-                  />
-                </View>
-              )}
-            />
-            {errors.fullName && <Text style={styles.errorText}>⚠️ {errors.fullName.message}</Text>}
-          </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>{t('auth.signup.emailLabel')}</Text>
+              <Controller control={control} name="email" render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.emailPlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="email-address" />
+              )} />
+              {!!errors.email && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.email.message}</Text>}
+            </View>
 
-          {/* Email */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Email Address</Text>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View style={[styles.inputWrapper, errors.email && styles.inputErrorBorder]}>
-                  <Text style={styles.inputIcon}>✉️</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="e.g. name@example.com"
-                    placeholderTextColor="#9CA3AF"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoComplete="email"
-                    returnKeyType="next"
-                  />
-                </View>
-              )}
-            />
-            {errors.email && <Text style={styles.errorText}>⚠️ {errors.email.message}</Text>}
-          </View>
+            <View style={styles.row}>
+              <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
+                <Text style={styles.label}>{t('auth.signup.passwordLabel')}</Text>
+                <Controller control={control} name="password" render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.passwordPlaceholder')} placeholderTextColor="#A0AEC0" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
+                )} />
+              </View>
+              <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+                <Text style={styles.label}>{t('auth.signup.confirmPasswordLabel')}</Text>
+                <Controller control={control} name="confirmPassword" render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.passwordPlaceholder')} placeholderTextColor="#A0AEC0" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
+                )} />
+              </View>
+            </View>
 
-          {/* Phone Number */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Phone Number</Text>
-            <Controller
-              control={control}
-              name="phoneNumber"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View style={[styles.inputWrapper, errors.phoneNumber && styles.inputErrorBorder]}>
-                  <Text style={styles.inputIcon}>📞</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="+970xxxxxxxxx"
-                    placeholderTextColor="#9CA3AF"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    keyboardType="phone-pad"
-                    returnKeyType="next"
-                  />
-                </View>
-              )}
-            />
-            {errors.phoneNumber && (
-              <Text style={styles.errorText}>⚠️ {errors.phoneNumber.message}</Text>
-            )}
-          </View>
-
-          {/* Password */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Password</Text>
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View style={[styles.inputWrapper, errors.password && styles.inputErrorBorder]}>
-                  <Text style={styles.inputIcon}>🔒</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Minimum 6 characters"
-                    placeholderTextColor="#9CA3AF"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    secureTextEntry={!showPassword}
-                    returnKeyType="next"
-                  />
-                  <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                    <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
-                  </Pressable>
-                </View>
-              )}
-            />
-            {errors.password && <Text style={styles.errorText}>⚠️ {errors.password.message}</Text>}
-          </View>
-
-          {/* Confirm Password */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View
-                  style={[styles.inputWrapper, errors.confirmPassword && styles.inputErrorBorder]}
-                >
-                  <Text style={styles.inputIcon}>🔑</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Re-enter your password"
-                    placeholderTextColor="#9CA3AF"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    secureTextEntry={!showConfirm}
-                    returnKeyType="done"
-                    onSubmitEditing={handleSubmit(onSubmit)}
-                  />
-                  <Pressable onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn}>
-                    <Text style={styles.eyeIcon}>{showConfirm ? '🙈' : '👁️'}</Text>
-                  </Pressable>
-                </View>
-              )}
-            />
-            {errors.confirmPassword && (
-              <Text style={styles.errorText}>⚠️ {errors.confirmPassword.message}</Text>
-            )}
-          </View>
-
-          {/* Sign Up Button */}
-          <Pressable
-            style={({ pressed }) => [styles.signupBtn, pressed && styles.signupBtnPressed]}
-            onPress={handleSubmit(onSubmit)}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.signupBtnText}>Create Account</Text>
-            )}
-          </Pressable>
-
-          {/* Google Button */}
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>OR</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [styles.googleBtn, pressed && styles.googleBtnPressed]}
-            onPress={() => promptAsync()}
-            disabled={!request || loading}
-          >
-            <Text style={styles.googleBtnText}>Continue with Google</Text>
-          </Pressable>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
-            <Link href="/login" asChild>
-              <Pressable>
-                <Text style={styles.footerLink}>Sign In</Text>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>{t('auth.signup.facultyLabel')}</Text>
+              <Pressable onPress={() => setFacultyModalVisible(true)} style={[styles.input, { backgroundColor: '#F1F4F7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                <Text style={{ color: selectedFacultyId ? '#1A1A1A' : '#A0AEC0', fontSize: 13, fontWeight: '600' }}>
+                  {selectedFacultyId ? t(`faculties.${selectedFacultyId}`) : t('auth.signup.facultyPlaceholder')}
+                </Text>
+                <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
               </Pressable>
-            </Link>
+              {!!errors.facultyId && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.facultyId.message}</Text>}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>{t('auth.signup.majorLabel')}</Text>
+              <Pressable onPress={() => { if (selectedFacultyId) setMajorModalVisible(true); }} style={[styles.input, { backgroundColor: '#F1F4F7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', opacity: selectedFacultyId ? 1 : 0.6 }]}>
+                <Text style={{ color: watch('major') ? '#1A1A1A' : '#A0AEC0', fontSize: 13, fontWeight: '600' }}>
+                  {watch('major') || t('auth.signup.majorPlaceholder')}
+                </Text>
+                <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
+              </Pressable>
+              {!!errors.major && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.major.message}</Text>}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>{t('auth.signup.universityIdLabel')}</Text>
+              <Controller control={control} name="universityID" render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.universityIdPlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="numeric" />
+              )} />
+              {!!errors.universityID && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.universityID.message}</Text>}
+            </View>
+
+            <Text style={styles.legalText}>
+              {t('auth.signup.legalText')}
+            </Text>
+
+            <Pressable style={({ pressed }) => [styles.primaryBtn, { backgroundColor: '#001B39' }, pressed && { opacity: 0.9 }]} onPress={handleSubmit(onSignup)} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>{t('auth.signup.signupButton')}</Text>}
+            </Pressable>
+
+            <View style={styles.loginLinkRow}>
+              <Text style={styles.loginLinkText}>{t('auth.signup.alreadyAccount')}</Text>
+              <Link href="/login" asChild>
+                <Pressable><Text style={[styles.loginLinkText, { fontWeight: '800', color: '#001B39' }]}>{t('auth.signup.loginLink')}</Text></Pressable>
+              </Link>
+            </View>
+
+            <View style={styles.universityBranding}>
+              <Ionicons name="school" size={14} color="#8E9BAE" style={{ marginRight: 8 }} />
+              <Text style={styles.universityName}>AN-NAJAH NATIONAL UNIVERSITY</Text>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <Modal visible={facultyModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('auth.signup.facultyLabel')}</Text>
+              <Pressable onPress={() => setFacultyModalVisible(false)}><Ionicons name="close" size={24} color="#1A1A1A" /></Pressable>
+            </View>
+            <FlatList
+              data={FACULTIES}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <Pressable style={styles.modalItem} onPress={() => { setValue('facultyId', item.id); setValue('major', ''); setFacultyModalVisible(false); }}>
+                  <Ionicons name={item.icon as any} size={20} color={item.color} style={{ marginRight: 12 }} />
+                  <Text style={styles.modalItemText}>{t(`faculties.${item.id}`)}</Text>
+                </Pressable>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.divider} />}
+            />
           </View>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal visible={majorModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('auth.signup.majorLabel')}</Text>
+              <Pressable onPress={() => setMajorModalVisible(false)}><Ionicons name="close" size={24} color="#1A1A1A" /></Pressable>
+            </View>
+            <FlatList
+              data={majorOptions}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <Pressable style={styles.modalItem} onPress={() => { setValue('major', item); setMajorModalVisible(false); }}>
+                  <Text style={styles.modalItemText}>{item}</Text>
+                </Pressable>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.divider} />}
+            />
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
-const PURPLE = '#7C3AED';
-const PURPLE_LIGHT = '#EDE9FE';
-const PURPLE_DARK = '#5B21B6';
-
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F5F3FF' },
-  container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 48,
-    backgroundColor: '#F5F3FF',
-  },
-
-  // Header
-  headerContainer: { alignItems: 'center', marginBottom: 32 },
-  logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: PURPLE,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: PURPLE,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 10,
-  },
-  logoIcon: { fontSize: 36 },
-  appName: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: PURPLE_DARK,
-    letterSpacing: -0.5,
-  },
-  subtitle: { fontSize: 15, color: '#6B7280', marginTop: 6, textAlign: 'center' },
-
-  // Card
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    padding: 28,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 6,
-  },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 24,
-  },
-
-  // Fields
-  fieldGroup: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    backgroundColor: '#FAFAFA',
-    paddingHorizontal: 14,
-    height: 52,
-  },
-  inputErrorBorder: { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
-  inputIcon: { fontSize: 16, marginRight: 10 },
-  input: { flex: 1, fontSize: 15, color: '#111827' },
-  eyeBtn: { padding: 4 },
-  eyeIcon: { fontSize: 16 },
-  errorText: { fontSize: 12, color: '#EF4444', marginTop: 6, marginLeft: 4 },
-
-  globalErrorBox: {
-    backgroundColor: '#FEF2F2',
-    borderWidth: 1,
-    borderColor: '#EF4444',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  globalErrorText: {
-    color: '#B91C1C',
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-
-  // Sign Up Button
-  signupBtn: {
-    backgroundColor: PURPLE,
-    borderRadius: 14,
-    height: 52,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-    shadowColor: PURPLE,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  signupBtnPressed: { opacity: 0.85 },
-  signupBtnText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.3 },
-
-  // OR Divider
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E5E7EB',
-  },
-  dividerText: {
-    marginHorizontal: 16,
-    color: '#9CA3AF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-
-  // Google Button
-  googleBtn: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 14,
-    height: 52,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
-    marginBottom: 5,
-  },
-  googleBtnPressed: { opacity: 0.7, backgroundColor: '#FAFAFA' },
-  googleBtnText: { color: '#374151', fontSize: 15, fontWeight: '700' },
-
-  // Footer
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
-  footerText: { fontSize: 14, color: '#6B7280' },
-  footerLink: { fontSize: 14, color: PURPLE, fontWeight: '700' },
+  flex: { flex: 1 },
+  container: { flexGrow: 1, paddingHorizontal: 24, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 40 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 },
+  backBtn: { padding: 8, marginLeft: -8 },
+  headerTitle: { fontSize: 18, fontWeight: '800', letterSpacing: -0.5 },
+  heroSection: { marginBottom: 32 },
+  heroTitle: { fontSize: 28, fontWeight: '800', marginBottom: 12, lineHeight: 34 },
+  heroSubtitle: { fontSize: 14, lineHeight: 20, fontWeight: '500' },
+  formContainer: { width: '100%' },
+  label: { fontSize: 13, fontWeight: '700', color: '#001B39', marginBottom: 8 },
+  inputGroup: { marginBottom: 20 },
+  row: { flexDirection: 'row', width: '100%' },
+  input: { height: 52, borderRadius: Radius.md, paddingHorizontal: 16, borderWidth: 1.5, borderColor: 'transparent', fontSize: 15, fontWeight: '500' },
+  legalText: { fontSize: 12, color: '#6B7280', textAlign: 'center', lineHeight: 18, marginVertical: 24, paddingHorizontal: 10 },
+  legalLink: { fontWeight: '700', color: '#001B39', textDecorationLine: 'underline' },
+  primaryBtn: { height: 56, borderRadius: Radius.pill, justifyContent: 'center', alignItems: 'center' },
+  primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  loginLinkRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
+  loginLinkText: { fontSize: 14, fontWeight: '600', color: '#6B7280' },
+  universityBranding: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 60 },
+  universityName: { fontSize: 11, fontWeight: '800', color: '#8E9BAE', letterSpacing: 1 },
+  fieldError: { fontSize: 12, fontWeight: '600', marginTop: 4, marginLeft: 4 },
+  errorBox: { padding: 12, borderRadius: Radius.md, borderWidth: 1, marginBottom: 20 },
+  errorText: { fontSize: 14, fontWeight: '600', textAlign: 'center' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '80%', paddingBottom: Platform.OS === 'ios' ? 40 : 20 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 24, borderBottomWidth: 1, borderBottomColor: '#F1F3F5' },
+  modalTitle: { fontSize: 18, fontWeight: '800', color: '#1A1A1A' },
+  modalItem: { flexDirection: 'row', alignItems: 'center', padding: 20 },
+  modalItemText: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', flexShrink: 1 },
+  divider: { height: 1, backgroundColor: '#F1F3F5', marginHorizontal: 20 },
 });
