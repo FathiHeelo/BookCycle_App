@@ -15,15 +15,21 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
+import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().email('Please enter a valid university email'),
 });
 
 type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordScreen() {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
+  
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -47,9 +53,7 @@ export default function ForgotPasswordScreen() {
     } catch (error: any) {
       let message = 'Failed to send reset email. Please try again.';
       if (error.code === 'auth/user-not-found') {
-        message = 'No account found with this email address.';
-      } else if (error.code === 'auth/invalid-email') {
-        message = 'Invalid email address.';
+        message = 'No account found with this email.';
       }
       setGlobalError(message);
     } finally {
@@ -59,7 +63,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.flex}
+      style={[styles.flex, { backgroundColor: '#FFFFFF' }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -67,78 +71,84 @@ export default function ForgotPasswordScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerContainer}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoIcon}>🔑</Text>
-          </View>
-          <Text style={styles.appName}>Reset Password</Text>
-          <Text style={styles.subtitle}>
-            Enter the email associated with your account and we'll send a reset link.
+        <View style={styles.brandingContainer}>
+          <Pressable onPress={() => router.back()} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={24} color="#001B39" />
+          </Pressable>
+          <Text style={[styles.appName, { color: '#001B39' }]}>BookCycle</Text>
+        </View>
+
+        <View style={styles.welcomeContainer}>
+          <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>Reset Password</Text>
+          <Text style={[styles.welcomeSubtitle, { color: '#8E9BAE' }]}>
+            Enter your university email and we'll send a reset link.
           </Text>
         </View>
 
-        <View style={styles.card}>
+        <View style={styles.formContainer}>
           {globalError && (
-            <View style={styles.globalErrorBox}>
-              <Text style={styles.globalErrorText}>{globalError}</Text>
+            <View style={[styles.errorBox, { backgroundColor: theme.error + '10', borderColor: theme.error }]}>
+              <Text style={[styles.errorText, { color: theme.error }]}>{globalError}</Text>
             </View>
           )}
 
           {successMsg && (
-            <View style={styles.successBox}>
+            <View style={[styles.successBox, { backgroundColor: '#D1FAE5', borderColor: '#10B981' }]}>
+              <Ionicons name="checkmark-circle" size={48} color="#10B981" style={{ marginBottom: 16 }} />
               <Text style={styles.successText}>{successMsg}</Text>
-              <Link href="/login" asChild>
-                <Pressable style={styles.backToLoginBtnSmall}>
-                  <Text style={styles.backToLoginBtnTextSmall}>Back to Login</Text>
-                </Pressable>
-              </Link>
+              <Pressable
+                style={[styles.primaryBtn, { backgroundColor: '#001B39', width: '100%' }]}
+                onPress={() => router.replace('/login')}
+              >
+                <Text style={styles.primaryBtnText}>Back to Login</Text>
+              </Pressable>
             </View>
           )}
 
           {!successMsg && (
             <>
-              <View style={styles.fieldGroup}>
-                <Text style={styles.label}>Email Address</Text>
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: '#4A4A4A' }]}>University Email</Text>
                 <Controller
                   control={control}
                   name="email"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={[styles.inputWrapper, errors.email && styles.inputErrorBorder]}>
-                      <Text style={styles.inputIcon}>✉️</Text>
+                    <View style={[styles.inputWrapper, { backgroundColor: '#F1F4F7', borderColor: errors.email ? theme.error : 'transparent' }]}>
+                      <Ionicons name="mail" size={18} color="#8E9BAE" style={styles.inputIcon} />
                       <TextInput
-                        style={styles.input}
-                        placeholder="e.g. name@example.com"
-                        placeholderTextColor="#9CA3AF"
+                        style={[styles.input, { color: '#1A1A1A' }]}
+                        placeholder="username@stu.najah.edu"
+                        placeholderTextColor="#A0AEC0"
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        autoComplete="email"
-                        returnKeyType="done"
-                        onSubmitEditing={handleSubmit(onSubmit)}
                       />
                     </View>
                   )}
                 />
-                {errors.email && <Text style={styles.errorText}>⚠️ {errors.email.message}</Text>}
+                {errors.email && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.email.message}</Text>}
               </View>
 
               <Pressable
-                style={({ pressed }) => [styles.resetBtn, pressed && styles.resetBtnPressed]}
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  { backgroundColor: '#001B39' },
+                  pressed && { opacity: 0.9 }
+                ]}
                 onPress={handleSubmit(onSubmit)}
                 disabled={loading}
               >
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.resetBtnText}>Send Reset Link</Text>}
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <View style={styles.btnContent}>
+                    <Text style={styles.primaryBtnText}>Send Reset Link</Text>
+                    <Ionicons name="paper-plane" size={18} color="#fff" style={{ marginLeft: 8 }} />
+                  </View>
+                )}
               </Pressable>
-
-              <View style={styles.footer}>
-                <Link href="/login" asChild>
-                  <Pressable>
-                    <Text style={styles.footerLink}>Back to Login</Text>
-                  </Pressable>
-                </Link>
-              </View>
             </>
           )}
         </View>
@@ -147,67 +157,112 @@ export default function ForgotPasswordScreen() {
   );
 }
 
-const PURPLE = '#7C3AED';
-const PURPLE_DARK = '#5B21B6';
-
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F5F3FF' },
-  container: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 48 },
-  headerContainer: { alignItems: 'center', marginBottom: 32 },
-  logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: PURPLE,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: PURPLE,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 8,
+  flex: { flex: 1 },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Platform.OS === 'ios' ? 80 : 60,
+    paddingBottom: 40,
   },
-  logoIcon: { fontSize: 36 },
-  appName: { fontSize: 32, fontWeight: '800', color: PURPLE_DARK },
-  subtitle: { fontSize: 14, color: '#6B7280', marginTop: 10, textAlign: 'center', lineHeight: 20 },
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 28, elevation: 6 },
-  fieldGroup: { marginBottom: 20 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 },
+  brandingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.xxl,
+  },
+  backBtn: {
+    marginRight: 12,
+  },
+  appName: {
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  welcomeContainer: {
+    marginBottom: Spacing.xl,
+  },
+  welcomeTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+  formContainer: {
+    width: '100%',
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  inputGroup: {
+    marginBottom: Spacing.lg,
+  },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    height: 52,
+    borderRadius: Radius.md,
+    paddingHorizontal: 16,
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    backgroundColor: '#FAFAFA',
-    paddingHorizontal: 14,
-    height: 52,
   },
-  inputErrorBorder: { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
-  inputIcon: { fontSize: 16, marginRight: 10 },
-  input: { flex: 1, fontSize: 15, color: '#111827' },
-  errorText: { fontSize: 12, color: '#EF4444', marginTop: 6, marginLeft: 4 },
-  globalErrorBox: { backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#EF4444', borderRadius: 10, padding: 12, marginBottom: 20 },
-  globalErrorText: { color: '#B91C1C', fontSize: 13, fontWeight: '600', textAlign: 'center' },
-  successBox: { backgroundColor: '#D1FAE5', borderWidth: 1, borderColor: '#10B981', borderRadius: 10, padding: 20, alignItems: 'center' },
-  successText: { color: '#047857', fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: 15 },
-  resetBtn: {
-    backgroundColor: PURPLE,
-    borderRadius: 14,
-    height: 52,
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  fieldError: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  primaryBtn: {
+    height: 56,
+    borderRadius: Radius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: PURPLE,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
+    marginTop: Spacing.sm,
   },
-  resetBtnPressed: { opacity: 0.85 },
-  resetBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  footer: { marginTop: 20, alignItems: 'center' },
-  footerLink: { color: PURPLE, fontWeight: '700', fontSize: 14 },
-  backToLoginBtnSmall: { backgroundColor: '#10B981', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 },
-  backToLoginBtnTextSmall: { color: '#fff', fontWeight: '700' },
+  btnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  primaryBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  successBox: {
+    padding: 24,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  successText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#065F46',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 24,
+  },
+  errorBox: {
+    padding: 12,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: 20,
+  },
+  errorText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });

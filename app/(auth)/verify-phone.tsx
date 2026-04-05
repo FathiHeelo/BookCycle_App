@@ -14,9 +14,14 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH, FIREBASE_DB, firebaseConfig } from '@/firebaseConfig';
+import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function VerifyPhoneScreen() {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
   const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
   
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -71,8 +76,6 @@ export default function VerifyPhoneScreen() {
         message = 'Phone authentication is not enabled in Firebase Console.';
       } else if (err.code === 'auth/invalid-phone-number') {
         message = 'The phone number provided is invalid.';
-      } else if (err.message) {
-        message = `Error: ${err.message}`;
       }
       setGlobalError(message);
     } finally {
@@ -119,47 +122,54 @@ export default function VerifyPhoneScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Recaptcha (Hidden until triggered) */}
+    <KeyboardAvoidingView
+      style={[styles.flex, { backgroundColor: '#FFFFFF' }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <FirebaseRecaptchaVerifierModal
           ref={recaptchaVerifier}
           firebaseConfig={firebaseConfig}
           attemptInvisibleVerification={true}
         />
 
-        <View style={styles.headerContainer}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoIcon}>📱</Text>
-          </View>
-          <Text style={styles.appName}>Secure Account</Text>
-          <Text style={styles.subtitle}>
-            Please link your phone number to secure your account. This is required for resetting your password later.
+        <View style={styles.brandingContainer}>
+          <Text style={[styles.appName, { color: '#001B39' }]}>BookCycle</Text>
+        </View>
+
+        <View style={styles.welcomeContainer}>
+          <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>Secure Account</Text>
+          <Text style={[styles.welcomeSubtitle, { color: '#8E9BAE' }]}>
+            Link your phone to secure your account.
           </Text>
         </View>
 
-        <View style={styles.card}>
+        <View style={styles.formContainer}>
           {globalError && (
-            <View style={styles.globalErrorBox}>
-              <Text style={styles.globalErrorText}>{globalError}</Text>
+            <View style={[styles.errorBox, { backgroundColor: theme.error + '10', borderColor: theme.error }]}>
+              <Text style={[styles.errorText, { color: theme.error }]}>{globalError}</Text>
             </View>
           )}
           {successMsg && (
-            <View style={styles.successBox}>
+            <View style={[styles.successBox, { backgroundColor: '#D1FAE5', borderColor: '#10B981' }]}>
               <Text style={styles.successText}>{successMsg}</Text>
             </View>
           )}
 
           {!verificationId ? (
             <>
-              <View style={styles.fieldGroup}>
-                <Text style={styles.label}>Phone Number</Text>
-                <View style={styles.inputWrapper}>
-                  <Text style={styles.inputIcon}>📞</Text>
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: '#4A4A4A' }]}>Phone Number</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: '#F1F4F7', borderColor: globalError ? theme.error : 'transparent' }]}>
+                  <Ionicons name="call" size={18} color="#8E9BAE" style={styles.inputIcon} />
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { color: '#1A1A1A' }]}
                     placeholder="+970xxxxxxxxx"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor="#A0AEC0"
                     keyboardType="phone-pad"
                     value={phoneNumber}
                     onChangeText={setPhoneNumber}
@@ -167,20 +177,28 @@ export default function VerifyPhoneScreen() {
                 </View>
               </View>
 
-              <Pressable style={({ pressed }) => [styles.actionBtn, pressed && styles.actionBtnPressed]} onPress={sendVerification} disabled={loading}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.actionBtnText}>Send SMS Code</Text>}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  { backgroundColor: '#001B39' },
+                  pressed && { opacity: 0.9 }
+                ]}
+                onPress={sendVerification}
+                disabled={loading}
+              >
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>Send SMS Code</Text>}
               </Pressable>
             </>
           ) : (
             <>
-              <View style={styles.fieldGroup}>
-                <Text style={styles.label}>SMS Verification Code</Text>
-                <View style={styles.inputWrapper}>
-                  <Text style={styles.inputIcon}>💬</Text>
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: '#4A4A4A' }]}>SMS Verification Code</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: '#F1F4F7', borderColor: globalError ? theme.error : 'transparent' }]}>
+                  <Ionicons name="chatbubble" size={18} color="#8E9BAE" style={styles.inputIcon} />
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { color: '#1A1A1A' }]}
                     placeholder="123456"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor="#A0AEC0"
                     keyboardType="number-pad"
                     value={verificationCode}
                     onChangeText={setVerificationCode}
@@ -189,18 +207,26 @@ export default function VerifyPhoneScreen() {
                 </View>
               </View>
 
-              <Pressable style={({ pressed }) => [styles.actionBtn, pressed && styles.actionBtnPressed]} onPress={confirmCode} disabled={loading}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.actionBtnText}>Verify & Link Account</Text>}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  { backgroundColor: '#001B39' },
+                  pressed && { opacity: 0.9 }
+                ]}
+                onPress={confirmCode}
+                disabled={loading}
+              >
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>Verify & Link Account</Text>}
               </Pressable>
 
-              <Pressable onPress={() => setVerificationId('')} style={styles.resendWrapper}>
-                <Text style={styles.resendText}>Change phone number</Text>
+              <Pressable onPress={() => setVerificationId('')} style={styles.secondaryAction}>
+                <Text style={[styles.secondaryActionText, { color: '#001B39' }]}>Change phone number</Text>
               </Pressable>
             </>
           )}
 
-          <Pressable onPress={handleSignOut} style={styles.logoutWrapper}>
-            <Text style={styles.logoutText}>Cancel & Sign Out</Text>
+          <Pressable onPress={handleSignOut} style={styles.logoutBtn}>
+            <Text style={styles.logoutBtnText}>Cancel & Sign Out</Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -208,60 +234,115 @@ export default function VerifyPhoneScreen() {
   );
 }
 
-const PURPLE = '#7C3AED';
-
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F5F3FF' },
-  container: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 48 },
-  headerContainer: { alignItems: 'center', marginBottom: 32 },
-  logoCircle: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: PURPLE,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: PURPLE,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
+  flex: { flex: 1 },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Platform.OS === 'ios' ? 80 : 60,
+    paddingBottom: 40,
   },
-  logoIcon: { fontSize: 30 },
-  appName: { fontSize: 28, fontWeight: '800', color: '#5B21B6' },
-  subtitle: { fontSize: 14, color: '#6B7280', marginTop: 10, textAlign: 'center', lineHeight: 20 },
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 28, elevation: 6 },
-  fieldGroup: { marginBottom: 18 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 },
+  brandingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.xxl,
+  },
+  appName: {
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  welcomeContainer: {
+    marginBottom: Spacing.xl,
+  },
+  welcomeTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+  formContainer: {
+    width: '100%',
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  inputGroup: {
+    marginBottom: Spacing.lg,
+  },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    height: 52,
+    borderRadius: Radius.md,
+    paddingHorizontal: 16,
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    backgroundColor: '#FAFAFA',
-    paddingHorizontal: 14,
-    height: 52,
   },
-  inputIcon: { fontSize: 16, marginRight: 10 },
-  input: { flex: 1, fontSize: 15, color: '#111827' },
-  actionBtn: {
-    backgroundColor: PURPLE,
-    borderRadius: 14,
-    height: 52,
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  primaryBtn: {
+    height: 56,
+    borderRadius: Radius.md,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
-    elevation: 6,
+    marginTop: Spacing.sm,
   },
-  actionBtnPressed: { opacity: 0.85 },
-  actionBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  resendWrapper: { marginTop: 20, alignItems: 'center' },
-  resendText: { color: PURPLE, fontSize: 14, fontWeight: '600' },
-  logoutWrapper: { marginTop: 20, alignItems: 'center' },
-  logoutText: { color: '#EF4444', fontSize: 14, fontWeight: '600' },
-  globalErrorBox: { backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#EF4444', borderRadius: 10, padding: 12, marginBottom: 20 },
-  globalErrorText: { color: '#B91C1C', fontSize: 13, fontWeight: '600', textAlign: 'center' },
-  successBox: { backgroundColor: '#D1FAE5', borderWidth: 1, borderColor: '#10B981', borderRadius: 10, padding: 12, marginBottom: 20 },
-  successText: { color: '#047857', fontSize: 13, fontWeight: '600', textAlign: 'center' },
+  primaryBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  secondaryAction: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  secondaryActionText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  logoutBtn: {
+    marginTop: 40,
+    alignItems: 'center',
+    padding: 10,
+  },
+  logoutBtnText: {
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  errorBox: {
+    padding: 12,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: 20,
+  },
+  errorText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  successBox: {
+    padding: 12,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    marginBottom: 20,
+  },
+  successText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    color: '#065F46',
+  },
 });

@@ -1,112 +1,161 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
+import React from 'react';
+import { StyleSheet, View, ScrollView, Platform, StatusBar } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <View style={[styles.flex, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Header Section */}
+      <View style={[styles.header, { backgroundColor: theme.primary }]}>
+        <ThemedText style={styles.headerTitle}>Explore Books</ThemedText>
+        <ThemedText style={styles.headerSubtitle}>Discover hidden gems in your campus community</ThemedText>
+      </View>
+
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Search Placeholder */}
+        <View style={[styles.searchBar, { backgroundColor: '#F1F3F5' }]}>
+          <Ionicons name="search-outline" size={20} color={theme.textSecondary} />
+          <ThemedText style={[styles.searchText, { color: theme.textSecondary }]}>Search by title, author, or ISBN...</ThemedText>
+        </View>
+
+        {/* Categories Section */}
+        <View style={styles.section}>
+          <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>Categories</ThemedText>
+          <View style={styles.categoryGrid}>
+            <View style={[styles.categoryCard, { backgroundColor: '#fff' }]}>
+              <Ionicons name="calculator-outline" size={24} color={theme.primary} />
+              <ThemedText style={styles.categoryLabel}>Engineering</ThemedText>
+            </View>
+            <View style={[styles.categoryCard, { backgroundColor: '#fff' }]}>
+              <Ionicons name="medkit-outline" size={24} color="#10B981" />
+              <ThemedText style={styles.categoryLabel}>Medicine</ThemedText>
+            </View>
+            <View style={[styles.categoryCard, { backgroundColor: '#fff' }]}>
+              <Ionicons name="brush-outline" size={24} color="#F59E0B" />
+              <ThemedText style={styles.categoryLabel}>Arts</ThemedText>
+            </View>
+            <View style={[styles.categoryCard, { backgroundColor: '#fff' }]}>
+              <Ionicons name="business-outline" size={24} color="#6366F1" />
+              <ThemedText style={styles.categoryLabel}>Business</ThemedText>
+            </View>
+          </View>
+        </View>
+
+        {/* Featured Section */}
+        <View style={styles.section}>
+          <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>Recently Added</ThemedText>
+          <View style={[styles.emptyState, { backgroundColor: '#fff' }]}>
+            <Ionicons name="book-outline" size={48} color={theme.textSecondary + '40'} />
+            <ThemedText style={[styles.emptyStateText, { color: theme.textSecondary }]}>No books found in your area yet.</ThemedText>
+            <ThemedText style={[styles.emptyStateSubtext, { color: theme.textSecondary }]}>Be the first to gift a book!</ThemedText>
+          </View>
+        </View>
+
+        <View style={styles.footerSpace} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  flex: { flex: 1 },
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 30,
+    paddingHorizontal: Spacing.lg,
+    borderBottomLeftRadius: Radius.xl,
+    borderBottomRightRadius: Radius.xl,
   },
-  titleContainer: {
+  headerTitle: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  scrollContent: {
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.xl,
+  },
+  searchBar: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    height: 56,
+    borderRadius: Radius.md,
+    paddingHorizontal: 16,
+    marginBottom: Spacing.xl,
+  },
+  searchText: {
+    marginLeft: 12,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  section: {
+    marginBottom: Spacing.xxl,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 16,
+  },
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  categoryCard: {
+    width: '48%',
+    padding: 20,
+    borderRadius: Radius.lg,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+  },
+  categoryLabel: {
+    marginTop: 10,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  emptyState: {
+    padding: 40,
+    borderRadius: Radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#F1F3F5',
+  },
+  emptyStateText: {
+    marginTop: 16,
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  emptyStateSubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  footerSpace: {
+    height: 40,
   },
 });
