@@ -19,17 +19,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid university email'),
-});
-
-type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
+import { useI18n } from '@/hooks/use-i18n';
 
 export default function ForgotPasswordScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
+  const { t } = useI18n();
   
+  const forgotPasswordSchema = z.object({
+    email: z.string()
+      .min(1, t('auth.errors.emailRequired'))
+      .email(t('auth.errors.invalidEmail'))
+      .endsWith('@stu.najah.edu', t('auth.errors.useUniversityEmail')),
+  });
+
+  type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
+
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -49,11 +54,11 @@ export default function ForgotPasswordScreen() {
     setSuccessMsg(null);
     try {
       await sendPasswordResetEmail(FIREBASE_AUTH, data.email.trim().toLowerCase());
-      setSuccessMsg('A password reset link has been sent to your email.');
+      setSuccessMsg(t('auth.success.resetLinkSent'));
     } catch (error: any) {
-      let message = 'Failed to send reset email. Please try again.';
+      let message = t('auth.errors.failedToUpdatePassword'); // Or a generic error
       if (error.code === 'auth/user-not-found') {
-        message = 'No account found with this email.';
+        message = t('auth.errors.userNotFound');
       }
       setGlobalError(message);
     } finally {
@@ -79,9 +84,9 @@ export default function ForgotPasswordScreen() {
         </View>
 
         <View style={styles.welcomeContainer}>
-          <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>Reset Password</Text>
+          <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>{t('auth.forgotPassword.title')}</Text>
           <Text style={[styles.welcomeSubtitle, { color: '#8E9BAE' }]}>
-            Enter your university email and we'll send a reset link.
+            {t('auth.forgotPassword.subtitle')}
           </Text>
         </View>
 
@@ -100,7 +105,7 @@ export default function ForgotPasswordScreen() {
                 style={[styles.primaryBtn, { backgroundColor: '#001B39', width: '100%' }]}
                 onPress={() => router.replace('/login')}
               >
-                <Text style={styles.primaryBtnText}>Back to Login</Text>
+                <Text style={styles.primaryBtnText}>{t('auth.forgotPassword.backToLogin')}</Text>
               </Pressable>
             </View>
           )}
@@ -108,7 +113,7 @@ export default function ForgotPasswordScreen() {
           {!successMsg && (
             <>
               <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: '#4A4A4A' }]}>University Email</Text>
+                <Text style={[styles.label, { color: '#4A4A4A' }]}>{t('auth.forgotPassword.emailLabel')}</Text>
                 <Controller
                   control={control}
                   name="email"
@@ -117,7 +122,7 @@ export default function ForgotPasswordScreen() {
                       <Ionicons name="mail" size={18} color="#8E9BAE" style={styles.inputIcon} />
                       <TextInput
                         style={[styles.input, { color: '#1A1A1A' }]}
-                        placeholder="username@stu.najah.edu"
+                        placeholder={t('auth.forgotPassword.emailPlaceholder')}
                         placeholderTextColor="#A0AEC0"
                         onBlur={onBlur}
                         onChangeText={onChange}
@@ -144,7 +149,7 @@ export default function ForgotPasswordScreen() {
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <View style={styles.btnContent}>
-                    <Text style={styles.primaryBtnText}>Send Reset Link</Text>
+                    <Text style={styles.primaryBtnText}>{t('auth.forgotPassword.sendButton')}</Text>
                     <Ionicons name="paper-plane" size={18} color="#fff" style={{ marginLeft: 8 }} />
                   </View>
                 )}

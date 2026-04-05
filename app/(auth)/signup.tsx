@@ -22,61 +22,53 @@ import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/firebaseConfig';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useI18n } from '@/hooks/use-i18n';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 const FACULTIES = [
-  { id: 'med', name: 'كلية الطب البشري والعلوم الطبية المساندة', icon: 'medical', color: '#EF4444' },
-  { id: 'eng', name: 'كلية الهندسة', icon: 'construct', color: '#F59E0B' },
-  { id: 'bus', name: 'كلية الأعمال والاتصال', icon: 'business', color: '#3B82F6' },
-  { id: 'grad', name: 'كلية الدراسات العليا', icon: 'school', color: '#8B5CF6' },
-  { id: 'hon', name: 'كلية الشرف', icon: 'star', color: '#FACC15' },
-  { id: 'sha', name: 'كلية الشريعة', icon: 'library', color: '#10B981' },
-  { id: 'vet', name: 'كلية الطب البيطري والهندسة الزراعية', icon: 'leaf', color: '#059669' },
-  { id: 'sci', name: 'كلية العلوم', icon: 'flask', color: '#6366F1' },
-  { id: 'hum', name: 'كلية العلوم الإنسانية والتربوية', icon: 'people', color: '#EC4899' },
-  { id: 'art', name: 'كلية الفنون الجميلة', icon: 'brush', color: '#F43F5E' },
-  { id: 'law', name: 'كلية القانون والعلوم السياسية', icon: 'book', color: '#475569' },
-  { id: 'it', name: 'كلية تكنولوجيا المعلومات والذكاء الاصطناعي', icon: 'hardware-chip', color: '#06B6D4' },
-  { id: 'den', name: 'كلية طب وجراحة الفم والأسنان', icon: 'medical', color: '#2DD4BF' },
-  { id: 'pha', name: 'كلية الصيدلة', icon: 'flask', color: '#84CC16' },
-  { id: 'nur', name: 'كلية التمريض', icon: 'medkit', color: '#0EA5E9' },
+  { id: 'med', icon: 'medical', color: '#EF4444' },
+  { id: 'eng', icon: 'construct', color: '#F59E0B' },
+  { id: 'bus', icon: 'business', color: '#3B82F6' },
+  { id: 'grad', icon: 'school', color: '#8B5CF6' },
+  { id: 'hon', icon: 'star', color: '#FACC15' },
+  { id: 'sha', icon: 'library', color: '#10B981' },
+  { id: 'vet', icon: 'leaf', color: '#059669' },
+  { id: 'sci', icon: 'flask', color: '#6366F1' },
+  { id: 'hum', icon: 'people', color: '#EC4899' },
+  { id: 'art', icon: 'brush', color: '#F43F5E' },
+  { id: 'law', icon: 'book', color: '#475569' },
+  { id: 'it', icon: 'hardware-chip', color: '#06B6D4' },
+  { id: 'den', icon: 'medical', color: '#2DD4BF' },
+  { id: 'pha', icon: 'flask', color: '#84CC16' },
+  { id: 'nur', icon: 'medkit', color: '#0EA5E9' },
 ];
-
-const MAJORS: Record<string, string[]> = {
-  med: ['Medicine', 'Medical Analysis', 'Physiotherapy'],
-  eng: ['Civil Engineering', 'Mechanical Engineering', 'Mechatronics', 'Electrical Engineering'],
-  it: ['Computer Science', 'Software Engineering', 'Artificial Intelligence', 'Cyber Security'],
-  bus: ['Accounting', 'Business Administration', 'Marketing', 'Finance'],
-  sci: ['Biology', 'Chemistry', 'Physics', 'Mathematics'],
-  hum: ['Arabic Language', 'English Language', 'History', 'Psychology'],
-  law: ['Public Law', 'Private Law', 'Political Science'],
-  art: ['Music', 'Painting', 'Interior Design'],
-  pha: ['Pharmacy', 'Clinical Pharmacy'],
-  den: ['Dentistry'],
-  nur: ['Nursing'],
-  vet: ['Veterinary Medicine', 'Agribusiness'],
-  sha: ['Sharia', 'Islamic Studies'],
-  hon: ['Honors Program'],
-  grad: ['MBA', 'MSc IT', 'MA Languages'],
-};
-
-const signupSchema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid university email').endsWith('@stu.najah.edu', 'Use your university email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string(),
-  faculty: z.string().min(1, 'Please select your faculty'),
-  major: z.string().min(1, 'Please select your major'),
-  universityID: z.string().min(8, 'Enter a valid University ID').max(10, 'Enter a valid University ID'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-type SignupData = z.infer<typeof signupSchema>;
 
 export default function SignupScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
+  const { t } = useI18n();
+
+  const signupSchema = z.object({
+    fullName: z.string().min(2, t('auth.errors.fullNameMinLength')),
+    email: z.string()
+      .min(1, t('auth.errors.emailRequired'))
+      .email(t('auth.errors.invalidEmail'))
+      .endsWith('@stu.najah.edu', t('auth.errors.useUniversityEmail')),
+    password: z.string()
+      .min(1, t('auth.errors.passwordRequired'))
+      .min(6, t('auth.errors.passwordMinLength')),
+    confirmPassword: z.string(),
+    facultyId: z.string().min(1, t('auth.errors.selectFaculty')),
+    major: z.string().min(1, t('auth.errors.selectMajor')),
+    universityID: z.string()
+      .min(8, t('auth.errors.universityIdLength'))
+      .max(10, t('auth.errors.universityIdLength')),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('auth.errors.passwordsDoNotMatch'),
+    path: ["confirmPassword"],
+  });
+
+  type SignupData = z.infer<typeof signupSchema>;
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [facultyModalVisible, setFacultyModalVisible] = useState(false);
@@ -92,13 +84,12 @@ export default function SignupScreen() {
     resolver: zodResolver(signupSchema),
     defaultValues: { 
       fullName: '', email: '', password: '', confirmPassword: '',
-      faculty: '', major: '', universityID: '',
+      facultyId: '', major: '', universityID: '',
     },
   });
 
-  const selectedFacultyName = watch('faculty');
-  const selectedFacultyId = FACULTIES.find(f => f.name === selectedFacultyName)?.id;
-  const majorOptions = selectedFacultyId ? MAJORS[selectedFacultyId] : [];
+  const selectedFacultyId = watch('facultyId');
+  const majorOptions = selectedFacultyId ? t(`majors.${selectedFacultyId}`, { returnObjects: true }) as string[] : [];
 
   const onSignup = async (data: SignupData) => {
     setLoading(true);
@@ -107,19 +98,23 @@ export default function SignupScreen() {
       const userCredential = await createUserWithEmailAndPassword(FIREBASE_AUTH, data.email.trim().toLowerCase(), data.password);
       const user = userCredential.user;
       await updateProfile(user, { displayName: data.fullName });
+      
+      const facultyNameEn = t(`faculties.${data.facultyId}`, { lng: 'en' });
+      
       await set(ref(FIREBASE_DB, `users/${user.uid}`), {
         uid: user.uid,
         fullName: data.fullName,
         email: data.email.trim().toLowerCase(),
-        faculty: data.faculty,
+        facultyId: data.facultyId,
+        facultyName: facultyNameEn, // Store EN name for consistent DB records
         major: data.major,
         universityID: data.universityID,
         createdAt: new Date().toISOString(),
       });
       router.replace('/verify-phone');
     } catch (error: any) {
-      let message = 'Failed to create account.';
-      if (error.code === 'auth/email-already-in-use') message = 'Email already in use.';
+      let message = t('auth.errors.failedToSignup');
+      if (error.code === 'auth/email-already-in-use') message = t('auth.errors.emailAlreadyInUse');
       setGlobalError(message);
     } finally {
       setLoading(false);
@@ -135,13 +130,13 @@ export default function SignupScreen() {
               <Ionicons name="arrow-back" size={24} color="#001B39" />
             </Pressable>
             <Text style={[styles.headerTitle, { color: '#001B39' }]}>BookCycle</Text>
-            <View style={{ width: 24 }} />
+            <LanguageToggle />
           </View>
 
           <View style={styles.heroSection}>
-            <Text style={[styles.heroTitle, { color: '#001B39' }]}>Join the Circle of{"\n"}Knowledge</Text>
+            <Text style={[styles.heroTitle, { color: '#001B39' }]}>{t('auth.signup.title')}</Text>
             <Text style={[styles.heroSubtitle, { color: '#6B7280' }]}>
-              Create your academic profile to start gifting and requesting textbooks within the Najah community.
+              {t('auth.signup.subtitle')}
             </Text>
           </View>
 
@@ -153,74 +148,78 @@ export default function SignupScreen() {
             )}
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={styles.label}>{t('auth.signup.fullNameLabel')}</Text>
               <Controller control={control} name="fullName" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder="Enter your full name" placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} />
+                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.fullNamePlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} />
               )} />
               {!!errors.fullName && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.fullName.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Student Email</Text>
+              <Text style={styles.label}>{t('auth.signup.emailLabel')}</Text>
               <Controller control={control} name="email" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder="username@stu.najah.edu" placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="email-address" />
+                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.emailPlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="email-address" />
               )} />
               {!!errors.email && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.email.message}</Text>}
             </View>
 
             <View style={styles.row}>
               <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-                <Text style={styles.label}>Password</Text>
+                <Text style={styles.label}>{t('auth.signup.passwordLabel')}</Text>
                 <Controller control={control} name="password" render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder="••••••••" placeholderTextColor="#A0AEC0" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
+                  <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.passwordPlaceholder')} placeholderTextColor="#A0AEC0" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
                 )} />
               </View>
               <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-                <Text style={styles.label}>Confirm</Text>
+                <Text style={styles.label}>{t('auth.signup.confirmPasswordLabel')}</Text>
                 <Controller control={control} name="confirmPassword" render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder="••••••••" placeholderTextColor="#A0AEC0" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
+                  <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.passwordPlaceholder')} placeholderTextColor="#A0AEC0" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
                 )} />
               </View>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Faculty</Text>
+              <Text style={styles.label}>{t('auth.signup.facultyLabel')}</Text>
               <Pressable onPress={() => setFacultyModalVisible(true)} style={[styles.input, { backgroundColor: '#F1F4F7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-                <Text style={{ color: selectedFacultyName ? '#1A1A1A' : '#A0AEC0', fontSize: 13, fontWeight: '600' }}>{selectedFacultyName || 'Select your faculty'}</Text>
+                <Text style={{ color: selectedFacultyId ? '#1A1A1A' : '#A0AEC0', fontSize: 13, fontWeight: '600' }}>
+                  {selectedFacultyId ? t(`faculties.${selectedFacultyId}`) : t('auth.signup.facultyPlaceholder')}
+                </Text>
                 <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
               </Pressable>
-              {!!errors.faculty && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.faculty.message}</Text>}
+              {!!errors.facultyId && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.facultyId.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Major</Text>
-              <Pressable onPress={() => { if (selectedFacultyName) setMajorModalVisible(true); }} style={[styles.input, { backgroundColor: '#F1F4F7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', opacity: selectedFacultyName ? 1 : 0.6 }]}>
-                <Text style={{ color: watch('major') ? '#1A1A1A' : '#A0AEC0', fontSize: 13, fontWeight: '600' }}>{watch('major') || 'Select your major'}</Text>
+              <Text style={styles.label}>{t('auth.signup.majorLabel')}</Text>
+              <Pressable onPress={() => { if (selectedFacultyId) setMajorModalVisible(true); }} style={[styles.input, { backgroundColor: '#F1F4F7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', opacity: selectedFacultyId ? 1 : 0.6 }]}>
+                <Text style={{ color: watch('major') ? '#1A1A1A' : '#A0AEC0', fontSize: 13, fontWeight: '600' }}>
+                  {watch('major') || t('auth.signup.majorPlaceholder')}
+                </Text>
                 <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
               </Pressable>
               {!!errors.major && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.major.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>University ID</Text>
+              <Text style={styles.label}>{t('auth.signup.universityIdLabel')}</Text>
               <Controller control={control} name="universityID" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder="e.g. 11920345" placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="numeric" />
+                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7' }]} placeholder={t('auth.signup.universityIdPlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="numeric" />
               )} />
               {!!errors.universityID && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.universityID.message}</Text>}
             </View>
 
             <Text style={styles.legalText}>
-              By clicking Sign Up, you agree to our <Text style={styles.legalLink}>Terms of Use</Text> and <Text style={styles.legalLink}>Privacy Policy</Text> regarding academic data.
+              {t('auth.signup.legalText')}
             </Text>
 
             <Pressable style={({ pressed }) => [styles.primaryBtn, { backgroundColor: '#001B39' }, pressed && { opacity: 0.9 }]} onPress={handleSubmit(onSignup)} disabled={loading}>
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>Sign Up</Text>}
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>{t('auth.signup.signupButton')}</Text>}
             </Pressable>
 
             <View style={styles.loginLinkRow}>
-              <Text style={styles.loginLinkText}>Already have an account? </Text>
+              <Text style={styles.loginLinkText}>{t('auth.signup.alreadyAccount')}</Text>
               <Link href="/login" asChild>
-                <Pressable><Text style={[styles.loginLinkText, { fontWeight: '800', color: '#001B39' }]}>Log In</Text></Pressable>
+                <Pressable><Text style={[styles.loginLinkText, { fontWeight: '800', color: '#001B39' }]}>{t('auth.signup.loginLink')}</Text></Pressable>
               </Link>
             </View>
 
@@ -236,16 +235,16 @@ export default function SignupScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Choose Faculty</Text>
+              <Text style={styles.modalTitle}>{t('auth.signup.facultyLabel')}</Text>
               <Pressable onPress={() => setFacultyModalVisible(false)}><Ionicons name="close" size={24} color="#1A1A1A" /></Pressable>
             </View>
             <FlatList
               data={FACULTIES}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <Pressable style={styles.modalItem} onPress={() => { setValue('faculty', item.name); setValue('major', ''); setFacultyModalVisible(false); }}>
+                <Pressable style={styles.modalItem} onPress={() => { setValue('facultyId', item.id); setValue('major', ''); setFacultyModalVisible(false); }}>
                   <Ionicons name={item.icon as any} size={20} color={item.color} style={{ marginRight: 12 }} />
-                  <Text style={styles.modalItemText}>{item.name}</Text>
+                  <Text style={styles.modalItemText}>{t(`faculties.${item.id}`)}</Text>
                 </Pressable>
               )}
               ItemSeparatorComponent={() => <View style={styles.divider} />}
@@ -258,7 +257,7 @@ export default function SignupScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Choose Major</Text>
+              <Text style={styles.modalTitle}>{t('auth.signup.majorLabel')}</Text>
               <Pressable onPress={() => setMajorModalVisible(false)}><Ionicons name="close" size={24} color="#1A1A1A" /></Pressable>
             </View>
             <FlatList

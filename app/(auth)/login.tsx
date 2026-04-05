@@ -19,17 +19,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-
-const loginSchema = z.object({
-  email: z.string().email('Please enter a valid university email').endsWith('@stu.najah.edu', 'Use your university email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-type LoginData = z.infer<typeof loginSchema>;
+import { useI18n } from '@/hooks/use-i18n';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 export default function LoginScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
+  const { t } = useI18n();
+
+  const loginSchema = z.object({
+    email: z.string()
+      .min(1, t('auth.errors.emailRequired'))
+      .email(t('auth.errors.invalidEmail'))
+      .endsWith('@stu.najah.edu', t('auth.errors.useUniversityEmail')),
+    password: z.string()
+      .min(1, t('auth.errors.passwordRequired'))
+      .min(6, t('auth.errors.passwordMinLength')),
+  });
+
+  type LoginData = z.infer<typeof loginSchema>;
   
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
@@ -51,13 +59,13 @@ export default function LoginScreen() {
       await signInWithEmailAndPassword(FIREBASE_AUTH, data.email.trim().toLowerCase(), data.password);
       router.replace('/');
     } catch (error: any) {
-      let message = 'Invalid email or password. Please try again.';
+      let message = t('auth.errors.failedToSignIn');
       if (error.code === 'auth/user-not-found') {
-        message = 'No account found with this email.';
+        message = t('auth.errors.userNotFound');
       } else if (error.code === 'auth/wrong-password') {
-        message = 'Incorrect password.';
+        message = t('auth.errors.wrongPassword');
       } else if (error.code === 'auth/too-many-requests') {
-        message = 'Too many failed attempts. Try again later.';
+        message = t('auth.errors.tooManyRequests');
       }
       setGlobalError(message);
     } finally {
@@ -81,9 +89,9 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.welcomeContainer}>
-          <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>Welcome Back</Text>
+          <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>{t('auth.login.title')}</Text>
           <Text style={[styles.welcomeSubtitle, { color: '#8E9BAE' }]}>
-            Please enter your university credentials to continue.
+            {t('auth.login.subtitle')}
           </Text>
         </View>
 
@@ -96,16 +104,16 @@ export default function LoginScreen() {
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: '#4A4A4A' }]}>University Email</Text>
+            <Text style={[styles.label, { color: '#4A4A4A' }]}>{t('auth.login.emailLabel')}</Text>
             <Controller
               control={control}
               name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, onBlur, value } }: any) => (
                 <View style={[styles.inputWrapper, { backgroundColor: '#F1F4F7', borderColor: errors.email ? theme.error : 'transparent' }]}>
                   <Ionicons name="mail" size={18} color="#8E9BAE" style={styles.inputIcon} />
                   <TextInput
                     style={[styles.input, { color: '#1A1A1A' }]}
-                    placeholder="username@stu.najah.edu"
+                    placeholder={t('auth.login.emailPlaceholder')}
                     placeholderTextColor="#A0AEC0"
                     onBlur={onBlur}
                     onChangeText={onChange}
@@ -122,22 +130,22 @@ export default function LoginScreen() {
           {/* Password */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
-              <Text style={[styles.label, { color: '#4A4A4A' }]}>Password</Text>
+              <Text style={[styles.label, { color: '#4A4A4A' }]}>{t('auth.login.passwordLabel')}</Text>
               <Link href="/forgot-password" asChild>
                 <Pressable>
-                  <Text style={[styles.forgotText, { color: '#001B39' }]}>Forgot?</Text>
+                  <Text style={[styles.forgotText, { color: '#001B39' }]}>{t('auth.login.forgotPassword')}</Text>
                 </Pressable>
               </Link>
             </View>
             <Controller
               control={control}
               name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, onBlur, value } }: any) => (
                 <View style={[styles.inputWrapper, { backgroundColor: '#F1F4F7', borderColor: errors.password ? theme.error : 'transparent' }]}>
                   <Ionicons name="lock-closed" size={18} color="#8E9BAE" style={styles.inputIcon} />
                   <TextInput
                     style={[styles.input, { color: '#1A1A1A' }]}
-                    placeholder="••••••••"
+                    placeholder={t('auth.login.passwordPlaceholder')}
                     placeholderTextColor="#A0AEC0"
                     secureTextEntry={!showPassword}
                     onBlur={onBlur}
@@ -167,7 +175,7 @@ export default function LoginScreen() {
               <ActivityIndicator color="#fff" />
             ) : (
               <View style={styles.btnContent}>
-                <Text style={styles.primaryBtnText}>Login</Text>
+                <Text style={styles.primaryBtnText}>{t('auth.login.loginButton')}</Text>
                 <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />
               </View>
             )}
@@ -176,26 +184,26 @@ export default function LoginScreen() {
           {/* OR Divider */}
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
-            <Text style={[styles.dividerText, { color: '#A0AEC0' }]}>OR</Text>
+            <Text style={[styles.dividerText, { color: '#A0AEC0' }]}>{t('common.or')}</Text>
             <View style={styles.dividerLine} />
           </View>
 
           {/* Sign Up Button */}
-            <Pressable
+          <Pressable
             style={({ pressed }) => [
               styles.primaryBtn,
-              { backgroundColor: '#9d9d9dff' },
+              { backgroundColor: '#F1F4F7' },
               pressed && { opacity: 0.9 }
             ]}
             onPress={() => router.push('/(auth)/signup')}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color="#001B39" />
             ) : (
               <View style={styles.btnContent}>
-                <Text style={styles.primaryBtnText}>Sign Up</Text>
-                <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />
+                <Text style={[styles.primaryBtnText, { color: '#001B39' }]}>{t('auth.login.signupButton')}</Text>
+                <Ionicons name="arrow-forward-outline" size={18} color="#001B39" style={{ marginLeft: 8 }} />
               </View>
             )}
           </Pressable>
@@ -203,17 +211,14 @@ export default function LoginScreen() {
           {/* Footer Info */}
           <View style={styles.footer}>
             <Text style={[styles.footerText, { color: '#8E9BAE' }]}>
-              Join your campus community and start gifting.
-            </Text>
-            <Text style={[styles.footerTextArabic, { color: '#8E9BAE' }]}>
-              انضم إلى مجتمعك الجامعي وابدأ في الإهداء والتبادل.
+              {t('auth.login.footer')}
             </Text>
           </View>
 
           {/* Utility Icons */}
           <View style={styles.utilityIcons}>
             <Ionicons name="help-circle" size={24} color="#8E9BAE" />
-            <Ionicons name="globe-outline" size={24} color="#8E9BAE" />
+            <LanguageToggle />
           </View>
         </View>
       </ScrollView>
@@ -222,7 +227,6 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-
   flex: { flex: 1 },
   container: {
     flexGrow: 1,
@@ -285,21 +289,10 @@ const styles = StyleSheet.create({
   inputIcon: {
     marginRight: 10,
   },
-  signupBtn: {
-   backgroundColor: '#acadaeff',
-   color: '#001B39',
-  
-  },
   input: {
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-  },
-  helpText: {
-    fontSize: 11,
-    fontStyle: 'italic',
-    marginTop: 6,
-    marginLeft: 4,
   },
   fieldError: {
     fontSize: 12,
@@ -338,16 +331,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
   },
-  secondaryBtn: {
-    height: 56,
-    borderRadius: Radius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  secondaryBtnText: {
-    fontSize: 16,
-    fontWeight: '800',
-  },
   footer: {
     marginTop: 40,
     alignItems: 'center',
@@ -357,11 +340,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     marginBottom: 8,
-  },
-  footerTextArabic: {
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'center',
   },
   utilityIcons: {
     flexDirection: 'row',

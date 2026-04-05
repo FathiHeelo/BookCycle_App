@@ -10,14 +10,16 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useColorScheme,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useI18n } from '@/hooks/use-i18n';
 
 export default function ChangePasswordScreen() {
+  const { t } = useI18n();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
   
@@ -37,16 +39,16 @@ export default function ChangePasswordScreen() {
 
     const user = FIREBASE_AUTH.currentUser;
     if (!user || (!user.email)) {
-      setGlobalError('You must be logged in to change your password.');
+      setGlobalError(t('auth.errors.userNotFound'));
       return;
     }
 
     if (!currentPassword) {
-      setGlobalError('Please enter your current password.');
+      setGlobalError(t('auth.errors.currentPasswordRequired'));
       return;
     }
     if (newPassword.length < 6) {
-      setGlobalError('New password must be at least 6 characters long.');
+      setGlobalError(t('auth.errors.newPasswordTooWeak'));
       return;
     }
 
@@ -56,7 +58,7 @@ export default function ChangePasswordScreen() {
       await reauthenticateWithCredential(user, credential);
       await updatePassword(user, newPassword);
 
-      setSuccessMsg('Password changed successfully!');
+      setSuccessMsg(t('auth.success.passwordChanged'));
       setCurrentPassword('');
       setNewPassword('');
 
@@ -65,13 +67,13 @@ export default function ChangePasswordScreen() {
       }, 2000);
       
     } catch (error: any) {
-      let message = 'Something went wrong. Please try again.';
+      let message = t('auth.errors.failedToUpdatePassword');
       if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        message = 'Your current password is incorrect.';
+        message = t('auth.errors.currentPasswordIncorrect');
       } else if (error.code === 'auth/weak-password') {
-        message = 'Your new password is too weak.';
+        message = t('auth.errors.newPasswordTooWeak');
       } else if (error.code === 'auth/too-many-requests') {
-        message = 'Too many failed attempts. Try again later.';
+        message = t('auth.errors.tooManyRequests');
       }
       setGlobalError(message);
     } finally {
@@ -94,9 +96,9 @@ export default function ChangePasswordScreen() {
         </Pressable>
 
         <View style={styles.welcomeContainer}>
-          <Text style={[styles.welcomeTitle, { color: theme.text }]}>Change Password</Text>
+          <Text style={[styles.welcomeTitle, { color: theme.text }]}>{t('auth.changePassword.title')}</Text>
           <Text style={[styles.welcomeSubtitle, { color: theme.textSecondary }]}>
-            Secure your account by updating your password periodically.
+            {t('auth.changePassword.description')}
           </Text>
         </View>
 
@@ -115,12 +117,12 @@ export default function ChangePasswordScreen() {
 
           {/* Current Password */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Current Password</Text>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('auth.changePassword.currentPassword')}</Text>
             <View style={[styles.inputWrapper, { backgroundColor: '#F1F3F5', borderColor: 'transparent' }]}>
               <Ionicons name="key-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { color: theme.text }]}
-                placeholder="Enter current password"
+                placeholder={t('auth.changePassword.enterCurrentPassword')}
                 placeholderTextColor={theme.textSecondary + '80'}
                 value={currentPassword}
                 onChangeText={(val) => {
@@ -137,12 +139,12 @@ export default function ChangePasswordScreen() {
 
           {/* New Password */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>New Password</Text>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>{t('auth.changePassword.newPassword')}</Text>
             <View style={[styles.inputWrapper, { backgroundColor: '#F1F3F5', borderColor: 'transparent' }]}>
               <Ionicons name="lock-closed-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { color: theme.text }]}
-                placeholder="Min. 6 characters"
+                placeholder={t('auth.changePassword.min6Characters')}
                 placeholderTextColor={theme.textSecondary + '80'}
                 value={newPassword}
                 onChangeText={(val) => {
@@ -170,7 +172,7 @@ export default function ChangePasswordScreen() {
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.primaryBtnText}>Update Password</Text>
+              <Text style={styles.primaryBtnText}>{t('auth.changePassword.updatePassword')}</Text>
             )}
           </Pressable>
         </View>

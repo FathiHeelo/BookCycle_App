@@ -14,6 +14,7 @@ import Animated, {
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
+import '@/i18n/config';
 
 export const unstable_settings = {
   anchor: '(tabs)',
