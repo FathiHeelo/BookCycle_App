@@ -1,7 +1,6 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import 'react-native-reanimated';
 
-
 import { router, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -19,6 +18,7 @@ import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import '@/i18n/config';
+import { ThemeProvider as AppThemeProvider, useAppTheme } from '@/context/ThemeContext';
 
 
 export const unstable_settings = {
@@ -49,8 +49,17 @@ function AuthGuard({ user, splashVisible }: { user: User | null | undefined; spl
 }
 
 export default function RootLayout() {
+  return (
+    <AppThemeProvider>
+      <RootLayoutInner />
+    </AppThemeProvider>
+  );
+}
+
+function RootLayoutInner() {
+  const { isDark } = useAppTheme();
   const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const theme = Colors[isDark ? 'dark' : 'light'];
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [splashVisible, setSplashVisible] = useState(true);
 
@@ -111,7 +120,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <AuthGuard user={user} splashVisible={splashVisible} />
       <Stack>
         <Stack.Screen name="welcome" options={{ headerShown: false }} />
@@ -120,7 +129,7 @@ export default function RootLayout() {
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         <Stack.Screen name="change-password" options={{ title: 'Change Password', headerShown: false }} />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
     </ThemeProvider>
   );
 }

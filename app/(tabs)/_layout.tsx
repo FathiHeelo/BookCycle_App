@@ -3,22 +3,22 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const { theme, isDark } = useAppTheme();
+  const themeColors = Colors[theme];
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#001B39',
-        tabBarInactiveTintColor: '#8E9BAE',
+        tabBarActiveTintColor: themeColors.tabIconSelected,
+        tabBarInactiveTintColor: themeColors.tabIconDefault,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: themeColors.card,
           borderTopWidth: 1,
-          borderTopColor: '#F1F4F7',
+          borderTopColor: themeColors.border,
           height: Platform.OS === 'ios' ? 88 : 68,
           paddingBottom: Platform.OS === 'ios' ? 28 : 12,
           paddingTop: 12,
@@ -43,6 +43,24 @@ export default function TabLayout() {
           title: 'Explore',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'search' : 'search-outline'} size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={24} color={color} />
           ),
         }}
       />
