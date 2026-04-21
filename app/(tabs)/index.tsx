@@ -49,7 +49,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Quick Actions */}
-        <View style={styles.section}>
+        <View style={styles.section}>0
           <ThemedText style={[styles.sectionTitle, { color: '#1A1A1A' }]}>Quick Actions</ThemedText>
           <View style={styles.actionGrid}>
             <Pressable style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}>
