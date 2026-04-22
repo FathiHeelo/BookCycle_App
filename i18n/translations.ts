@@ -120,8 +120,65 @@ export const translations = {
       sha: ["Sharia", "Islamic Studies"],
       hon: ["Honors Program"],
       grad: ["MBA", "MSc IT", "MA Languages"],
+    },
+    profile: {
+      card: {
+        verified: "Verified Contributor",
+        edit: "Edit Profile",
+        share: "Share Impact",
+        university: "An-Najah National University"
+      },
+      stats: {
+        communityImpact: "Community Impact",
+        totalBooks: "Total Study Materials",
+        given: "Shared",
+        thankYou: "Thank You for Your Contribution!"
+      },
+      reliability: {
+        title: "Contributor Reliability",
+        punctuality: "Punctuality",
+        bookCondition: "Material Condition",
+        punctualityStatements: {
+          always: "Always meets on time at the Student Center.",
+          veryReliable: "Very reliable, almost always on time.",
+          generally: "Generally punctual and reliable.",
+          improving: "Improving punctuality and response time."
+        },
+        conditionStatements: {
+          excellent: "Consistent high-quality condition of materials.",
+          good: "Materials are typically in very good condition.",
+          fair: "Materials are in fair, usable condition.",
+          improving: "Working on maintaining better material quality."
+        }
+      },
+      history: {
+        booksGiven: "Study Materials I've Shared",
+        booksReceived: "Study Materials I've Received",
+        viewAll: "View All",
+        viewHistory: "View History",
+        givenTo: "Shared with",
+        donor: "Contributor",
+        received: "Received"
+      }
+    },
+    settings: {
+      title: "Settings",
+      profile: "Profile",
+      preferences: "Preferences",
+      language: "Language",
+      languageSubtitle: "Choose your preferred language",
+      darkMode: "Dark Mode",
+      darkModeSubtitle: "Switch between light and dark themes",
+      studentId: "Student ID",
+      logout: "Log Out",
+      logoutSubtitle: "Sign out of your account",
+      english: "English",
+      arabic: "Arabic",
+      appearance: "Appearance",
+      account: "Account"
     }
   },
+
   ar: {
     common: {
       loading: "جاري التحميل...",
@@ -243,6 +300,62 @@ export const translations = {
       sha: ["الشريعة الإسلامية", "الدراسات الإسلامية"],
       hon: ["برنامج الشرف"],
       grad: ["ماجستير إدارة أعمال", "ماجستير تكنولوجيا المعلومات", "ماجستير لغات"],
+    },
+    profile: {
+      card: {
+        verified: "مساهم موثّق",
+        edit: "تعديل الملف الشخصي",
+        share: "مشاركة الأثر",
+        university: "جامعة النجاح الوطنية"
+      },
+      stats: {
+        communityImpact: "أثر المجتمع",
+        totalBooks: "إجمالي المواد الدراسية",
+        given: "تمت المشاركة",
+        thankYou: "شكراً لمساهمتك!"
+      },
+      reliability: {
+        title: "موثوقية المساهم",
+        punctuality: "الالتزام بالمواعيد",
+        bookCondition: "حالة المواد",
+        punctualityStatements: {
+          always: "يلتزم دائماً بالمواعيد في مركز الطلاب.",
+          veryReliable: "موثوق جداً، يلتزم بالمواعيد دائماً تقريباً.",
+          generally: "ملتزم بالمواعيد وموثوق بشكل عام.",
+          improving: "يعمل على تحسين الالتزام بالمواعيد وسرعة الاستجابة."
+        },
+        conditionStatements: {
+          excellent: "يحافظ باستمرار على جودة عالية للمواد.",
+          good: "المواد عادةً في حالة جيدة جداً.",
+          fair: "المواد في حالة مقبولة وقابلة للاستخدام.",
+          improving: "يعمل على تحسين جودة المواد."
+        }
+      },
+      history: {
+        booksGiven: "المواد الدراسية التي شاركتها",
+        booksReceived: "المواد الدراسية التي استلمتها",
+        viewAll: "عرض الكل",
+        viewHistory: "عرض السجل",
+        givenTo: "تمت المشاركة مع",
+        donor: "المساهم",
+        received: "تم الاستلام"
+      }
+    },
+    settings: {
+      title: "الإعدادات",
+      profile: "الملف الشخصي",
+      preferences: "التفضيلات",
+      language: "اللغة",
+      languageSubtitle: "اختر لغتك المفضلة",
+      darkMode: "الوضع المظلم",
+      darkModeSubtitle: "التبديل بين المظهر الفاتح والمظلم",
+      studentId: "الرقم الجامعي",
+      logout: "تسجيل الخروج",
+      logoutSubtitle: "الخروج من حسابك",
+      english: "الإنجليزية",
+      arabic: "العربية",
+      appearance: "المظهر",
+      account: "الحساب"
     }
   },
 };
