@@ -52,12 +52,15 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <ThemedText style={[styles.sectionTitle, { color: '#1A1A1A' }]}>Quick Actions</ThemedText>
           <View style={styles.actionGrid}>
-            <Pressable style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}>
-              <View style={[styles.iconCircle, { backgroundColor: 'rgba(0,27,57,0.1)' }]}>
-                <Ionicons name="add" size={24} color="#001B39" />
-              </View>
-              <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>Add Book</ThemedText>
-            </Pressable>
+<Pressable
+  style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}
+  onPress={() => router.push('/GiveBookScreen')}
+>
+  <View style={[styles.iconCircle, { backgroundColor: 'rgba(0,27,57,0.1)' }]}>
+    <Ionicons name="add" size={24} color="#001B39" />
+  </View>
+  <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>Add Book</ThemedText>
+</Pressable>
             
             <Pressable style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}>
               <View style={[styles.iconCircle, { backgroundColor: 'rgba(16,185,129,0.1)' }]}>
