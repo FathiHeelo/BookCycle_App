@@ -54,7 +54,7 @@ export default function HomeScreen() {
           <View style={styles.actionGrid}>
 <Pressable
   style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}
-  onPress={() => router.push('/GiveBookScreen')}
+  onPress={() => router.push('../GiveBookScreen')}
 >
   <View style={[styles.iconCircle, { backgroundColor: 'rgba(0,27,57,0.1)' }]}>
     <Ionicons name="add" size={24} color="#001B39" />
@@ -62,11 +62,14 @@ export default function HomeScreen() {
   <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>Add Book</ThemedText>
 </Pressable>
             
-            <Pressable style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}>
-              <View style={[styles.iconCircle, { backgroundColor: 'rgba(16,185,129,0.1)' }]}>
-                <Ionicons name="gift-outline" size={24} color="#10B981" />
+            <Pressable 
+              style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}
+              onPress={() => router.push('/my-requests')}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: 'rgba(245,158,11,0.1)' }]}>
+                <Ionicons name="mail-outline" size={24} color="#F59E0B" />
               </View>
-              <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>My Gifts</ThemedText>
+              <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>Requests</ThemedText>
             </Pressable>
           </View>
         </View>

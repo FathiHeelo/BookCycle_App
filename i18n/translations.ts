@@ -161,6 +161,21 @@ export const translations = {
         received: "Received"
       }
     },
+    bookDetails: {
+      title: "Book Details",
+      description: "Description",
+      donor: "Shared by",
+      price: "Price",
+      free: "Free",
+      noDescription: "No description provided."
+    },
+    conditions: {
+      new: "New",
+      like_new: "Like New",
+      good: "Good",
+      fair: "Fair",
+      poor: "Poor"
+    },
     settings: {
       title: "Settings",
       profile: "Profile",
@@ -340,6 +355,21 @@ export const translations = {
         donor: "المساهم",
         received: "تم الاستلام"
       }
+    },
+    bookDetails: {
+      title: "تفاصيل الكتاب",
+      description: "الوصف",
+      donor: "تمت المشاركة بواسطة",
+      price: "السعر",
+      free: "مجاني",
+      noDescription: "لا يوجد وصف متوفر."
+    },
+    conditions: {
+      new: "جديد",
+      like_new: "شبه جديد",
+      good: "جيد",
+      fair: "مقبول",
+      poor: "سيئ"
     },
     settings: {
       title: "الإعدادات",
