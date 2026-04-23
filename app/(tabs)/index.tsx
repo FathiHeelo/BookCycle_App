@@ -34,8 +34,17 @@ export default function HomeScreen() {
       {/* Header Section */}
       <View style={[styles.header, { backgroundColor: '#FFFFFF' }]}>
         <View style={styles.headerTop}>
-          <Ionicons name="book" size={24} color="#001B39" />
-          <ThemedText style={[styles.headerTitle, { color: '#001B39' }]}>BookCycle</ThemedText>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+            <Ionicons name="book" size={24} color="#001B39" />
+            <ThemedText style={[styles.headerTitle, { color: '#001B39' }]}>BookCycle</ThemedText>
+          </View>
+          <Pressable 
+            onPress={() => router.push('/all-messages')}
+            style={styles.notifBtn}
+          >
+            <Ionicons name="chatbubbles-outline" size={24} color="#001B39" />
+            <View style={styles.notifBadge} />
+          </Pressable>
         </View>
         <View style={styles.welcomeInfo}>
           <ThemedText style={[styles.welcomeText, { color: '#8E9BAE' }]}>Welcome back,</ThemedText>
@@ -133,8 +142,29 @@ const styles = StyleSheet.create({
   },
   headerTop: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.md,
+  },
+  notifBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F1F4F7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  notifBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   headerTitle: {
     fontSize: 20,

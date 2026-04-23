@@ -1,41 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   useWindowDimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import { useI18n } from '@/hooks/use-i18n';
-
-const BOOKS_GIVEN = 5;
+import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
+import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 
 export default function TotalBook_Card() {
   const { width } = useWindowDimensions();
   const { t, isRTL } = useI18n();
+  const currentUser = FIREBASE_AUTH.currentUser;
+
+  const [totalGiven, setTotalGiven] = useState(0);
+  const [loading, setLoading] = useState(true);
+
   const cardPadding = Math.min(width * 0.06, 24);
   const titleFontSize = Math.min(width * 0.085, 36);
-
   const textAlign = isRTL ? 'right' : 'left';
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const booksRef = ref(FIREBASE_DB, 'Books');
+    const userBooksQuery = query(booksRef, orderByChild('donorUid'), equalTo(currentUser.uid));
+
+    const unsubscribe = onValue(userBooksQuery, (snapshot) => {
+      if (snapshot.exists()) {
+        setTotalGiven(Object.keys(snapshot.val()).length);
+      } else {
+        setTotalGiven(0);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
 
   return (
     <View style={[styles.cardContainer, { padding: cardPadding }]}>
-      {/* Decorative watermark icon */}
       <View style={[styles.watermarkIcon, isRTL ? { left: -10, right: undefined } : { right: -10 }]} pointerEvents="none">
         <Ionicons name="heart" size={130} color="rgba(255,255,255,0.07)" />
       </View>
 
-      {/* Label */}
       <Text style={[styles.label, { textAlign }]}>{t('profile.stats.communityImpact')}</Text>
 
-      {/* Main stat */}
-      <Text style={[styles.title, { fontSize: titleFontSize, textAlign }]}>
-        {t('profile.stats.totalBooks')}{'\n'}
-        {t('profile.stats.given')}: {BOOKS_GIVEN}
-      </Text>
+      {loading ? (
+        <ActivityIndicator color="#FFFFFF" style={{ alignSelf: textAlign === 'right' ? 'flex-end' : 'flex-start', marginVertical: 10 }} />
+      ) : (
+        <Text style={[styles.title, { fontSize: titleFontSize, textAlign }]}>
+          {t('profile.stats.totalBooks')}{'\n'}
+          {t('profile.stats.given')}: {totalGiven}
+        </Text>
+      )}
 
-      {/* Sub-label */}
       <Text style={[styles.savings, { textAlign }]}>
         {t('profile.stats.thankYou')}
       </Text>

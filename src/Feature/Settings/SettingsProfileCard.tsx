@@ -5,12 +5,14 @@ import {
   Image,
   StyleSheet,
   useWindowDimensions,
+  Pressable,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth';
 import { useI18n } from '@/hooks/use-i18n';
 import { useAppTheme } from '@/context/ThemeContext';
 import { Colors } from '@/constants/theme';
+import { router } from 'expo-router';
 
 export default function SettingsProfileCard() {
   const auth = getAuth();
@@ -25,6 +27,7 @@ export default function SettingsProfileCard() {
   const rowDir = isRTL ? 'row-reverse' : 'row';
 
   return (
+    <Pressable onPress={() => router.push('/profile')}>
     <View style={[styles.card, { backgroundColor: themeColors.card, flexDirection: rowDir }]}>
       {/* Avatar */}
       <View style={[styles.avatarWrapper, { width: imageSize, height: imageSize, borderRadius: imageSize / 2 }]}>
@@ -50,6 +53,7 @@ export default function SettingsProfileCard() {
           </Text>
         </View>
       </View>
+      
 
       {/* Arrow */}
       <Ionicons
@@ -59,6 +63,7 @@ export default function SettingsProfileCard() {
         style={styles.arrow}
       />
     </View>
+    </Pressable>
   );
 }
 

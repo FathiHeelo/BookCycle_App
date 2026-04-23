@@ -1,12 +1,15 @@
-import { ScrollView, StyleSheet, Text, View, Pressable, SafeAreaView, ActivityIndicator, Image, Dimensions, Platform, Alert, Modal, Share } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Pressable, SafeAreaView, ActivityIndicator, Image, Dimensions, Platform, Alert, Modal } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '../../constants/theme';
+import { Colors, Radius, Spacing } from '../../../constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ref, get, push, set } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
-import React, { useState, useEffect } from 'react';
+
+import React from 'react';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 const { width } = Dimensions.get('window');
 
@@ -24,8 +27,6 @@ interface Book {
   image?: string;
   donorName: string;
   donorUid: string;
-  author?: string;
-  edition?: string;
   [key: string]: any;
 }
 
@@ -34,7 +35,7 @@ export default function BookDetailsScreen() {
   const { id } = useLocalSearchParams();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
-  const { t, isRTL } = useI18n();
+  const { t } = useI18n();
 
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,14 +45,10 @@ export default function BookDetailsScreen() {
   const [requestStatus, setRequestStatus] = useState<'none' | 'pending' | 'success'>('none');
   const [modalVisible, setModalVisible] = useState(false);
 
-  const bookImageUri = book?.imageUrl || book?.image;
-  const textAlign = isRTL ? 'right' : 'left';
-  const flexDirection = isRTL ? 'row-reverse' : 'row';
-
   useEffect(() => {
     const fetchBook = async () => {
       if (!id) {
-        setError(t('bookDetails.noBookId', { defaultValue: 'No book ID provided' }));
+        setError('No book ID provided');
         setLoading(false);
         return;
       }
@@ -65,11 +62,11 @@ export default function BookDetailsScreen() {
           setBook(bookData);
           fetchOtherBooks(bookData.facultyId);
         } else {
-          setError(t('bookDetails.notFound', { defaultValue: 'Book not found' }));
+          setError('Book not found');
         }
       } catch (err) {
         console.error('Error fetching book:', err);
-        setError(t('common.error'));
+        setError('Failed to load book details');
       } finally {
         setLoading(false);
       }
@@ -78,6 +75,7 @@ export default function BookDetailsScreen() {
     const fetchOtherBooks = async (facultyId: string) => {
       try {
         const booksRef = ref(FIREBASE_DB, 'Books');
+        // Simple fetch for others from same faculty
         const snapshot = await get(booksRef);
         if (snapshot.exists()) {
           const allBooks = snapshot.val();
@@ -93,18 +91,7 @@ export default function BookDetailsScreen() {
     };
 
     fetchBook();
-  }, [id, t]);
-
-  const handleShare = async () => {
-    try {
-      const result = await Share.share({
-        message: `${book?.title}\n\n${t('bookDetails.description')}: ${book?.description || ''}\n\nShared via BookCycle App`,
-        title: book?.title,
-      });
-    } catch (error: any) {
-      Alert.alert(error.message);
-    }
-  };
+  }, [id]);
 
   const handleRequest = async () => {
     const user = FIREBASE_AUTH.currentUser;
@@ -114,7 +101,7 @@ export default function BookDetailsScreen() {
     }
 
     if (user.uid === book?.donorUid) {
-      Alert.alert(t('common.notice', { defaultValue: 'Notice' }), t('bookDetails.ownBookError', { defaultValue: "You cannot request your own book." }));
+      Alert.alert('Notice', "You cannot request your own book.");
       return;
     }
 
@@ -126,21 +113,21 @@ export default function BookDetailsScreen() {
       await set(newRequestRef, {
         bookId: id,
         bookTitle: book?.title || 'Untitled Book',
-        bookImage: book?.imageUrl || book?.image || '',
+        bookImage: book?.imageUrl || book?.image || '', // Ensure no undefined value
         requesterUid: user.uid,
         requesterName: user.displayName || user.email || 'Anonymous Student',
         donorUid: book?.donorUid || '',
-        donorName: book?.donorName || 'Academic Contributor',
+        donorName: book?.donorName || 'Academic Donor',
         status: 'pending',
         createdAt: new Date().toISOString(),
       });
 
       setRequestStatus('success');
       setModalVisible(false);
-      Alert.alert(t('common.success', { defaultValue: 'Success!' }), t('bookDetails.requestSent', { defaultValue: 'Your request has been sent to the contributor.' }));
+      Alert.alert('Success!', 'Your request has been sent to the donor.');
     } catch (e) {
       console.error('Request error:', e);
-      Alert.alert(t('common.error'), t('bookDetails.requestFailed', { defaultValue: 'Failed to send request. Please try again.' }));
+      Alert.alert('Error', 'Failed to send request. Please try again.');
     } finally {
       setRequesting(false);
     }
@@ -157,9 +144,9 @@ export default function BookDetailsScreen() {
   if (error || !book) {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: theme.error, fontSize: 16, fontWeight: '600' }}>{error}</Text>
+        <Text style={{ color: theme.error, fontSize: 16, fontWeight: '600' }}>{error || 'Book not found'}</Text>
         <Pressable style={styles.backBtn} onPress={() => router.back()}>
-          <Text style={styles.backBtnText}>{t('common.back')}</Text>
+          <Text style={styles.backBtnText}>Go Back</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -168,96 +155,105 @@ export default function BookDetailsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header Overlay */}
-      <View style={[styles.floatingHeader, { flexDirection }]}>
+      <View style={styles.floatingHeader}>
         <Pressable onPress={() => router.back()} style={styles.roundButton}>
-          <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={22} color={theme.primary} />
+          <Ionicons name="arrow-back" size={22} color={theme.primary} />
         </Pressable>
-        <Pressable onPress={handleShare} style={styles.roundButton}>
+        <Pressable style={styles.roundButton}>
           <Ionicons name="share-outline" size={22} color={theme.primary} />
         </Pressable>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Book Image */}
         <Image 
-          source={{ uri: bookImageUri || 'https://via.placeholder.com/600x800' }} 
+          source={{ uri: book.imageUrl || book.image || 'https://via.placeholder.com/600x800' }} 
           style={styles.heroImage} 
         />
 
         <View style={styles.mainContent}>
-          <View style={[styles.badgeRow, { flexDirection }]}>
+          {/* Badges */}
+          <View style={styles.badgeRow}>
             <View style={[styles.badge, { backgroundColor: '#E0F2FE' }]}>
               <Text style={[styles.badgeText, { color: '#0369A1' }]}>
-                {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : (isRTL ? 'عام' : 'GENERAL')}
+                {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : 'GENERAL'}
               </Text>
             </View>
             <View style={[styles.badge, { backgroundColor: '#F1F5F9' }]}>
-              <Text style={[styles.badgeText, { color: '#475569' }]}>{isRTL ? 'غلاف مقوى' : 'HARDCOVER'}</Text>
+              <Text style={[styles.badgeText, { color: '#475569' }]}>HARDCOVER</Text>
             </View>
           </View>
 
-          <Text style={[styles.title, { color: theme.primary, textAlign }]}>{book.title}</Text>
-          <Text style={[styles.author, { color: '#64748B', textAlign }]}>
-            {t('bookDetails.by', { defaultValue: isRTL ? 'بواسطة' : 'by' })} {book.author || (isRTL ? 'عضو هيئة تدريس' : 'Academic Faculty')}
+          {/* Title & Author */}
+          <Text style={[styles.title, { color: theme.primary }]}>{book.title}</Text>
+          <Text style={[styles.author, { color: '#64748B' }]}>
+            by {book.author || 'Academic Faculty'}
           </Text>
 
-          <View style={[styles.infoGrid, { flexDirection }]}>
+          {/* Info Grid */}
+          <View style={styles.infoGrid}>
             <View style={[styles.infoCard, { backgroundColor: theme.card }]}>
-              <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الطبعة' : 'EDITION').toUpperCase()}</Text>
-              <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
-                {book.edition || (isRTL ? 'أحدث طبعة' : 'Latest Edition')}
+              <Text style={styles.infoLabel}>EDITION</Text>
+              <Text style={[styles.infoValue, { color: theme.primary }]}>
+                {book.edition || 'Latest Edition'}
               </Text>
             </View>
             <View style={[styles.infoCard, { backgroundColor: theme.card }]}>
-              <Text style={[styles.infoLabel, { textAlign }]}>{t('auth.signup.facultyLabel').toUpperCase()}</Text>
-              <Text style={[styles.infoValue, { color: theme.primary, textAlign }]} numberOfLines={1}>
-                {book.facultyId ? t(`faculties.${book.facultyId}`) : (isRTL ? 'العلوم والهندسة' : 'Science & Eng')}
+              <Text style={styles.infoLabel}>FACULTY</Text>
+              <Text style={[styles.infoValue, { color: theme.primary }]} numberOfLines={1}>
+                {book.facultyId ? t(`faculties.${book.facultyId}`) : 'Science & Eng'}
               </Text>
             </View>
           </View>
           <View style={[styles.infoCardWide, { backgroundColor: theme.card }]}>
-            <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الحالة' : 'CONDITION').toUpperCase()}</Text>
-            <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
-              {book.conditionId ? t(`conditions.${book.conditionId}`) : (isRTL ? 'مثل الجديد ✨' : 'Like New ✨')}
+            <Text style={styles.infoLabel}>CONDITION</Text>
+            <Text style={[styles.infoValue, { color: theme.primary }]}>
+              {book.conditionId ? t(`conditions.${book.conditionId}`) : 'Like New ✨'}
             </Text>
           </View>
 
+          {/* Description */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.primary, textAlign }]}>{t('bookDetails.description')}</Text>
-            <Text style={[styles.description, { color: '#475569', textAlign }]}>
-              {book.description || t('bookDetails.noDescription')}
+            <Text style={[styles.sectionTitle, { color: theme.primary }]}>Donor's Description</Text>
+            <Text style={[styles.description, { color: '#475569' }]}>
+              {book.description || 'This textbook was used for only one semester. It is in immaculate condition with no highlighting or folded pages. Hoping it helps another student succeed!'}
             </Text>
           </View>
 
-          <Pressable 
-            style={[styles.donorCard, { backgroundColor: '#F8FAFC' }]}
-            onPress={() => router.push(`../public-profile/${book.donorUid}`)}
-          >
-            <Text style={[styles.smallLabel, { textAlign }]}>{t('profile.history.donor').toUpperCase()}</Text>
-            <View style={[styles.donorHeader, { flexDirection }]}>
+          {/* Gifting By Card */}
+          <View style={[styles.donorCard, { backgroundColor: '#F8FAFC' }]}>
+            <Text style={styles.smallLabel}>GIFTING BY</Text>
+            <View style={styles.donorHeader}>
               <View style={styles.donorAvatar}>
                 <Ionicons name="person" size={24} color="#94A3B8" />
               </View>
               <View>
-                <Text style={[styles.donorName, { color: theme.primary, textAlign }]}>{book.donorName}</Text>
-                <Text style={[styles.donorSubtitle, { textAlign }]}>{isRTL ? 'مساهم نشط • 5 كتب' : 'Active Contributor • 5 Books'}</Text>
+                <Text style={[styles.donorName, { color: theme.primary }]}>{book.donorName}</Text>
+                <Text style={styles.donorSubtitle}>Active Donor • 5 Books Gifted</Text>
               </View>
             </View>
-            <View style={[styles.donorMeta, { flexDirection }]}>
+            <View style={styles.donorMeta}>
+              <Ionicons name="location-outline" size={16} color="#64748B" />
+              <Text style={styles.donorMetaText}>Main Campus Library, Area A</Text>
             </View>
-            <View style={[styles.donorMeta, { flexDirection }]}>
+            <View style={styles.donorMeta}>
               <Ionicons name="time-outline" size={16} color="#64748B" />
-              <Text style={[styles.donorMetaText, { textAlign }]}>{isRTL ? 'متاح للاستلام: الأحد-الخميس' : 'Available for pickup: Sun-Thu'}</Text>
+              <Text style={styles.donorMetaText}>Available for pickup: Sun-Thu</Text>
             </View>
-            <View style={styles.viewProfileBtn}>
-              <Text style={styles.viewProfileText}>{t('profile.card.viewProfile', { defaultValue: isRTL ? 'عرض الملف الشخصي' : 'View Profile' })}</Text>
-            </View>
-          </Pressable>
+            <Pressable style={styles.viewProfileBtn}>
+              <Text style={styles.viewProfileText}>View Profile</Text>
+            </Pressable>
+          </View>
+
+       
+
+          {/* Others from Faculty */}
           {otherBooks.length > 0 && (
             <View style={styles.section}>
-              <View style={[styles.sectionHeader, { flexDirection }]}>
-                <Text style={[styles.sectionTitle, { color: theme.primary }]}>{isRTL ? 'كتب أخرى من نفس الكلية' : 'Others from Faculty'}</Text>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: theme.primary }]}>Others from Faculty</Text>
                 <Pressable onPress={() => router.push('/explore')}>
-                  <Text style={[styles.exploreLink, { color: theme.primary }]}>{t('profile.history.viewAll')} {isRTL ? '‹' : '›'}</Text>
+                  <Text style={[styles.exploreLink, { color: theme.primary }]}>Explore all ›</Text>
                 </Pressable>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
@@ -268,20 +264,21 @@ export default function BookDetailsScreen() {
                     onPress={() => router.push(`../book-details/${other.id}`)}
                   >
                     <Image source={{ uri: other.imageUrl || other.image }} style={styles.otherBookImage} />
-                    <Text style={[styles.otherBookTitle, { textAlign }]} numberOfLines={1}>{other.title}</Text>
-                    <Text style={[styles.otherBookAuthor, { textAlign }]}>{t('bookDetails.by', { defaultValue: isRTL ? 'بواسطة' : 'By' })} {other.donorName}</Text>
+                    <Text style={styles.otherBookTitle} numberOfLines={1}>{other.title}</Text>
+                    <Text style={styles.otherBookAuthor}>By {other.donorName}</Text>
                   </Pressable>
                 ))}
               </ScrollView>
             </View>
           )}
+
           <View style={{ height: 100 }} />
         </View>
       </ScrollView>
 
       {/* Fixed Bottom Bar */}
       <View style={[styles.bottomBar, { backgroundColor: theme.background }]}>
-        <View style={[styles.bottomBarInner, { flexDirection }]}>
+        <View style={styles.bottomBarInner}>
           <Pressable 
             style={[
               styles.requestBtn, 
@@ -294,63 +291,58 @@ export default function BookDetailsScreen() {
             {requesting ? (
               <ActivityIndicator color="#FFF" />
             ) : (
-              <View style={{ flexDirection, alignItems: 'center' }}>
+              <>
                 <Ionicons 
                   name={requestStatus === 'success' ? "checkmark-circle" : "heart-outline"} 
                   size={20} 
                   color="#FFF" 
-                  style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }} 
+                  style={{ marginRight: 8 }} 
                 />
                 <Text style={styles.requestBtnText}>
-                  {requestStatus === 'success' ? (isRTL ? 'تم إرسال الطلب' : 'Request Sent') : (isRTL ? 'اطلب هذا الكتاب' : 'Request this Book')}
+                  {requestStatus === 'success' ? 'Request Sent' : 'Request this Book'}
                 </Text>
-              </View>
+              </>
             )}
           </Pressable>
-          <Pressable 
-            style={styles.messageBtn}
-            onPress={() => {
-              const currentUser = FIREBASE_AUTH.currentUser;
-              if (!currentUser) {
-                Alert.alert(t('common.error'), t('auth.errors.mustBeLoggedIn'));
-                return;
-              }
-              // Create a unique chatId using both UIDs
-              const chatId = [currentUser.uid, book.donorUid].sort().join('_');
-              router.push({
-                pathname: `../chat/${chatId}`,
-                params: { 
-                  otherName: book.donorName,
-                  otherId: book.donorUid,
-                  bookTitle: book.title
-                }
-              });
-            }}
-          >
+          <Pressable style={styles.messageBtn}>
             <Ionicons name="chatbubble-ellipses-outline" size={22} color={theme.primary} />
           </Pressable>
         </View>
       </View>
 
-      <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+      {/* Request Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
             <View style={styles.modalHeader}>
               <View style={[styles.iconCircle, { backgroundColor: theme.primary + '10' }]}>
                 <Ionicons name="gift" size={32} color={theme.primary} />
               </View>
-              <Text style={[styles.modalTitle, { color: theme.primary }]}>{isRTL ? 'تأكيد الطلب' : 'Confirm Request'}</Text>
+              <Text style={[styles.modalTitle, { color: theme.primary }]}>Confirm Request</Text>
               <Text style={styles.modalSubtitle}>
-                {isRTL ? 'أنت على وشك طلب هذا الكتاب. سيتم إخطار المساهم للموافقة على طلبك.' : 'You are about to request this book. The contributor will be notified to approve your request.'}
+                You are about to request "{book.title}". The donor will be notified to approve your request.
               </Text>
             </View>
+
             <View style={styles.modalDivider} />
-            <View style={[styles.modalFooter, { flexDirection }]}>
-              <Pressable style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelBtnText}>{t('common.cancel')}</Text>
+
+            <View style={styles.modalFooter}>
+              <Pressable 
+                style={styles.cancelBtn} 
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
               </Pressable>
-              <Pressable style={[styles.confirmBtn, { backgroundColor: theme.primary }]} onPress={handleRequest}>
-                <Text style={styles.confirmBtnText}>{isRTL ? 'تأكيد الطلب' : 'Confirm Request'}</Text>
+              <Pressable 
+                style={[styles.confirmBtn, { backgroundColor: theme.primary }]}
+                onPress={handleRequest}
+              >
+                <Text style={styles.confirmBtnText}>Confirm Request</Text>
               </Pressable>
             </View>
           </View>
@@ -370,6 +362,7 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     zIndex: 10,
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   roundButton: {
@@ -398,6 +391,7 @@ const styles = StyleSheet.create({
     minHeight: 500,
   },
   badgeRow: {
+    flexDirection: 'row',
     gap: 8,
     marginBottom: 16,
   },
@@ -423,6 +417,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   infoGrid: {
+    flexDirection: 'row',
     gap: 12,
     marginBottom: 12,
   },
@@ -456,6 +451,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   sectionHeader: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
@@ -483,6 +479,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   donorHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     marginBottom: 20,
@@ -505,6 +502,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   donorMeta: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     marginBottom: 10,
@@ -527,13 +525,41 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#475569',
   },
+  mapPlaceholder: {
+    height: 180,
+    backgroundColor: '#F1F5F9',
+    borderRadius: Radius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  mapOverlay: {
+    position: 'absolute',
+    alignItems: 'center',
+  },
+  pickupLabel: {
+    backgroundColor: '#FFF',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginTop: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  pickupLabelText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#1A1A1A',
+  },
   exploreLink: {
     fontSize: 14,
     fontWeight: '700',
   },
   horizontalScroll: {
-    marginHorizontal: -Spacing.lg,
-    paddingHorizontal: Spacing.lg,
+    marginLeft: -Spacing.lg,
+    paddingLeft: Spacing.lg,
   },
   otherBookCard: {
     width: 140,
@@ -567,12 +593,14 @@ const styles = StyleSheet.create({
     borderTopColor: '#F1F5F9',
   },
   bottomBarInner: {
+    flexDirection: 'row',
     gap: 12,
   },
   requestBtn: {
     flex: 1,
     height: 56,
     borderRadius: Radius.pill,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -643,6 +671,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   modalFooter: {
+    flexDirection: 'row',
     gap: 12,
     width: '100%',
   },

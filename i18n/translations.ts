@@ -164,7 +164,7 @@ export const translations = {
     bookDetails: {
       title: "Book Details",
       description: "Description",
-      donor: "Shared by",
+      donor: "Contributor",
       price: "Price",
       free: "Free",
       noDescription: "No description provided."
@@ -359,7 +359,7 @@ export const translations = {
     bookDetails: {
       title: "تفاصيل الكتاب",
       description: "الوصف",
-      donor: "تمت المشاركة بواسطة",
+      donor: "المساهم",
       price: "السعر",
       free: "مجاني",
       noDescription: "لا يوجد وصف متوفر."

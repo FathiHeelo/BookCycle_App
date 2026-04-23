@@ -21,11 +21,17 @@ export const firebaseConfig = {
 export const FIREBASE_APP = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 // Initialize Auth with persistence for React Native / Expo
-export const FIREBASE_AUTH = typeof document === 'undefined'
-  ? initializeAuth(FIREBASE_APP, {
-      persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-    })
-  : getAuth(FIREBASE_APP);
+let auth;
+try {
+  auth = initializeAuth(FIREBASE_APP, {
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+  });
+} catch (e) {
+  // If already initialized, just get the instance
+  auth = getAuth(FIREBASE_APP);
+}
+
+export const FIREBASE_AUTH = auth;
 
 export const FIREBASE_DB = getDatabase(FIREBASE_APP);
 export const FIREBASE_STORAGE = getStorage(FIREBASE_APP);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'expo-router';
 import {
   StyleSheet,
@@ -7,87 +7,109 @@ import {
   Image,
   useWindowDimensions,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import { useI18n } from '@/hooks/use-i18n';
+import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
+import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 
 interface BookItem {
   id: string;
   title: string;
-  category: string;
-  giverTo: string;
-  timeAgo: string;
-  condition: string;
-  image: string;
-  badgeColor: string;
+  facultyId: string;
+  donorName: string;
+  createdAt: string;
+  conditionId: string;
+  imageUrl?: string;
+  image?: string;
+  status: string;
 }
-
-const GIVEN_BOOKS: BookItem[] = [
-  {
-    id: '1',
-    title: 'Organic Chemistry II',
-    category: 'SCIENCE',
-    giverTo: 'Sarah J.',
-    timeAgo: '2 weeks ago',
-    condition: 'Excellent condition',
-    image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=1000',
-    badgeColor: '#FDE68A', // Yellowish
-  },
-  {
-    id: '2',
-    title: 'Microeconomics',
-    category: 'BUSINESS',
-    giverTo: 'Omar T.',
-    timeAgo: '1 month ago',
-    condition: 'Minimal highlighting',
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1000',
-    badgeColor: '#CFE2FF', // Light blue
-  },
-];
 
 export default function Books_Given() {
   const { width } = useWindowDimensions();
   const { t, isRTL } = useI18n();
-  const cardPadding = Math.min(width * 0.04, 16);
+  const currentUser = FIREBASE_AUTH.currentUser;
 
+  const [books, setBooks] = useState<BookItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const cardPadding = Math.min(width * 0.04, 16);
   const textAlign = isRTL ? 'right' : 'left';
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const booksRef = ref(FIREBASE_DB, 'Books');
+    const userBooksQuery = query(booksRef, orderByChild('donorUid'), equalTo(currentUser.uid));
+
+    const unsubscribe = onValue(userBooksQuery, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const list: BookItem[] = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key]
+        })).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setBooks(list.slice(0, 3)); // Show top 3
+      } else {
+        setBooks([]);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
 
   return (
     <View style={styles.container}>
       <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
         <Text style={[styles.headerTitle, { textAlign }]}>{t('profile.history.booksGiven')}</Text>
-        <Link href="/profile" asChild>
+        <Link href="/my-requests" asChild>
           <Pressable>
             <Text style={[styles.viewAllText, { textAlign }]}>{t('profile.history.viewAll')}</Text>
           </Pressable>
         </Link>
       </View>
 
-      {GIVEN_BOOKS.map((book) => (
-        <View key={book.id} style={[styles.bookCard, { padding: cardPadding, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: book.image }} style={styles.bookImage} />
-          </View>
-          
-          <View style={[styles.contentContainer, { marginLeft: isRTL ? 0 : 16, marginRight: isRTL ? 16 : 0 }]}>
-            <View style={[styles.categoryBadge, { backgroundColor: book.badgeColor, alignSelf: isRTL ? 'flex-end' : 'flex-start' }]}>
-              <Text style={styles.categoryText}>{book.category}</Text>
+      {loading ? (
+        <ActivityIndicator size="small" color="#001B39" />
+      ) : (
+        books.map((book) => (
+          <View key={book.id} style={[styles.bookCard, { padding: cardPadding, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <View style={styles.imageContainer}>
+              <Image 
+                source={{ uri: book.imageUrl || book.image || 'https://via.placeholder.com/150' }} 
+                style={styles.bookImage} 
+              />
             </View>
             
-            <Text style={[styles.bookTitle, { textAlign }]} numberOfLines={1}>{book.title}</Text>
-            
-            <Text style={[styles.subtitle, { textAlign }]}>
-              {t('profile.history.givenTo')}: {book.giverTo} • {book.timeAgo}
-            </Text>
-            
-            <View style={[styles.conditionRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-              <Ionicons name="star" size={14} color="#85700D" />
-              <Text style={[styles.conditionText, { marginLeft: isRTL ? 0 : 4, marginRight: isRTL ? 4 : 0 }]}>{book.condition}</Text>
+            <View style={[styles.contentContainer, { marginLeft: isRTL ? 0 : 16, marginRight: isRTL ? 16 : 0 }]}>
+              <View style={[styles.categoryBadge, { backgroundColor: '#FDE68A', alignSelf: isRTL ? 'flex-end' : 'flex-start' }]}>
+                <Text style={styles.categoryText}>
+                  {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : 'GENERAL'}
+                </Text>
+              </View>
+              
+              <Text style={[styles.bookTitle, { textAlign }]} numberOfLines={1}>{book.title}</Text>
+              
+              <Text style={[styles.subtitle, { textAlign }]}>
+                {t('profile.history.status')}: {book.status}
+              </Text>
+              
+              <View style={[styles.conditionRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                <Ionicons name="star" size={14} color="#85700D" />
+                <Text style={[styles.conditionText, { marginLeft: isRTL ? 0 : 4, marginRight: isRTL ? 4 : 0 }]}>
+                  {book.conditionId ? t(`conditions.${book.conditionId}`) : 'Good'}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
-      ))}
+        ))
+      )}
+      
+      {!loading && books.length === 0 && (
+        <Text style={[styles.emptyText, { textAlign }]}>No books given yet.</Text>
+      )}
     </View>
   );
 }
@@ -173,4 +195,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#001B39',
   },
+  emptyText: {
+    color: '#94A3B8',
+    marginTop: 10,
+    fontStyle: 'italic',
+  }
 });
