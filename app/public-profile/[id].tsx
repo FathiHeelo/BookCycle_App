@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Dimensions,
   FlatList,
+  Text,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,7 +32,9 @@ interface UserProfile {
 interface BookItem {
   id: string;
   title: string;
-  facultyId: string;
+  facultyId?: string;
+  facultyIds?: string[];
+  status?: string;
   imageUrl?: string;
   image?: string;
 }
@@ -137,26 +140,40 @@ export default function PublicProfileScreen() {
             <ThemedText style={[styles.emptyText, { textAlign }]}>{isRTL ? 'لا توجد كتب معروضة حالياً' : 'No books available at the moment'}</ThemedText>
           ) : (
             <View style={styles.booksGrid}>
-              {books.map((book) => (
-                <Pressable 
-                  key={book.id} 
-                  style={[styles.bookCard, { backgroundColor: theme.card }]}
-                  onPress={() => router.push(`../book-details/${book.id}`)}
-                >
-                  <Image 
-                    source={{ uri: book.imageUrl || book.image || 'https://via.placeholder.com/150' }} 
-                    style={styles.bookImage} 
-                  />
-                  <View style={styles.bookInfo}>
-                    <ThemedText style={styles.bookTitle} numberOfLines={1}>{book.title}</ThemedText>
-                    <View style={[styles.facultyBadge, { backgroundColor: theme.primary + '10' }]}>
-                      <ThemedText style={[styles.facultyText, { color: theme.primary }]}>
-                        {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : 'GENERAL'}
-                      </ThemedText>
+              {books.map((book) => {
+                const isUnavailable = book.status === 'requested' || book.status === 'received' || book.status === 'completed';
+                const statusText = book.status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
+
+                return (
+                  <Pressable 
+                    key={book.id} 
+                    style={[styles.bookCard, { backgroundColor: theme.card, opacity: isUnavailable ? 0.7 : 1 }]}
+                    onPress={() => router.push(`../book-details/${book.id}`)}
+                  >
+                    <View style={{ position: 'relative' }}>
+                      <Image 
+                        source={{ uri: book.imageUrl || book.image || 'https://via.placeholder.com/150' }} 
+                        style={styles.bookImage} 
+                      />
+                      {isUnavailable && (
+                        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', zIndex: 10 }]}>
+                          <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, transform: [{ rotate: '-10deg' }] }}>
+                            <Text style={{ color: '#fff', fontWeight: '900', fontSize: 12 }}>{statusText}</Text>
+                          </View>
+                        </View>
+                      )}
                     </View>
-                  </View>
-                </Pressable>
-              ))}
+                    <View style={styles.bookInfo}>
+                      <ThemedText style={styles.bookTitle} numberOfLines={1}>{book.title}</ThemedText>
+                      <View style={[styles.facultyBadge, { backgroundColor: theme.primary + '10' }]}>
+                        <ThemedText style={[styles.facultyText, { color: theme.primary }]}>
+                          {book.facultyIds ? t(`faculties.${book.facultyIds[0]}`).toUpperCase() : (book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : 'GENERAL')}
+                        </ThemedText>
+                      </View>
+                    </View>
+                  </Pressable>
+                );
+              })}
             </View>
           )}
         </View>

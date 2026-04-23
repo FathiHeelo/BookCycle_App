@@ -85,7 +85,7 @@ export default function AllMessagesScreen() {
         </View>
         
         <View style={[styles.chatInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-          <ThemedText style={styles.bookTitle} numberOfLines={1}>{item.bookTitle || 'General Inquiry'}</ThemedText>
+          <ThemedText style={styles.bookTitle} numberOfLines={1}>{item.bookTitle || (isRTL ? 'استفسار عام' : 'General Inquiry')}</ThemedText>
           <ThemedText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage}</ThemedText>
         </View>
 

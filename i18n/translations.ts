@@ -23,7 +23,7 @@ export const translations = {
       },
       signup: {
         title: "Join the Circle of Knowledge",
-        subtitle: "Create your academic profile to start gifting and requesting textbooks within the Najah community.",
+        subtitle: "Create your academic profile to start gifting and requesting study materials within the Najah community.",
         fullNameLabel: "Full Name",
         fullNamePlaceholder: "Enter your full name",
         emailLabel: "Student Email",
@@ -39,6 +39,10 @@ export const translations = {
         universityIdPlaceholder: "e.g. 11920345",
         legalText: "By clicking Sign Up, you agree to our Terms of Use and Privacy Policy regarding academic data.",
         signupButton: "Sign Up",
+        roleLabel: "Academic Role",
+        rolePlaceholder: "Select your role",
+        student: "Student",
+        professor: "Professor / Doctor",
         alreadyAccount: "Already have an account? ",
         loginLink: "Log In",
       },
@@ -162,7 +166,7 @@ export const translations = {
       }
     },
     bookDetails: {
-      title: "Book Details",
+      title: "Material Details",
       description: "Description",
       donor: "Contributor",
       price: "Price",
@@ -175,6 +179,14 @@ export const translations = {
       good: "Good",
       fair: "Fair",
       poor: "Poor"
+    },
+    categories: {
+      title: "Category",
+      placeholder: "Select category",
+      books: "Textbooks",
+      notes: "Notes & Summaries",
+      hardware: "Tools & Supplies",
+      others: "Others"
     },
     settings: {
       title: "Settings",
@@ -218,7 +230,7 @@ export const translations = {
       },
       signup: {
         title: "انضم إلى دائرة المعرفة",
-        subtitle: "قم بإنشاء ملفك الأكاديمي لبدء إهداء وطلب الكتب الدراسية داخل مجتمع النجاح.",
+        subtitle: "قم بإنشاء ملفك الأكاديمي لبدء إهداء وطلب المواد الدراسية داخل مجتمع النجاح.",
         fullNameLabel: "الاسم الكامل",
         fullNamePlaceholder: "أدخل اسمك الكامل",
         emailLabel: "البريد الإلكتروني للطالب",
@@ -234,6 +246,10 @@ export const translations = {
         universityIdPlaceholder: "مثال: 11920345",
         legalText: "بالنقر فوق إنشاء حساب، فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بنا فيما يتعلق بالبيانات الأكاديمية.",
         signupButton: "إنشاء حساب",
+        roleLabel: "المسمى الأكاديمي",
+        rolePlaceholder: "اختر مسمّاك الأكاديمي",
+        student: "طالب",
+        professor: "دكتور جامعي",
         alreadyAccount: "هل لديك حساب بالفعل؟ ",
         loginLink: "تسجيل الدخول",
       },
@@ -325,7 +341,7 @@ export const translations = {
       },
       stats: {
         communityImpact: "أثر المجتمع",
-        totalBooks: "إجمالي المواد الدراسية",
+        totalBooks: "إجمالي المصادر الدراسية",
         given: "تمت المشاركة",
         thankYou: "شكراً لمساهمتك!"
       },
@@ -347,8 +363,8 @@ export const translations = {
         }
       },
       history: {
-        booksGiven: "المواد الدراسية التي شاركتها",
-        booksReceived: "المواد الدراسية التي استلمتها",
+        booksGiven: "المصادر الدراسية التي شاركتها",
+        booksReceived: "المصادر الدراسية التي استلمتها",
         viewAll: "عرض الكل",
         viewHistory: "عرض السجل",
         givenTo: "تمت المشاركة مع",
@@ -357,7 +373,7 @@ export const translations = {
       }
     },
     bookDetails: {
-      title: "تفاصيل الكتاب",
+      title: "تفاصيل المصدر",
       description: "الوصف",
       donor: "المساهم",
       price: "السعر",
@@ -370,6 +386,14 @@ export const translations = {
       good: "جيد",
       fair: "مقبول",
       poor: "سيئ"
+    },
+    categories: {
+      title: "التصنيف",
+      placeholder: "اختر التصنيف",
+      books: "كتب دراسية",
+      notes: "ملخصات ونوتات",
+      hardware: "أدوات ومستلزمات",
+      others: "أخرى"
     },
     settings: {
       title: "الإعدادات",

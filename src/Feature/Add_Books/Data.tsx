@@ -1,9 +1,10 @@
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useI18n } from '@/hooks/use-i18n';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { FACULTIES, BOOK_CONDITIONS } from '@/src/constants/faculties';
 import { Ionicons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
     FlatList,
@@ -16,10 +17,18 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    TouchableWithoutFeedback,
 } from 'react-native';
 import * as z from 'zod';
 
 const VIBRANT_GOLD = '#B58D3D';
+
+const RESOURCE_CATEGORIES = [
+    { id: 'books', icon: 'book' },
+    { id: 'notes', icon: 'document-text' },
+    { id: 'hardware', icon: 'construct' },
+    { id: 'others', icon: 'ellipsis-horizontal-circle' },
+];
 
 interface DataScreenProps {
     onNext: (data: any) => void;
@@ -29,16 +38,22 @@ interface DataScreenProps {
 
 export default function BookDataScreen({ onNext, onBack, initialData }: DataScreenProps) {
     const { t, isRTL } = useI18n();
+    const colorScheme = useColorScheme();
+    const theme = Colors[colorScheme ?? 'light'];
+    
     const [facultyModalVisible, setFacultyModalVisible] = useState(false);
     const [majorModalVisible, setMajorModalVisible] = useState(false);
     const [conditionModalVisible, setConditionModalVisible] = useState(false);
+    const [categoryModalVisible, setCategoryModalVisible] = useState(false);
 
     const bookDataSchema = z.object({
         title: z.string().min(2, t('auth.errors.fullNameMinLength')),
         courseName: z.string().min(2, 'Course name is required'),
-        facultyId: z.string().min(1, t('auth.errors.selectFaculty')),
-        major: z.string().min(1, t('auth.errors.selectMajor')),
+        categoryId: z.string().min(1, 'Please select a category'),
+        facultyIds: z.array(z.string()).min(1, t('auth.errors.selectFaculty')),
+        majors: z.array(z.string()).min(1, t('auth.errors.selectMajor')),
         conditionId: z.string().min(1, 'Please select a condition'),
+        description: z.string().min(5, 'Description is too short'),
     });
 
     const {
@@ -52,24 +67,96 @@ export default function BookDataScreen({ onNext, onBack, initialData }: DataScre
         defaultValues: {
             title: initialData?.title || '',
             courseName: initialData?.courseName || '',
-            facultyId: initialData?.facultyId || '',
-            major: initialData?.major || '',
+            categoryId: initialData?.categoryId || '',
+            facultyIds: initialData?.facultyIds || [],
+            majors: initialData?.majors || [],
             conditionId: initialData?.conditionId || '',
+            description: initialData?.description || '',
         },
     });
 
-    const selectedFacultyId = watch('facultyId');
-    const majorOptions = selectedFacultyId ? t(`majors.${selectedFacultyId}`, { returnObjects: true }) as string[] : [];
+    const selectedFacultyIds: string[] = watch('facultyIds') || [];
+    const selectedMajors: string[] = watch('majors') || [];
+
+    // Logic for available majors: collect from all selected faculties
+    const availableMajorsList = useMemo(() => {
+        const list: string[] = [];
+        if (selectedFacultyIds.includes('all')) {
+            // Include all majors from all faculties if "All" is selected
+            FACULTIES.forEach(f => {
+                const majors = t(`majors.${f.id}`, { returnObjects: true }) as string[];
+                if (Array.isArray(majors)) {
+                    majors.forEach(m => { if (!list.includes(m)) list.push(m); });
+                }
+            });
+        } else {
+            selectedFacultyIds.forEach((fId: string) => {
+                const majors = t(`majors.${fId}`, { returnObjects: true }) as string[];
+                if (Array.isArray(majors)) {
+                    majors.forEach((m: string) => {
+                        if (!list.includes(m)) list.push(m);
+                    });
+                }
+            });
+        }
+        return ['all', ...list];
+    }, [selectedFacultyIds, t]);
+
     const textAlign = isRTL ? 'right' : 'left';
     const flexDirection = isRTL ? 'row-reverse' : 'row';
+
+    const toggleFaculty = (id: string) => {
+        let current = [...selectedFacultyIds];
+        if (id === 'all') {
+            if (current.includes('all')) {
+                current = [];
+                setValue('majors', []);
+            } else {
+                current = ['all'];
+                setValue('majors', ['all']); // Auto-select all majors if all faculties selected
+            }
+        } else {
+            current = current.filter(f => f !== 'all');
+            const index = current.indexOf(id);
+            if (index > -1) {
+                current.splice(index, 1);
+            } else {
+                current.push(id);
+            }
+            // Clear majors when specific faculties are toggled to ensure consistency
+            setValue('majors', []);
+        }
+        setValue('facultyIds', current);
+    };
+
+    const toggleMajor = (major: string) => {
+        let current = [...selectedMajors];
+        if (major === 'all') {
+            current = current.includes('all') ? [] : ['all'];
+        } else {
+            current = current.filter(m => m !== 'all');
+            const index = current.indexOf(major);
+            if (index > -1) {
+                current.splice(index, 1);
+            } else {
+                current.push(major);
+            }
+        }
+        setValue('majors', current);
+    };
 
     const onSubmit = (data: any) => {
         onNext(data);
     };
 
+    const facultyList = useMemo(() => [
+        { id: 'all', icon: 'globe-outline', color: VIBRANT_GOLD },
+        ...FACULTIES
+    ], []);
+
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 <Text style={[styles.stepLabel, { textAlign }]}>{isRTL ? 'الخطوة 2 من 4' : 'STEP 2 OF 4'}</Text>
 
                 <View style={[styles.progressContainer, { flexDirection }]}>
@@ -77,7 +164,7 @@ export default function BookDataScreen({ onNext, onBack, initialData }: DataScre
                         <TouchableOpacity onPress={onBack} style={styles.backButton}>
                             <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={24} color={Colors.light.primary} />
                         </TouchableOpacity>
-                        <Text style={styles.title}>{isRTL ? 'معلومات الكتاب' : 'Book Info'}</Text>
+                        <Text style={styles.title}>{isRTL ? 'معلومات المصدر' : 'Material Info'}</Text>
                     </View>
                     <Text style={styles.progressText}>{isRTL ? '50% مكتمل' : '50% Complete'}</Text>
                 </View>
@@ -87,16 +174,31 @@ export default function BookDataScreen({ onNext, onBack, initialData }: DataScre
                 </View>
 
                 <View style={styles.form}>
-                    {/* Book Title */}
+                    {/* Category */}
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { textAlign }]}>{isRTL ? 'عنوان الكتاب' : 'Book Title'}</Text>
+                        <Text style={[styles.label, { textAlign }]}>{t('categories.title')}</Text>
+                        <TouchableOpacity
+                            activeOpacity={0.7}
+                            onPress={() => setCategoryModalVisible(true)}
+                            style={[styles.selector, { flexDirection }, errors.categoryId && styles.inputError]}
+                        >
+                            <Text style={[styles.selectorText, !watch('categoryId') && styles.placeholder]} numberOfLines={1}>
+                                {watch('categoryId') ? t(`categories.${watch('categoryId')}`) : t('categories.placeholder')}
+                            </Text>
+                            <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Title */}
+                    <View style={styles.inputGroup}>
+                        <Text style={[styles.label, { textAlign }]}>{isRTL ? 'العنوان' : 'Title'}</Text>
                         <Controller
                             control={control}
                             name="title"
                             render={({ field: { onChange, onBlur, value } }) => (
                                 <TextInput
                                     style={[styles.input, { textAlign }, errors.title && styles.inputError]}
-                                    placeholder={isRTL ? 'مثلاً: أساسيات الكيمياء العضوية' : 'e.g. Fundamentals of Organic Chemistry'}
+                                    placeholder={isRTL ? 'مثلاً: آردوينو أونو أو تلخيص مادة' : 'e.g. Arduino Uno or Summary'}
                                     placeholderTextColor="#A0AEC0"
                                     onBlur={onBlur}
                                     onChangeText={onChange}
@@ -104,19 +206,18 @@ export default function BookDataScreen({ onNext, onBack, initialData }: DataScre
                                 />
                             )}
                         />
-                        {errors.title && <Text style={[styles.errorText, { textAlign }]}>{errors.title.message as string}</Text>}
                     </View>
 
-                    {/* Course Name */}
+                    {/* Course */}
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { textAlign }]}>{isRTL ? 'اسم المساق' : 'Course Name'}</Text>
+                        <Text style={[styles.label, { textAlign }]}>{isRTL ? 'اسم المساق المرتبط' : 'Related Course'}</Text>
                         <Controller
                             control={control}
                             name="courseName"
                             render={({ field: { onChange, onBlur, value } }) => (
                                 <TextInput
                                     style={[styles.input, { textAlign }, errors.courseName && styles.inputError]}
-                                    placeholder="e.g. CHEM101"
+                                    placeholder="e.g. ENG101"
                                     placeholderTextColor="#A0AEC0"
                                     onBlur={onBlur}
                                     onChangeText={onChange}
@@ -124,52 +225,78 @@ export default function BookDataScreen({ onNext, onBack, initialData }: DataScre
                                 />
                             )}
                         />
-                        {errors.courseName && <Text style={[styles.errorText, { textAlign }]}>{errors.courseName.message as string}</Text>}
                     </View>
 
-                    {/* Faculty Selection */}
+                    {/* Faculty (Multiple) */}
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { textAlign }]}>{t('auth.signup.facultyLabel')}</Text>
-                        <Pressable
+                        <Text style={[styles.label, { textAlign }]}>
+                            {isRTL ? 'اختر الكليات التي لها علاقة بالمصدر' : 'Select faculties related to the resource'}
+                        </Text>
+                        <TouchableOpacity
+                            activeOpacity={0.7}
                             onPress={() => setFacultyModalVisible(true)}
-                            style={[styles.selector, { flexDirection }, errors.facultyId && styles.inputError]}
+                            style={[styles.selector, { flexDirection }, errors.facultyIds && styles.inputError]}
                         >
-                            <Text style={[styles.selectorText, !selectedFacultyId && styles.placeholder]}>
-                                {selectedFacultyId ? t(`faculties.${selectedFacultyId}`) : t('auth.signup.facultyPlaceholder')}
+                            <Text style={[styles.selectorText, selectedFacultyIds.length === 0 && styles.placeholder]} numberOfLines={1}>
+                                {selectedFacultyIds.length > 0 
+                                  ? selectedFacultyIds.map(fId => fId === 'all' ? (isRTL ? 'الجميع' : 'All') : t(`faculties.${fId}`)).join(', ')
+                                  : (isRTL ? 'اختر كليات المصدر' : 'Select resource faculties')}
                             </Text>
                             <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
-                        </Pressable>
-                        {errors.facultyId && <Text style={[styles.errorText, { textAlign }]}>{errors.facultyId.message as string}</Text>}
+                        </TouchableOpacity>
                     </View>
 
-                    {/* Major Selection */}
+                    {/* Major (Multiple) */}
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { textAlign }]}>{t('auth.signup.majorLabel')}</Text>
-                        <Pressable
-                            onPress={() => { if (selectedFacultyId) setMajorModalVisible(true); }}
-                            style={[styles.selector, { flexDirection }, !selectedFacultyId && styles.disabled, errors.major && styles.inputError]}
+                        <Text style={[styles.label, { textAlign }]}>{isRTL ? 'التخصصات' : 'Majors'}</Text>
+                        <TouchableOpacity
+                            activeOpacity={0.7}
+                            onPress={() => setMajorModalVisible(true)}
+                            disabled={selectedFacultyIds.length === 0}
+                            style={[styles.selector, { flexDirection }, selectedFacultyIds.length === 0 && styles.disabled, errors.majors && styles.inputError]}
                         >
-                            <Text style={[styles.selectorText, !watch('major') && styles.placeholder]}>
-                                {watch('major') || t('auth.signup.majorPlaceholder')}
+                            <Text style={[styles.selectorText, selectedMajors.length === 0 && styles.placeholder]} numberOfLines={1}>
+                                {selectedMajors.length > 0 
+                                  ? selectedMajors.map(m => m === 'all' ? (isRTL ? 'جميع التخصصات' : 'All Majors') : m).join(', ')
+                                  : (isRTL ? 'اختر تخصصات المصدر' : 'Select resource majors')}
                             </Text>
                             <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
-                        </Pressable>
-                        {errors.major && <Text style={[styles.errorText, { textAlign }]}>{errors.major.message as string}</Text>}
+                        </TouchableOpacity>
                     </View>
 
-                    {/* Book Condition */}
+                    {/* Condition */}
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { textAlign }]}>{isRTL ? 'حالة الكتاب' : 'Condition'}</Text>
-                        <Pressable
+                        <Text style={[styles.label, { textAlign }]}>{isRTL ? 'حالة المصدر' : 'Material Condition'}</Text>
+                        <TouchableOpacity
+                            activeOpacity={0.7}
                             onPress={() => setConditionModalVisible(true)}
                             style={[styles.selector, { flexDirection }, errors.conditionId && styles.inputError]}
                         >
-                            <Text style={[styles.selectorText, !watch('conditionId') && styles.placeholder]}>
-                                {watch('conditionId') ? t(`conditions.${watch('conditionId')}`) : (isRTL ? 'اختر حالة الكتاب' : 'Select Condition')}
+                            <Text style={[styles.selectorText, !watch('conditionId') && styles.placeholder]} numberOfLines={1}>
+                                {watch('conditionId') ? t(`conditions.${watch('conditionId')}`) : (isRTL ? 'اختر الحالة' : 'Select Condition')}
                             </Text>
                             <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
-                        </Pressable>
-                        {errors.conditionId && <Text style={[styles.errorText, { textAlign }]}>{errors.conditionId.message as string}</Text>}
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Description */}
+                    <View style={styles.inputGroup}>
+                        <Text style={[styles.label, { textAlign }]}>{t('bookDetails.description')}</Text>
+                        <Controller
+                            control={control}
+                            name="description"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    style={[styles.input, styles.textArea, { textAlign }, errors.description && styles.inputError]}
+                                    placeholder={isRTL ? 'أضف وصفاً تفصيلياً للمصدر...' : 'Add a detailed description...'}
+                                    placeholderTextColor="#A0AEC0"
+                                    onBlur={onBlur}
+                                    onChangeText={onChange}
+                                    value={value}
+                                    multiline
+                                />
+                            )}
+                        />
                     </View>
 
                     <TouchableOpacity style={[styles.mainButton, { flexDirection }]} onPress={handleSubmit(onSubmit)}>
@@ -179,99 +306,157 @@ export default function BookDataScreen({ onNext, onBack, initialData }: DataScre
                 </View>
             </ScrollView>
 
-            {/* Faculty Modal */}
-            <Modal visible={facultyModalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={[styles.modalHeader, { flexDirection }]}>
-                            <Text style={styles.modalTitle}>{t('auth.signup.facultyLabel')}</Text>
-                            <Pressable onPress={() => setFacultyModalVisible(false)}>
-                                <Ionicons name="close" size={24} color="#1A1A1A" />
-                            </Pressable>
-                        </View>
-                        <FlatList
-                            data={FACULTIES}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <Pressable
-                                    style={[styles.modalItem, { flexDirection }]}
-                                    onPress={() => {
-                                        setValue('facultyId', item.id);
-                                        setValue('major', '');
-                                        setFacultyModalVisible(false);
-                                    }}
-                                >
-                                    <Ionicons name={item.icon as any} size={22} color={item.color} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
-                                    <Text style={[styles.modalItemText, { textAlign }]}>{t(`faculties.${item.id}`)}</Text>
-                                </Pressable>
-                            )}
-                            ItemSeparatorComponent={() => <View style={styles.divider} />}
-                            contentContainerStyle={{ paddingBottom: 20 }}
-                        />
+            {/* Category Modal */}
+            <Modal visible={categoryModalVisible} transparent animationType="slide" onRequestClose={() => setCategoryModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setCategoryModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.modalContent}>
+                                <View style={[styles.modalHeader, { flexDirection }]}>
+                                    <Text style={styles.modalTitle}>{t('categories.title')}</Text>
+                                    <TouchableOpacity onPress={() => setCategoryModalVisible(false)}>
+                                        <Ionicons name="close" size={24} color="#1A1A1A" />
+                                    </TouchableOpacity>
+                                </View>
+                                <FlatList
+                                    data={RESOURCE_CATEGORIES}
+                                    keyExtractor={(item) => item.id}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity
+                                            style={[styles.modalItem, { flexDirection }]}
+                                            onPress={() => {
+                                                setValue('categoryId', item.id);
+                                                setCategoryModalVisible(false);
+                                            }}
+                                        >
+                                            <Ionicons name={item.icon as any} size={22} color={theme.primary} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
+                                            <Text style={[styles.modalItemText, { textAlign }]}>{t(`categories.${item.id}`)}</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                    ItemSeparatorComponent={() => <View style={styles.divider} />}
+                                    contentContainerStyle={{ paddingBottom: 20 }}
+                                />
+                            </View>
+                        </TouchableWithoutFeedback>
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
+            {/* Faculty Modal */}
+            <Modal visible={facultyModalVisible} transparent animationType="slide" onRequestClose={() => setFacultyModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setFacultyModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.modalContent}>
+                                <View style={[styles.modalHeader, { flexDirection }]}>
+                                    <Text style={styles.modalTitle}>{isRTL ? 'اختر الكليات' : 'Select Faculties'}</Text>
+                                    <TouchableOpacity onPress={() => setFacultyModalVisible(false)}>
+                                        <Text style={{ color: theme.primary, fontWeight: '700' }}>{t('common.save')}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <FlatList
+                                    data={facultyList}
+                                    keyExtractor={(item) => item.id}
+                                    renderItem={({ item }) => {
+                                        const isSelected = selectedFacultyIds.includes(item.id);
+                                        return (
+                                            <TouchableOpacity
+                                                style={[styles.modalItem, { flexDirection }]}
+                                                onPress={() => toggleFaculty(item.id)}
+                                            >
+                                                <Ionicons name={item.icon as any} size={22} color={item.color} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
+                                                <View style={{ flex: 1 }}>
+                                                    <Text style={[styles.modalItemText, { textAlign, fontWeight: isSelected ? '800' : '500' }]}>
+                                                        {item.id === 'all' ? (isRTL ? 'الجميع' : 'All') : t(`faculties.${item.id}`)}
+                                                    </Text>
+                                                    {item.id === 'all' && (
+                                                        <Text style={[styles.hintText, { textAlign }]}>{isRTL ? '(إذا كانت المادة متطلب جامعة إجباري)' : '(If university requirement)'}</Text>
+                                                    )}
+                                                </View>
+                                                {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
+                                            </TouchableOpacity>
+                                        );
+                                    }}
+                                    ItemSeparatorComponent={() => <View style={styles.divider} />}
+                                    contentContainerStyle={{ paddingBottom: 20 }}
+                                />
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
             {/* Major Modal */}
-            <Modal visible={majorModalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={[styles.modalHeader, { flexDirection }]}>
-                            <Text style={styles.modalTitle}>{t('auth.signup.majorLabel')}</Text>
-                            <Pressable onPress={() => setMajorModalVisible(false)}>
-                                <Ionicons name="close" size={24} color="#1A1A1A" />
-                            </Pressable>
-                        </View>
-                        <FlatList
-                            data={majorOptions}
-                            keyExtractor={(item) => item}
-                            renderItem={({ item }) => (
-                                <Pressable
-                                    style={[styles.modalItem, { flexDirection }]}
-                                    onPress={() => {
-                                        setValue('major', item);
-                                        setMajorModalVisible(false);
+            <Modal visible={majorModalVisible} transparent animationType="slide" onRequestClose={() => setMajorModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setMajorModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.modalContent}>
+                                <View style={[styles.modalHeader, { flexDirection }]}>
+                                    <Text style={styles.modalTitle}>{t('auth.signup.majorLabel')}</Text>
+                                    <TouchableOpacity onPress={() => setMajorModalVisible(false)}>
+                                        <Text style={{ color: theme.primary, fontWeight: '700' }}>{t('common.save')}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <FlatList
+                                    data={availableMajorsList}
+                                    keyExtractor={(item) => item}
+                                    renderItem={({ item }) => {
+                                        const isSelected = selectedMajors.includes(item);
+                                        return (
+                                            <TouchableOpacity
+                                                style={[styles.modalItem, { flexDirection }]}
+                                                onPress={() => toggleMajor(item)}
+                                            >
+                                                <Text style={[styles.modalItemText, { textAlign, fontWeight: isSelected ? '800' : '500' }]}>
+                                                  {item === 'all' ? (isRTL ? 'الجميع' : 'All') : item}
+                                                </Text>
+                                                {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
+                                            </TouchableOpacity>
+                                        );
                                     }}
-                                >
-                                    <Text style={[styles.modalItemText, { textAlign }]}>{item}</Text>
-                                </Pressable>
-                            )}
-                            ItemSeparatorComponent={() => <View style={styles.divider} />}
-                            contentContainerStyle={{ paddingBottom: 20 }}
-                        />
+                                    ItemSeparatorComponent={() => <View style={styles.divider} />}
+                                    contentContainerStyle={{ paddingBottom: 20 }}
+                                />
+                            </View>
+                        </TouchableWithoutFeedback>
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
             </Modal>
 
             {/* Condition Modal */}
-            <Modal visible={conditionModalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={[styles.modalHeader, { flexDirection }]}>
-                            <Text style={styles.modalTitle}>{isRTL ? 'حالة الكتاب' : 'Condition'}</Text>
-                            <Pressable onPress={() => setConditionModalVisible(false)}>
-                                <Ionicons name="close" size={24} color="#1A1A1A" />
-                            </Pressable>
-                        </View>
-                        <FlatList
-                            data={BOOK_CONDITIONS}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <Pressable
-                                    style={[styles.modalItem, { flexDirection }]}
-                                    onPress={() => {
-                                        setValue('conditionId', item.id);
-                                        setConditionModalVisible(false);
-                                    }}
-                                >
-                                    <Text style={[styles.modalItemText, { textAlign }]}>{t(`conditions.${item.id}`)}</Text>
-                                </Pressable>
-                            )}
-                            ItemSeparatorComponent={() => <View style={styles.divider} />}
-                            contentContainerStyle={{ paddingBottom: 20 }}
-                        />
+            <Modal visible={conditionModalVisible} transparent animationType="slide" onRequestClose={() => setConditionModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setConditionModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.modalContent}>
+                                <View style={[styles.modalHeader, { flexDirection }]}>
+                                    <Text style={styles.modalTitle}>{isRTL ? 'حالة المصدر' : 'Condition'}</Text>
+                                    <TouchableOpacity onPress={() => setConditionModalVisible(false)}>
+                                        <Ionicons name="close" size={24} color="#1A1A1A" />
+                                    </TouchableOpacity>
+                                </View>
+                                <FlatList
+                                    data={BOOK_CONDITIONS}
+                                    keyExtractor={(item) => item.id}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity
+                                            style={[styles.modalItem, { flexDirection }]}
+                                            onPress={() => {
+                                                setValue('conditionId', item.id);
+                                                setConditionModalVisible(false);
+                                            }}
+                                        >
+                                            <Text style={[styles.modalItemText, { textAlign }]}>{t(`conditions.${item.id}`)}</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                    ItemSeparatorComponent={() => <View style={styles.divider} />}
+                                    contentContainerStyle={{ paddingBottom: 20 }}
+                                />
+                            </View>
+                        </TouchableWithoutFeedback>
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
             </Modal>
         </SafeAreaView>
     );
@@ -291,8 +476,9 @@ const styles = StyleSheet.create({
     inputGroup: { marginBottom: Spacing.lg },
     label: { fontSize: 13, fontWeight: '700', color: Colors.light.primary, marginBottom: Spacing.sm },
     input: { height: 56, backgroundColor: '#F1F4F7', borderRadius: Radius.md, paddingHorizontal: 16, fontSize: 15, fontWeight: '500', color: '#1A1A1A' },
+    textArea: { height: 120, paddingTop: 16, textAlignVertical: 'top' },
     selector: { height: 56, backgroundColor: '#F1F4F7', borderRadius: Radius.md, paddingHorizontal: 16, justifyContent: 'space-between', alignItems: 'center' },
-    selectorText: { fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
+    selectorText: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', flex: 1 },
     placeholder: { color: '#A0AEC0', fontWeight: '500' },
     disabled: { opacity: 0.6 },
     inputError: { borderWidth: 1, borderColor: '#EF4444' },
@@ -305,5 +491,6 @@ const styles = StyleSheet.create({
     modalTitle: { fontSize: 18, fontWeight: '800', color: '#1A1A1A' },
     modalItem: { alignItems: 'center', padding: 20 },
     modalItemText: { fontSize: 16, fontWeight: '600', color: '#1A1A1A', flex: 1 },
+    hintText: { fontSize: 12, color: '#64748B', fontWeight: '500', marginTop: 2 },
     divider: { height: 1, backgroundColor: '#F1F3F5', marginHorizontal: 20 },
 });

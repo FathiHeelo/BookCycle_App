@@ -1,45 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
   View,
   useWindowDimensions,
-  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useI18n } from '@/hooks/use-i18n';
-import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
-import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 
-export default function TotalBook_Card() {
+interface TotalBookCardProps {
+  stats: {
+    totalGiven: number;
+    totalReceived: number;
+  };
+}
+
+export default function TotalBook_Card({ stats }: TotalBookCardProps) {
   const { width } = useWindowDimensions();
   const { t, isRTL } = useI18n();
-  const currentUser = FIREBASE_AUTH.currentUser;
-
-  const [totalGiven, setTotalGiven] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   const cardPadding = Math.min(width * 0.06, 24);
   const titleFontSize = Math.min(width * 0.085, 36);
   const textAlign = isRTL ? 'right' : 'left';
-
-  useEffect(() => {
-    if (!currentUser) return;
-
-    const booksRef = ref(FIREBASE_DB, 'Books');
-    const userBooksQuery = query(booksRef, orderByChild('donorUid'), equalTo(currentUser.uid));
-
-    const unsubscribe = onValue(userBooksQuery, (snapshot) => {
-      if (snapshot.exists()) {
-        setTotalGiven(Object.keys(snapshot.val()).length);
-      } else {
-        setTotalGiven(0);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [currentUser]);
 
   return (
     <View style={[styles.cardContainer, { padding: cardPadding }]}>
@@ -49,17 +31,13 @@ export default function TotalBook_Card() {
 
       <Text style={[styles.label, { textAlign }]}>{t('profile.stats.communityImpact')}</Text>
 
-      {loading ? (
-        <ActivityIndicator color="#FFFFFF" style={{ alignSelf: textAlign === 'right' ? 'flex-end' : 'flex-start', marginVertical: 10 }} />
-      ) : (
-        <Text style={[styles.title, { fontSize: titleFontSize, textAlign }]}>
-          {t('profile.stats.totalBooks')}{'\n'}
-          {t('profile.stats.given')}: {totalGiven}
-        </Text>
-      )}
+      <Text style={[styles.title, { fontSize: titleFontSize, textAlign }]}>
+        {t('profile.stats.totalBooks')}{'\n'}
+        {t('profile.stats.given')}: {stats.totalGiven}
+      </Text>
 
       <Text style={[styles.savings, { textAlign }]}>
-        {t('profile.stats.thankYou')}
+        {isRTL ? `لقد حصلت أيضاً على ${stats.totalReceived} مصادر` : `You also received ${stats.totalReceived} resources`}
       </Text>
     </View>
   );

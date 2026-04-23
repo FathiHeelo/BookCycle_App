@@ -14,10 +14,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ThemedText } from '@/components/themed-text';
+import { useI18n } from '@/hooks/use-i18n';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
+  const { t, isRTL } = useI18n();
 
   const handleLogout = async () => {
     try {
@@ -68,7 +70,7 @@ export default function HomeScreen() {
   <View style={[styles.iconCircle, { backgroundColor: 'rgba(0,27,57,0.1)' }]}>
     <Ionicons name="add" size={24} color="#001B39" />
   </View>
-  <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>Add Book</ThemedText>
+  <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>{isRTL ? 'إضافة مادة' : 'Add Material'}</ThemedText>
 </Pressable>
             
             <Pressable 

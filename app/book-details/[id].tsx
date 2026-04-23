@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View, Pressable, SafeAreaView, ActivityIndicator, Image, Dimensions, Platform, Alert, Modal, Share } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Pressable, TouchableOpacity, SafeAreaView, ActivityIndicator, Image, Dimensions, Platform, Alert, Modal, Share } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '../../constants/theme';
@@ -14,8 +14,10 @@ interface Book {
   id: string;
   title: string;
   courseName: string;
-  facultyId: string;
-  major: string;
+  facultyId?: string; // Legacy
+  facultyIds?: string[]; // New
+  major?: string; // Legacy
+  majors?: string[]; // New
   conditionId: string;
   description: string;
   pages: string;
@@ -43,6 +45,8 @@ export default function BookDetailsScreen() {
   const [requesting, setRequesting] = useState(false);
   const [requestStatus, setRequestStatus] = useState<'none' | 'pending' | 'success'>('none');
   const [modalVisible, setModalVisible] = useState(false);
+  const [donorProfile, setDonorProfile] = useState<any>(null);
+  const [donorStats, setDonorStats] = useState<any>(null);
 
   const bookImageUri = book?.imageUrl || book?.image;
   const textAlign = isRTL ? 'right' : 'left';
@@ -63,7 +67,25 @@ export default function BookDetailsScreen() {
         if (snapshot.exists()) {
           const bookData = { id: id as string, ...snapshot.val() };
           setBook(bookData);
-          fetchOtherBooks(bookData.facultyId);
+          
+          // Fetch Donor Profile for role
+          if (bookData.donorUid) {
+            const donorRef = ref(FIREBASE_DB, `Users/${bookData.donorUid}`);
+            const donorSnap = await get(donorRef);
+            if (donorSnap.exists()) {
+              setDonorProfile(donorSnap.val());
+            }
+
+            const statsRef = ref(FIREBASE_DB, `Users/${bookData.donorUid}/stats`);
+            const statsSnap = await get(statsRef);
+            if (statsSnap.exists()) {
+              setDonorStats(statsSnap.val());
+            }
+          }
+
+          // For suggestions, use the first faculty ID
+          const suggestionFaculty = bookData.facultyIds?.[0] || bookData.facultyId;
+          if (suggestionFaculty) fetchOtherBooks(suggestionFaculty);
         } else {
           setError(t('bookDetails.notFound', { defaultValue: 'Book not found' }));
         }
@@ -83,7 +105,7 @@ export default function BookDetailsScreen() {
           const allBooks = snapshot.val();
           const list = Object.keys(allBooks)
             .map(key => ({ id: key, ...allBooks[key] }))
-            .filter(b => b.facultyId === facultyId && b.id !== id)
+            .filter(b => (b.facultyIds?.includes(facultyId) || b.facultyId === facultyId) && b.id !== id)
             .slice(0, 5);
           setOtherBooks(list);
         }
@@ -185,11 +207,21 @@ export default function BookDetailsScreen() {
 
         <View style={styles.mainContent}>
           <View style={[styles.badgeRow, { flexDirection }]}>
-            <View style={[styles.badge, { backgroundColor: '#E0F2FE' }]}>
-              <Text style={[styles.badgeText, { color: '#0369A1' }]}>
-                {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : (isRTL ? 'عام' : 'GENERAL')}
-              </Text>
-            </View>
+            {book.facultyIds ? (
+              book.facultyIds.map((fId: string) => (
+                <View key={fId} style={[styles.badge, { backgroundColor: '#E0F2FE' }]}>
+                  <Text style={[styles.badgeText, { color: '#0369A1' }]}>
+                    {t(`faculties.${fId}`).toUpperCase()}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <View style={[styles.badge, { backgroundColor: '#E0F2FE' }]}>
+                <Text style={[styles.badgeText, { color: '#0369A1' }]}>
+                  {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : (isRTL ? 'عام' : 'GENERAL')}
+                </Text>
+              </View>
+            )}
             <View style={[styles.badge, { backgroundColor: '#F1F5F9' }]}>
               <Text style={[styles.badgeText, { color: '#475569' }]}>{isRTL ? 'غلاف مقوى' : 'HARDCOVER'}</Text>
             </View>
@@ -202,18 +234,37 @@ export default function BookDetailsScreen() {
 
           <View style={[styles.infoGrid, { flexDirection }]}>
             <View style={[styles.infoCard, { backgroundColor: theme.card }]}>
-              <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الطبعة' : 'EDITION').toUpperCase()}</Text>
+              <Text style={[styles.infoLabel, { textAlign }]}>{t('categories.title').toUpperCase()}</Text>
               <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
-                {book.edition || (isRTL ? 'أحدث طبعة' : 'Latest Edition')}
+                {book.categoryId ? t(`categories.${book.categoryId}`) : (isRTL ? 'مصدر دراسي' : 'Study Resource')}
               </Text>
             </View>
             <View style={[styles.infoCard, { backgroundColor: theme.card }]}>
-              <Text style={[styles.infoLabel, { textAlign }]}>{t('auth.signup.facultyLabel').toUpperCase()}</Text>
-              <Text style={[styles.infoValue, { color: theme.primary, textAlign }]} numberOfLines={1}>
-                {book.facultyId ? t(`faculties.${book.facultyId}`) : (isRTL ? 'العلوم والهندسة' : 'Science & Eng')}
+              <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الطبعة/الموديل' : 'EDITION/MODEL').toUpperCase()}</Text>
+              <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
+                {book.edition || (isRTL ? 'أحدث طبعة' : 'Latest')}
               </Text>
             </View>
           </View>
+
+          {/* Majors Section */}
+          {(book.majors || book.major) && (
+            <View style={[styles.infoCardWide, { backgroundColor: theme.card }]}>
+              <Text style={[styles.infoLabel, { textAlign }]}>{t('auth.signup.majorLabel').toUpperCase()}</Text>
+              <View style={[styles.tagContainer, { flexDirection }]}>
+                {book.majors ? (
+                  book.majors.map((m: string) => (
+                    <View key={m} style={styles.majorTag}>
+                      <Text style={styles.majorTagText}>{m}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>{book.major}</Text>
+                )}
+              </View>
+            </View>
+          )}
+
           <View style={[styles.infoCardWide, { backgroundColor: theme.card }]}>
             <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الحالة' : 'CONDITION').toUpperCase()}</Text>
             <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
@@ -228,53 +279,37 @@ export default function BookDetailsScreen() {
             </Text>
           </View>
 
-          <Pressable 
-            style={[styles.donorCard, { backgroundColor: '#F8FAFC' }]}
-            onPress={() => router.push(`../public-profile/${book.donorUid}`)}
-          >
-            <Text style={[styles.smallLabel, { textAlign }]}>{t('profile.history.donor').toUpperCase()}</Text>
+          <View style={styles.donorSection}>
+            <Text style={[styles.donorLabel, { textAlign }]}>{isRTL ? 'بواسطة' : 'GIFTING BY'}</Text>
+            
             <View style={[styles.donorHeader, { flexDirection }]}>
-              <View style={styles.donorAvatar}>
-                <Ionicons name="person" size={24} color="#94A3B8" />
+              <View style={[styles.donorAvatar, { backgroundColor: '#fff' }]}>
+                {donorProfile?.photoURL ? (
+                  <Image source={{ uri: donorProfile.photoURL }} style={styles.avatarImg} />
+                ) : (
+                  <Ionicons name="person" size={28} color="#94A3B8" />
+                )}
               </View>
-              <View>
-                <Text style={[styles.donorName, { color: theme.primary, textAlign }]}>{book.donorName}</Text>
-                <Text style={[styles.donorSubtitle, { textAlign }]}>{isRTL ? 'مساهم نشط • 5 كتب' : 'Active Contributor • 5 Books'}</Text>
+              
+              <View style={[styles.donorInfo, isRTL ? { marginRight: 16 } : { marginLeft: 16 }]}>
+                <Text style={[styles.donorName, { textAlign, color: '#001B39' }]}>
+                  {book.donorName}
+                </Text>
+                <Text style={[styles.donorSubtext, { textAlign }]}>
+                  {donorProfile?.role === 'professor' ? t('auth.signup.professor') : t('auth.signup.student')}
+                  {' • '}
+                  {isRTL ? `${donorStats?.impact || 0} مساهمة` : `${donorStats?.impact || 0} Contributions`}
+                </Text>
               </View>
             </View>
-            <View style={[styles.donorMeta, { flexDirection }]}>
-            </View>
-            <View style={[styles.donorMeta, { flexDirection }]}>
-              <Ionicons name="time-outline" size={16} color="#64748B" />
-              <Text style={[styles.donorMetaText, { textAlign }]}>{isRTL ? 'متاح للاستلام: الأحد-الخميس' : 'Available for pickup: Sun-Thu'}</Text>
-            </View>
-            <View style={styles.viewProfileBtn}>
-              <Text style={styles.viewProfileText}>{t('profile.card.viewProfile', { defaultValue: isRTL ? 'عرض الملف الشخصي' : 'View Profile' })}</Text>
-            </View>
-          </Pressable>
-          {otherBooks.length > 0 && (
-            <View style={styles.section}>
-              <View style={[styles.sectionHeader, { flexDirection }]}>
-                <Text style={[styles.sectionTitle, { color: theme.primary }]}>{isRTL ? 'كتب أخرى من نفس الكلية' : 'Others from Faculty'}</Text>
-                <Pressable onPress={() => router.push('/explore')}>
-                  <Text style={[styles.exploreLink, { color: theme.primary }]}>{t('profile.history.viewAll')} {isRTL ? '‹' : '›'}</Text>
-                </Pressable>
-              </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-                {otherBooks.map((other) => (
-                  <Pressable 
-                    key={other.id} 
-                    style={styles.otherBookCard}
-                    onPress={() => router.push(`../book-details/${other.id}`)}
-                  >
-                    <Image source={{ uri: other.imageUrl || other.image }} style={styles.otherBookImage} />
-                    <Text style={[styles.otherBookTitle, { textAlign }]} numberOfLines={1}>{other.title}</Text>
-                    <Text style={[styles.otherBookAuthor, { textAlign }]}>{t('bookDetails.by', { defaultValue: isRTL ? 'بواسطة' : 'By' })} {other.donorName}</Text>
-                  </Pressable>
-                ))}
-              </ScrollView>
-            </View>
-          )}
+
+            <TouchableOpacity 
+              style={styles.viewProfileBtn}
+              onPress={() => router.push(`../public-profile/${book.donorUid}`)}
+            >
+              <Text style={styles.viewProfileBtnText}>{isRTL ? 'عرض الملف الشخصي' : 'View Profile'}</Text>
+            </TouchableOpacity>
+          </View>
           <View style={{ height: 100 }} />
         </View>
       </ScrollView>
@@ -302,7 +337,7 @@ export default function BookDetailsScreen() {
                   style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }} 
                 />
                 <Text style={styles.requestBtnText}>
-                  {requestStatus === 'success' ? (isRTL ? 'تم إرسال الطلب' : 'Request Sent') : (isRTL ? 'اطلب هذا الكتاب' : 'Request this Book')}
+                  {requestStatus === 'success' ? (isRTL ? 'تم إرسال الطلب' : 'Request Sent') : (isRTL ? 'اطلب هذا المصدر' : 'Request this Material')}
                 </Text>
               </View>
             )}
@@ -315,7 +350,6 @@ export default function BookDetailsScreen() {
                 Alert.alert(t('common.error'), t('auth.errors.mustBeLoggedIn'));
                 return;
               }
-              // Create a unique chatId using both UIDs
               const chatId = [currentUser.uid, book.donorUid].sort().join('_');
               router.push({
                 pathname: `../chat/${chatId}`,
@@ -400,6 +434,7 @@ const styles = StyleSheet.create({
   badgeRow: {
     gap: 8,
     marginBottom: 16,
+    flexWrap: 'wrap',
   },
   badge: {
     paddingHorizontal: 12,
@@ -410,6 +445,25 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.5,
+  },
+  tagContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 4,
+  },
+  majorTag: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  majorTagText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#475569',
   },
   title: {
     fontSize: 28,
@@ -439,7 +493,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: '#F1F5F9',
-    marginBottom: 32,
+    marginBottom: 12,
   },
   infoLabel: {
     fontSize: 10,
@@ -454,6 +508,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 32,
+    marginTop: 20,
   },
   sectionHeader: {
     justifyContent: 'space-between',
@@ -470,41 +525,69 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontWeight: '500',
   },
-  donorCard: {
-    padding: 20,
-    borderRadius: Radius.lg,
+  donorSection: {
+    marginTop: 24,
     marginBottom: 32,
+    padding: 24,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
-  smallLabel: {
-    fontSize: 10,
-    fontWeight: '800',
+  donorLabel: {
+    fontSize: 12,
+    fontWeight: '900',
     color: '#94A3B8',
+    marginBottom: 20,
+    textTransform: 'uppercase',
     letterSpacing: 1,
-    marginBottom: 16,
   },
   donorHeader: {
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 20,
+    marginBottom: 24,
   },
   donorAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#E2E8F0',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  avatarImg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  donorInfo: {
+    flex: 1,
   },
   donorName: {
-    fontSize: 17,
-    fontWeight: '800',
+    fontSize: 20,
+    fontWeight: '900',
+    marginBottom: 4,
   },
-  donorSubtitle: {
-    fontSize: 13,
+  donorSubtext: {
+    fontSize: 14,
     color: '#64748B',
     fontWeight: '600',
   },
-  donorMeta: {
+  viewProfileBtn: {
+    backgroundColor: '#E2E8F0',
+    height: 52,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewProfileBtnText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#001B39',
+  },
+  conditionSection: {
     alignItems: 'center',
     gap: 8,
     marginBottom: 10,
@@ -513,19 +596,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#475569',
     fontWeight: '500',
-  },
-  viewProfileBtn: {
-    marginTop: 16,
-    height: 48,
-    borderRadius: Radius.md,
-    backgroundColor: '#E2E8F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  viewProfileText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#475569',
   },
   exploreLink: {
     fontSize: 14,
