@@ -1,5 +1,4 @@
-import UploadPhotoScreen from '@/src/Feature/Add_Books/upload_photo';
-import DataScreen from '@/src/Feature/Add_Books/Data';
+import { AddBookUploadScreen, AddBookDataScreen } from '@/src/features/add_books';
 import React, { useEffect, useState } from 'react';
 import {
     SafeAreaView,
@@ -10,12 +9,19 @@ import {
     View,
     Alert,
     ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import { ref, push, set, get, update } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useI18n } from '@/hooks/use-i18n';
+import { Colors } from '@/constants/theme';
+import { useAppTheme } from '@/context/ThemeContext';
+import { CustomHeader } from '@/src/components/shared/CustomHeader';
 import { uploadImageToCloudinary } from '@/src/services/cloudinary.service';
+import { ThemedText } from '@/components/themed-text';
 
 export default function Add_Books() {   
     const [step, setStep] = useState(1);
@@ -29,6 +35,8 @@ export default function Add_Books() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const editId = params.editId as string;
+    const { theme } = useAppTheme();
+    const themeColors = Colors[theme];
     
     const horizontalPadding = Math.min(width * 0.05, 20);
     const { t, isRTL } = useI18n();
@@ -128,52 +136,62 @@ export default function Add_Books() {
 
     return (
         <SafeAreaView style={styles.screen}>
-            <StatusBar barStyle="dark-content" backgroundColor="#F3F4F6" />
-            <ScrollView
-                contentContainerStyle={[
-                    styles.scrollContent,
-                    { paddingHorizontal: horizontalPadding },
-                ]}
-                showsVerticalScrollIndicator={false}
-                bounces={true}
-            >
-                <View style={styles.cardWrapper}>
-                    {step === 1 && (
-                        <UploadPhotoScreen 
-                            initialImage={tempImageUri ?? undefined}
-                            onNext={(uri: string) => {
-                                setTempImageUri(uri);
-                                setStep(2);
-                            }} 
-                        />
-                    )}
-                    {step === 2 && (
-                        <DataScreen 
-                            onNext={handleSaveBook}
-                            onBack={() => setStep(1)}
-                            initialData={initialData} 
-                        />
-                    )}
-                </View>
-            </ScrollView>
+            <View style={[styles.container, { backgroundColor: themeColors.background }]}>
+                <CustomHeader 
+                    title={initialData ? (isRTL ? 'تعديل الكتاب' : 'Edit Book') : (isRTL ? 'إضافة كتاب' : 'Give a Book')}
+                    leftMode="none"
+                    rightIcons={['search']}
+                    hideSafeArea
+                />
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                    <ScrollView
+                        contentContainerStyle={[
+                            styles.scrollContent,
+                            { paddingHorizontal: horizontalPadding },
+                        ]}
+                        showsVerticalScrollIndicator={false}
+                        bounces={true}
+                    >
+                        <View style={styles.cardWrapper}>
+                            {step === 1 && (
+                                <AddBookUploadScreen 
+                                    initialImage={tempImageUri ?? undefined}
+                                    onNext={(uri: string) => {
+                                        setTempImageUri(uri);
+                                        setStep(2);
+                                    }} 
+                                />
+                            )}
+                            {step === 2 && (
+                                <AddBookDataScreen 
+                                    onNext={handleSaveBook}
+                                    onBack={() => setStep(1)}
+                                    initialData={initialData} 
+                                />
+                            )}
+                        </View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </View>
         </SafeAreaView>
     );
 }
 
-// ... styles remain same
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: '#F3F4F6',
     },
+    container: {
+        flex: 1,
+    },
     scrollContent: {
         flexGrow: 1,
         justifyContent: 'center',
         paddingVertical: 24,
+        paddingBottom: 120, // Prevent tab bar overlap
     },
     cardWrapper: {
         width: '100%',
     },
 });
-
-import { ThemedText } from '@/components/themed-text';

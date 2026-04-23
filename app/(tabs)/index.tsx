@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ThemedText } from '@/components/themed-text';
+import { CustomHeader } from '@/src/components/shared/CustomHeader';
 import { useI18n } from '@/hooks/use-i18n';
 
 export default function HomeScreen() {
@@ -34,39 +35,32 @@ export default function HomeScreen() {
       <StatusBar barStyle="dark-content" />
       
       {/* Header Section */}
-      <View style={[styles.header, { backgroundColor: '#FFFFFF' }]}>
-        <View style={styles.headerTop}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-            <Ionicons name="book" size={24} color="#001B39" />
-            <ThemedText style={[styles.headerTitle, { color: '#001B39' }]}>BookCycle</ThemedText>
-          </View>
-          <Pressable 
-            onPress={() => router.push('/all-messages')}
-            style={styles.notifBtn}
-          >
-            <Ionicons name="chatbubbles-outline" size={24} color="#001B39" />
-            <View style={styles.notifBadge} />
-          </Pressable>
-        </View>
-        <View style={styles.welcomeInfo}>
-          <ThemedText style={[styles.welcomeText, { color: '#8E9BAE' }]}>Welcome back,</ThemedText>
-          <ThemedText style={[styles.userName, { color: '#1A1A1A' }]}>{FIREBASE_AUTH.currentUser?.displayName || 'User'}</ThemedText>
-        </View>
-      </View>
+      <CustomHeader 
+        title="BookCycle"
+        leftMode="avatar"
+        avatarUrl={FIREBASE_AUTH.currentUser?.photoURL || undefined}
+        rightIcons={['search']}
+        hideSafeArea
+      />
 
       <ScrollView
         style={styles.flex}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.welcomeInfo}>
+          <ThemedText style={[styles.welcomeText, { color: '#8E9BAE' }]}>Welcome back,</ThemedText>
+          <ThemedText style={[styles.userName, { color: '#1A1A1A' }]}>{FIREBASE_AUTH.currentUser?.displayName || 'User'}</ThemedText>
+        </View>
+
         {/* Quick Actions */}
         <View style={styles.section}>
           <ThemedText style={[styles.sectionTitle, { color: '#1A1A1A' }]}>Quick Actions</ThemedText>
           <View style={styles.actionGrid}>
-<Pressable
-  style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}
-  onPress={() => router.push('../GiveBookScreen')}
->
+            <Pressable
+              style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}
+              onPress={() => router.push('/(tabs)/Add_Books')}
+            >
   <View style={[styles.iconCircle, { backgroundColor: 'rgba(0,27,57,0.1)' }]}>
     <Ionicons name="add" size={24} color="#001B39" />
   </View>
@@ -75,7 +69,7 @@ export default function HomeScreen() {
             
             <Pressable 
               style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}
-              onPress={() => router.push('/my-requests')}
+              onPress={() => router.push('../MyRequestsScreenUI')}
             >
               <View style={[styles.iconCircle, { backgroundColor: 'rgba(245,158,11,0.1)' }]}>
                 <Ionicons name="mail-outline" size={24} color="#F59E0B" />
@@ -84,50 +78,6 @@ export default function HomeScreen() {
             </Pressable>
           </View>
         </View>
-
-        {/* Account Section */}
-        <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: '#1A1A1A' }]}>Account Settings</ThemedText>
-          <View style={[styles.accountCard, { backgroundColor: '#F1F4F7' }]}>
-            <Pressable
-              style={styles.accountItem}
-              onPress={() => router.push('/change-password')}
-            >
-              <View style={styles.accountItemLeft}>
-                <Ionicons name="lock-closed-outline" size={20} color="#001B39" />
-                <ThemedText style={[styles.accountItemText, { color: '#1A1A1A' }]}>Change Password</ThemedText>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#8E9BAE" />
-            </Pressable>
-
-            <View style={[styles.itemDivider, { backgroundColor: '#E5E7EB' }]} />
-
-            <Pressable
-              style={styles.accountItem}
-              onPress={() => router.push('/verify-phone')}
-            >
-              <View style={styles.accountItemLeft}>
-                <Ionicons name="shield-checkmark-outline" size={20} color="#001B39" />
-                <ThemedText style={[styles.accountItemText, { color: '#1A1A1A' }]}>Security & Verification</ThemedText>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#8E9BAE" />
-            </Pressable>
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.logoutBtn,
-              { backgroundColor: 'rgba(239,68,68,0.1)' },
-              pressed && { opacity: 0.8 }
-            ]}
-            onPress={handleLogout}
-          >
-            <Ionicons name="log-out-outline" size={20} color="#EF4444" style={styles.logoutIcon} />
-            <ThemedText style={styles.logoutText}>Sign Out</ThemedText>
-          </Pressable>
-        </View>
-
-        <View style={styles.footerSpace} />
       </ScrollView>
     </View>
   );
@@ -175,7 +125,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   welcomeInfo: {
-    marginTop: 5,
+    marginBottom: Spacing.xl,
   },
   welcomeText: {
     fontSize: 15,
@@ -188,6 +138,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl,
+    paddingBottom: 120, // Prevents tab bar overlap
   },
   section: {
     marginBottom: Spacing.xl,

@@ -1,0 +1,53 @@
+import { StyleSheet } from 'react-native';
+import { Colors, Radius, Spacing } from '@/constants/theme';
+import { VIBRANT_GOLD } from './constants';
+
+export const DataStyles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: '#FFFFFF' },
+    content: { padding: Spacing.lg },
+    stepLabel: { color: VIBRANT_GOLD, fontSize: 12, fontWeight: '800', letterSpacing: 1, marginBottom: Spacing.xs },
+    progressContainer: { justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: Spacing.sm },
+    title: { fontSize: 28, fontWeight: '800', color: Colors.light.primary },
+    progressText: { fontSize: 14, color: '#64748B', fontWeight: '600' },
+    backButton: { padding: 4, marginLeft: -4 },
+    progressBarBackground: { height: 8, backgroundColor: '#E2E8F0', borderRadius: Radius.pill, marginBottom: Spacing.xl, overflow: 'hidden' },
+    progressBarFill: { width: '50%', height: '100%', backgroundColor: Colors.light.primary, borderRadius: Radius.pill },
+    form: { marginTop: Spacing.md },
+    inputGroup: { marginBottom: Spacing.lg },
+    label: { fontSize: 13, fontWeight: '700', color: Colors.light.primary, marginBottom: Spacing.sm },
+    input: { height: 56, backgroundColor: '#F1F4F7', borderRadius: Radius.md, paddingHorizontal: 16, fontSize: 15, fontWeight: '500', color: '#1A1A1A' },
+    textArea: { height: 120, paddingTop: 16, textAlignVertical: 'top' },
+    selector: { height: 56, backgroundColor: '#F1F4F7', borderRadius: Radius.md, paddingHorizontal: 16, justifyContent: 'space-between', alignItems: 'center' },
+    selectorText: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', flex: 1 },
+    placeholder: { color: '#A0AEC0', fontWeight: '500' },
+    disabled: { opacity: 0.6 },
+    inputError: { borderWidth: 1, borderColor: '#EF4444' },
+    errorText: { color: '#EF4444', fontSize: 12, fontWeight: '600', marginTop: 4, marginLeft: 4 },
+    mainButton: { marginTop: Spacing.xl, backgroundColor: Colors.light.primary, height: 56, borderRadius: Radius.pill, justifyContent: 'center', alignItems: 'center', gap: Spacing.sm },
+    mainButtonText: { color: '#FFF', fontSize: 16, fontWeight: '800' },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '80%' },
+    modalHeader: { justifyContent: 'space-between', alignItems: 'center', padding: 24, borderBottomWidth: 1, borderBottomColor: '#F1F3F5' },
+    modalTitle: { fontSize: 18, fontWeight: '800', color: '#1A1A1A' },
+    modalItem: { alignItems: 'center', padding: 20 },
+    modalItemText: { fontSize: 16, fontWeight: '600', color: '#1A1A1A', flex: 1 },
+    hintText: { fontSize: 12, color: '#64748B', fontWeight: '500', marginTop: 2 },
+    divider: { height: 1, backgroundColor: '#F1F3F5', marginHorizontal: 20 },
+});
+
+export const UploadStyles = StyleSheet.create({
+  container: { flex: 1 },
+  content: { padding: 20, flex: 1 },
+  header: { marginBottom: 30 },
+  title: { fontSize: 24, fontWeight: '800', color: '#001B39', marginBottom: 8 },
+  subtitle: { fontSize: 14, color: '#64748B', lineHeight: 20 },
+  imageBox: { width: '100%', aspectRatio: 3 / 4, backgroundColor: '#F8FAFC', borderRadius: 24, borderWidth: 2, borderColor: '#E2E8F0', borderStyle: 'dashed', overflow: 'hidden', justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
+  previewImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  placeholderContainer: { alignItems: 'center' },
+  placeholderText: { marginTop: 12, color: '#94A3B8', fontWeight: '600' },
+  optionsContainer: { gap: 16, marginBottom: 32 },
+  optionBtn: { flex: 1, height: 56, backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  optionText: { fontSize: 15, fontWeight: '700', color: '#001B39' },
+  nextBtn: { height: 56, backgroundColor: '#001B39', borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
+  nextBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+});
