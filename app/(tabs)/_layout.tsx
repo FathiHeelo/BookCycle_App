@@ -1,29 +1,35 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Platform, View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
+import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
+import { ref, onValue } from 'firebase/database';
 
 // Custom Tab Icon Component
-const TabIcon = ({ focused, name, label, themeColors }: any) => {
+const TabIcon = ({ focused, name, label, themeColors, hasNotification }: any) => {
   if (focused) {
     return (
       <View style={[styles.highlightContainer, { backgroundColor: themeColors.primary }]}>
         <Ionicons name={name} size={22} color="#FFF" />
         <Text style={[styles.highlightText]}>{label}</Text>
+        {hasNotification && <View style={styles.notificationBadge} />}
       </View>
     );
   }
 
   return (
     <View style={styles.iconContainer}>
-      <Ionicons 
-        name={`${name}-outline` as any} 
-        size={24} 
-        color={themeColors.textSecondary}
-      />
+      <View>
+        <Ionicons 
+          name={`${name}-outline` as any} 
+          size={24} 
+          color={themeColors.textSecondary}
+        />
+        {hasNotification && <View style={styles.notificationBadge} />}
+      </View>
       <Text style={[styles.iconText, { color: themeColors.textSecondary, fontWeight: '500' }]}>
         {label}
       </Text>
@@ -35,6 +41,28 @@ export default function TabLayout() {
   const { theme } = useAppTheme();
   const themeColors = Colors[theme];
   const { t, isRTL } = useI18n();
+  const [hasNewRequests, setHasNewRequests] = useState(false);
+
+  useEffect(() => {
+    const user = FIREBASE_AUTH.currentUser;
+    if (!user) return;
+
+    const requestsRef = ref(FIREBASE_DB, 'Requests');
+    const unsubscribe = onValue(requestsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Check if there are any pending requests where the current user is the donor
+        const hasPending = Object.values(data).some((req: any) => 
+          req.donorUid === user.uid && req.status === 'pending'
+        );
+        setHasNewRequests(hasPending);
+      } else {
+        setHasNewRequests(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Tabs
@@ -107,7 +135,7 @@ export default function TabLayout() {
         name="my-requests"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} name="mail" label={isRTL ? 'الطلبات' : 'Requests'} themeColors={themeColors} />
+            <TabIcon focused={focused} name="git-pull-request" label={isRTL ? 'الطلبات' : 'Requests'} themeColors={themeColors} hasNotification={hasNewRequests} />
           ),
          }}
       />
@@ -149,5 +177,16 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     marginTop: 2,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+    borderWidth: 1.5,
+    borderColor: '#FFF',
   },
 });

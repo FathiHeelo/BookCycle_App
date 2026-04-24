@@ -127,7 +127,7 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
                         >
                             <Text style={[styles.selectorText, { color: themeColors.text }, selectedFacultyIds.length === 0 && { color: themeColors.textSecondary }]} numberOfLines={1}>
                                 {selectedFacultyIds.length > 0 
-                                  ? selectedFacultyIds.map(fId => fId === 'all' ? (isRTL ? 'الجميع' : 'All') : t(`faculties.${fId}`)).join(', ')
+                                  ? selectedFacultyIds.map(fId => fId === 'all' ? (isRTL ? 'إجباري جامعة' : 'University Requirements') : t(`faculties.${fId}`)).join(', ')
                                   : (isRTL ? 'اختر كليات المصدر' : 'Select resource faculties')}
                             </Text>
                             <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
@@ -256,10 +256,10 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
                                         <Ionicons name={item.icon as any} size={22} color={item.color} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
                                         <View style={{ flex: 1 }}>
                                             <Text style={[styles.modalItemText, { textAlign, fontWeight: isSelected ? '800' : '500', color: themeColors.text }]}>
-                                                {item.id === 'all' ? (isRTL ? 'الجميع' : 'All') : t(`faculties.${item.id}`)}
+                                                {item.id === 'all' ? (isRTL ? 'إجباري جامعة' : 'University Requirements') : t(`faculties.${item.id}`)}
                                             </Text>
                                             {item.id === 'all' && (
-                                                <Text style={[styles.hintText, { textAlign, color: themeColors.textSecondary }]}>{isRTL ? '(إذا كانت المادة متطلب جامعة إجباري)' : '(If university requirement)'}</Text>
+                                                <Text style={[styles.hintText, { textAlign, color: themeColors.textSecondary }]}>{isRTL ? '(إذا كانت المادة متطلب جامعة)' : '(If university requirement)'}</Text>
                                             )}
                                         </View>
                                         {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
