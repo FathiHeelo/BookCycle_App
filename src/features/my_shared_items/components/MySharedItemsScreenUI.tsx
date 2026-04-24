@@ -20,10 +20,10 @@ export const MySharedItemsScreenUI = () => {
 
   const renderItem = ({ item }: { item: SharedBookItem }) => {
     const isUnavailable = item.status === 'requested' || item.status === 'received' || item.status === 'completed';
-    const overlayText = item.status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
+    const overlayText = item.status === 'requested' ? t('shared.overlay.requested') : t('shared.overlay.given');
 
     return (
-      <View style={[styles.bookCard, { opacity: isUnavailable ? 0.75 : 1 }]}>
+      <View style={[styles.bookCard, { opacity: isUnavailable ? 0.75 : 1, backgroundColor: theme.card }]}>
         <View style={{ flexDirection, alignItems: 'center', padding: 16 }}>
           <View style={{ position: 'relative' }}>
             <Image source={{ uri: item.imageUrl || item.image || 'https://via.placeholder.com/150' }} style={styles.bookImage} />
@@ -38,23 +38,23 @@ export const MySharedItemsScreenUI = () => {
           <View style={[styles.contentContainer, isRTL ? { marginRight: 16 } : { marginLeft: 16 }]}>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '15', alignSelf: isRTL ? 'flex-end' : 'flex-start' }]}>
               <View style={[styles.statusDot, { backgroundColor: getStatusColor(item.status) }]} />
-              <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>{getStatusLabel(item.status)}</Text>
+              <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>{t(`requests.status.${item.status}`)}</Text>
             </View>
-            <Text style={[styles.bookTitle, { textAlign }]} numberOfLines={2}>{item.title}</Text>
-            <Text style={[styles.dateText, { textAlign }]}>
+            <Text style={[styles.bookTitle, { textAlign, color: theme.text }]} numberOfLines={2}>{item.title}</Text>
+            <Text style={[styles.dateText, { textAlign, color: theme.textSecondary }]}>
               {new Date(item.createdAt).toLocaleDateString(isRTL ? 'ar-EG' : 'en-US')}
             </Text>
           </View>
         </View>
 
-        <View style={[styles.actionRow, { flexDirection }]}>
-          <TouchableOpacity style={[styles.actionButton, styles.editButton]} onPress={() => router.push({ pathname: '/(tabs)/Add_Books', params: { editId: item.id } })}>
-            <Ionicons name="pencil" size={18} color="#4B5563" />
-            <Text style={styles.editButtonText}>{isRTL ? 'تعديل' : 'Edit'}</Text>
+        <View style={[styles.actionRow, { flexDirection, borderTopColor: theme.border }]}>
+          <TouchableOpacity style={[styles.actionButton, styles.editButton, { borderRightColor: theme.border }]} onPress={() => router.push({ pathname: '/(tabs)/Add_Books', params: { editId: item.id } })}>
+            <Ionicons name="pencil" size={18} color={theme.textSecondary} />
+            <Text style={[styles.editButtonText, { color: theme.textSecondary }]}>{t('common.edit')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={() => handleDelete(item.id)}>
             <Ionicons name="trash-outline" size={18} color="#EF4444" />
-            <Text style={styles.deleteButtonText}>{isRTL ? 'حذف' : 'Delete'}</Text>
+            <Text style={styles.deleteButtonText}>{t('common.delete')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -62,16 +62,16 @@ export const MySharedItemsScreenUI = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <CustomHeader 
-        title={isRTL ? 'مصادري المشتركة' : 'My Shared Materials'}
+        title={t('shared.title')}
         leftMode="back"
         hideSafeArea
       />
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#001B39" />
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
       ) : (
         <FlatList
@@ -81,8 +81,8 @@ export const MySharedItemsScreenUI = () => {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="book-outline" size={64} color="#E2E8F0" />
-              <Text style={styles.emptyText}>{isRTL ? 'لا يوجد مصادر حالياً' : 'No materials found'}</Text>
+              <Ionicons name="folder-open-outline" size={64} color={theme.textSecondary} />
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('shared.empty')}</Text>
             </View>
           }
         />

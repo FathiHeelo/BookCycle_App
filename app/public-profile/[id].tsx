@@ -14,11 +14,10 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '../../constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
 import { ref, get, query, orderByChild, equalTo } from 'firebase/database';
 import { FIREBASE_DB } from '@/firebaseConfig';
-import { ThemedText } from '@/components/themed-text';
 
 const { width } = Dimensions.get('window');
 
@@ -42,8 +41,8 @@ interface BookItem {
 export default function PublicProfileScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const { theme: themeKey } = useAppTheme();
+  const theme = Colors[themeKey];
   const { t, isRTL } = useI18n();
 
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -99,45 +98,45 @@ export default function PublicProfileScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={24} color={theme.primary} />
         </Pressable>
-        <ThemedText style={styles.headerTitle}>{isRTL ? 'ملف المساهم' : 'Contributor Profile'}</ThemedText>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>{isRTL ? 'ملف المساهم' : 'Contributor Profile'}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Profile Card */}
-        <View style={[styles.profileCard, { backgroundColor: theme.card }]}>
+        <View style={[styles.profileCard, { backgroundColor: theme.card, shadowColor: themeKey === 'dark' ? '#000' : '#000', elevation: themeKey === 'dark' ? 0 : 5 }]}>
           <View style={styles.avatarContainer}>
-            <View style={[styles.avatar, { backgroundColor: theme.primary + '10' }]}>
+            <View style={[styles.avatar, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.1)' : theme.primary + '10' }]}>
               <Ionicons name="person" size={50} color={theme.primary} />
             </View>
-            <View style={styles.verifiedBadge}>
+            <View style={[styles.verifiedBadge, { backgroundColor: themeKey === 'dark' ? theme.card : '#FFF' }]}>
               <Ionicons name="checkmark-circle" size={20} color="#10B981" />
             </View>
           </View>
 
-          <ThemedText style={styles.userName}>{user?.fullName || 'Academic Contributor'}</ThemedText>
-          <ThemedText style={styles.userSub}>{user?.faculty ? t(`faculties.${user.faculty}`) : t('profile.card.university')}</ThemedText>
+          <Text style={[styles.userName, { color: theme.text }]}>{user?.fullName || 'Academic Contributor'}</Text>
+          <Text style={[styles.userSub, { color: theme.textSecondary }]}>{user?.faculty ? t(`faculties.${user.faculty}`) : t('profile.card.university')}</Text>
 
-          <View style={[styles.statsRow, { flexDirection }]}>
+          <View style={[styles.statsRow, { flexDirection, borderTopColor: theme.border }]}>
             <View style={styles.statItem}>
-              <ThemedText style={styles.statValue}>{books.length}</ThemedText>
-              <ThemedText style={styles.statLabel}>{isRTL ? 'كتب' : 'Books'}</ThemedText>
+              <Text style={[styles.statValue, { color: theme.text }]}>{books.length}</Text>
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'كتب' : 'Books'}</Text>
             </View>
-            <View style={styles.statDivider} />
+            <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
             <View style={styles.statItem}>
-              <ThemedText style={styles.statValue}>4.9</ThemedText>
-              <ThemedText style={styles.statLabel}>{isRTL ? 'تقييم' : 'Rating'}</ThemedText>
+              <Text style={[styles.statValue, { color: theme.text }]}>4.9</Text>
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'تقييم' : 'Rating'}</Text>
             </View>
           </View>
         </View>
 
         {/* Books List */}
         <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { textAlign }]}>
+          <Text style={[styles.sectionTitle, { textAlign, color: theme.text }]}>
             {isRTL ? 'الكتب المتوفرة' : 'Available Books'}
-          </ThemedText>
+          </Text>
           
           {books.length === 0 ? (
-            <ThemedText style={[styles.emptyText, { textAlign }]}>{isRTL ? 'لا توجد كتب معروضة حالياً' : 'No books available at the moment'}</ThemedText>
+            <Text style={[styles.emptyText, { textAlign, color: theme.textSecondary }]}>{isRTL ? 'لا توجد كتب معروضة حالياً' : 'No books available at the moment'}</Text>
           ) : (
             <View style={styles.booksGrid}>
               {books.map((book) => {
@@ -164,11 +163,11 @@ export default function PublicProfileScreen() {
                       )}
                     </View>
                     <View style={styles.bookInfo}>
-                      <ThemedText style={styles.bookTitle} numberOfLines={1}>{book.title}</ThemedText>
-                      <View style={[styles.facultyBadge, { backgroundColor: theme.primary + '10' }]}>
-                        <ThemedText style={[styles.facultyText, { color: theme.primary }]}>
+                      <Text style={[styles.bookTitle, { color: theme.text }]} numberOfLines={1}>{book.title}</Text>
+                      <View style={[styles.facultyBadge, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.15)' : '#FEF3C7' }]}>
+                        <Text style={[styles.facultyText, { color: theme.primary }]}>
                           {book.facultyIds ? t(`faculties.${book.facultyIds[0]}`).toUpperCase() : (book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : 'GENERAL')}
-                        </ThemedText>
+                        </Text>
                       </View>
                     </View>
                   </Pressable>
@@ -223,19 +222,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   userName: { fontSize: 24, fontWeight: '800', marginBottom: 4 },
-  userSub: { fontSize: 14, color: '#64748B', fontWeight: '600', marginBottom: 20 },
+  userSub: { fontSize: 14, fontWeight: '600', marginBottom: 20 },
   statsRow: {
     width: '100%',
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
     justifyContent: 'center',
     gap: 40,
   },
   statItem: { alignItems: 'center' },
   statValue: { fontSize: 20, fontWeight: '800' },
-  statLabel: { fontSize: 12, color: '#94A3B8', fontWeight: '700' },
-  statDivider: { width: 1, height: 30, backgroundColor: '#E2E8F0' },
+  statLabel: { fontSize: 12, fontWeight: '700' },
+  statDivider: { width: 1, height: 30 },
   section: { marginBottom: 32 },
   sectionTitle: { fontSize: 20, fontWeight: '800', marginBottom: 16 },
   booksGrid: {
@@ -266,5 +264,5 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   facultyText: { fontSize: 9, fontWeight: '800' },
-  emptyText: { fontSize: 14, color: '#94A3B8', marginTop: 10, fontStyle: 'italic' },
+  emptyText: { fontSize: 14, marginTop: 10, fontStyle: 'italic' },
 });

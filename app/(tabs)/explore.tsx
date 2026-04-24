@@ -8,12 +8,12 @@ import {
   Image, 
   FlatList, 
   Pressable, 
-  ActivityIndicator 
+  ActivityIndicator,
+  Text 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
-import { ThemedText } from '@/components/themed-text';
 import { ref, onValue } from 'firebase/database';
 import { FIREBASE_DB } from '@/firebaseConfig';
 import { useRouter } from 'expo-router';
@@ -89,37 +89,37 @@ export default function ExploreScreen() {
           {isUnavailable && (
             <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', zIndex: 10 }]}>
               <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, transform: [{ rotate: '-10deg' }] }}>
-                <ThemedText style={{ color: '#fff', fontWeight: '900', fontSize: 12 }}>{statusText}</ThemedText>
+                <Text style={{ color: '#fff', fontWeight: '900', fontSize: 12 }}>{statusText}</Text>
               </View>
             </View>
           )}
           {isNew && !isUnavailable && (
-            <View style={styles.newBadge}>
-              <ThemedText style={styles.newBadgeText}>{isRTL ? 'جديد' : 'NEW'}</ThemedText>
+            <View style={[styles.newBadge, { backgroundColor: theme.primary }]}>
+              <Text style={[styles.newBadgeText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{isRTL ? 'جديد' : 'NEW'}</Text>
             </View>
           )}
         </View>
 
         <View style={[styles.cardContent, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
           {facultyId && (
-            <View style={[styles.categoryBadge, { backgroundColor: '#E0F2FE' }]}>
-              <ThemedText style={styles.categoryText}>
+            <View style={[styles.categoryBadge, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.15)' : '#FEF3C7' }]}>
+              <Text style={[styles.categoryText, { color: theme.primary }]}>
                 {t(`faculties.${facultyId}`).toUpperCase()}
-              </ThemedText>
+              </Text>
             </View>
           )}
           
-          <ThemedText style={[styles.resourceTitle, { color: theme.text, textAlign }]} numberOfLines={2}>
+          <Text style={[styles.resourceTitle, { color: theme.text, textAlign }]} numberOfLines={2}>
             {item.title || (isRTL ? 'مادة بدون عنوان' : 'Untitled Material')}
-          </ThemedText>
+          </Text>
 
           <View style={[styles.donorContainer, { flexDirection }]}>
-            <View style={styles.avatarCircle}>
-              <Ionicons name="person" size={10} color="#64748B" />
+            <View style={[styles.avatarCircle, { backgroundColor: themeKey === 'dark' ? theme.background : '#E2E8F0' }]}>
+              <Ionicons name="person" size={10} color={theme.textSecondary} />
             </View>
-            <ThemedText style={styles.donorText}>
-              {t('profile.history.donor')}: <ThemedText style={styles.donorName}>{item.donorName}</ThemedText>
-            </ThemedText>
+            <Text style={[styles.donorText, { color: theme.textSecondary }]}>
+              {t('profile.history.donor')}: <Text style={[styles.donorName, { color: theme.primary }]}>{item.donorName}</Text>
+            </Text>
           </View>
         </View>
       </Pressable>
@@ -131,9 +131,9 @@ export default function ExploreScreen() {
       <StatusBar barStyle={themeKey === 'dark' ? 'light-content' : 'dark-content'} />
       
       <View style={[styles.header, { flexDirection }]}>
-        <ThemedText style={[styles.headerTitle, { color: theme.primary }]}>{isRTL ? 'المواد المتاحة' : 'Available Materials'}</ThemedText>
-        <Pressable style={styles.filterButton}>
-          <Ionicons name="options-outline" size={20} color={theme.textSecondary} />
+        <Text style={[styles.headerTitle, { color: theme.text }]}>{isRTL ? 'المواد المتاحة' : 'Available Materials'}</Text>
+        <Pressable style={[styles.filterButton, { backgroundColor: theme.card }]}>
+          <Ionicons name="options-outline" size={20} color={theme.primary} />
         </Pressable>
       </View>
 
@@ -152,8 +152,8 @@ export default function ExploreScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="library-outline" size={64} color="#CBD5E1" />
-              <ThemedText style={styles.emptyText}>{isRTL ? 'لا توجد مواد متاحة حالياً' : 'No materials available yet'}</ThemedText>
+              <Ionicons name="library-outline" size={64} color={theme.border} />
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{isRTL ? 'لا توجد مواد متاحة حالياً' : 'No materials available yet'}</Text>
             </View>
           }
         />

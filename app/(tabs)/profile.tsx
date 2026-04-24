@@ -19,25 +19,26 @@ export default function Profile() {
   const { width } = useWindowDimensions();
   const horizontalPadding = Math.min(width * 0.05, 20);
   const { stats, userProfile, loading } = useProfileData();
-  const { theme } = useAppTheme();
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
   const { isRTL } = useI18n();
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#001B39" />
+      <SafeAreaView style={[styles.loadingContainer, { backgroundColor: themeColors.background }]}>
+        <ActivityIndicator size="large" color={themeColors.primary} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F3F4F6" />
+    <View style={[styles.screen, { backgroundColor: themeColors.background }]}>
+      <StatusBar barStyle={themeKey === 'dark' ? "light-content" : "dark-content"} backgroundColor={themeColors.background} />
       <CustomHeader 
         title={isRTL ? 'ملفي الشخصي' : 'Profile'}
         leftMode="none"
         rightIcons={['search']}
-        hideSafeArea
+        hideSafeArea={true}
       />
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingHorizontal: horizontalPadding, paddingBottom: 120 }]}
@@ -52,7 +53,7 @@ export default function Profile() {
           <BooksReceivedUI />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -4,12 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { ProfileStyles as styles } from '../styles';
 import { useProfileCard } from '../hooks/useProfileCard';
 import { ProfileCardProps } from '../types';
+import { useAppTheme } from '@/context/ThemeContext';
+import { Colors } from '@/constants/theme';
 
 export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
   const {
     user, modalVisible, setModalVisible, newName, setNewName,
     uploadingImage, pickImage, handleUpdateName, t, isRTL
   } = useProfileCard();
+
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
 
   const imageSize = 110;
   const textAlign = isRTL ? 'right' : 'left';
@@ -21,7 +26,7 @@ export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
   };
 
   return (
-    <View style={styles.profileCardContainer}>
+    <View style={[styles.profileCardContainer, { backgroundColor: themeColors.card, shadowColor: themeKey === 'dark' ? '#000' : '#000', elevation: themeKey === 'dark' ? 0 : 5 }]}>
       <View style={styles.profileHeader}>
         <TouchableOpacity 
           style={[styles.imageContainer, { width: imageSize + 8, height: imageSize + 8, borderRadius: (imageSize + 8) / 2 }]} 
@@ -50,49 +55,50 @@ export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
           )}
         </TouchableOpacity>
 
-        <View style={[styles.roleBadge, { flexDirection, marginTop: 4 }]}>
-          <Ionicons name={userProfile?.role === 'professor' ? 'school' : 'person'} size={12} color="#001B39" />
-          <Text style={styles.roleText}>{getRoleLabel()}</Text>
+        <View style={[styles.roleBadge, { flexDirection, marginTop: 4, backgroundColor: themeKey === 'dark' ? themeColors.background : '#F1F4F7', borderColor: themeColors.border }]}>
+          <Ionicons name={userProfile?.role === 'professor' ? 'school' : 'person'} size={12} color={themeColors.primary} />
+          <Text style={[styles.roleText, { color: themeColors.text }]}>{getRoleLabel()}</Text>
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={[styles.userName, { textAlign }]}>{user?.displayName || 'User'}</Text>
+          <Text style={[styles.userName, { textAlign, color: themeColors.text }]}>{user?.displayName || 'User'}</Text>
           
           <TouchableOpacity 
-            style={styles.blueEditBtn}
+            style={[styles.blueEditBtn, { backgroundColor: themeColors.primary }]}
             onPress={() => setModalVisible(true)}
           >
-            <Ionicons name="pencil" size={14} color="#fff" />
-            <Text style={styles.blueEditBtnText}>{t('profile.card.edit')}</Text>
+            <Ionicons name="pencil" size={14} color={themeKey === 'dark' ? '#0B1020' : '#fff'} />
+            <Text style={[styles.blueEditBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#fff' }]}>{t('profile.card.edit')}</Text>
           </TouchableOpacity>
 
           <View style={[styles.universityRow, { flexDirection }]}>
-            <Ionicons name="location" size={14} color="#64748B" />
-            <Text style={[styles.universityName, { textAlign }]}>{t('profile.card.university')}</Text>
+            <Ionicons name="location" size={14} color={themeColors.textSecondary} />
+            <Text style={[styles.universityName, { textAlign, color: themeColors.textSecondary }]}>{t('profile.card.university')}</Text>
           </View>
           <View style={[styles.facultyRow, { flexDirection }]}>
-            <Ionicons name="briefcase" size={14} color="#64748B" />
-            <Text style={[styles.facultyName, { textAlign }]}>{userProfile?.facultyName || 'Najah Faculty'}</Text>
+            <Ionicons name="briefcase" size={14} color={themeColors.primary} />
+            <Text style={[styles.facultyName, { textAlign, color: themeColors.text }]}>{userProfile?.facultyName || 'Najah Faculty'}</Text>
           </View>
         </View>
       </View>
 
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{t('profile.card.edit')}</Text>
+          <View style={[styles.modalContent, { backgroundColor: themeColors.background }]}>
+            <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t('profile.card.edit')}</Text>
             <TextInput
-              style={styles.nameInput}
+              style={[styles.nameInput, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F5F9', color: themeColors.text }]}
               value={newName}
               onChangeText={setNewName}
               placeholder={t('auth.signup.fullNamePlaceholder')}
+              placeholderTextColor={themeColors.textSecondary}
             />
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelBtnText}>{t('common.cancel')}</Text>
+              <TouchableOpacity style={[styles.btn, styles.cancelBtn, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F5F9' }]} onPress={() => setModalVisible(false)}>
+                <Text style={[styles.cancelBtnText, { color: themeColors.text }]}>{t('common.cancel')}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, styles.saveBtn]} onPress={handleUpdateName}>
-                <Text style={styles.saveBtnText}>{t('common.save')}</Text>
+              <TouchableOpacity style={[styles.btn, styles.saveBtn, { backgroundColor: themeColors.primary }]} onPress={handleUpdateName}>
+                <Text style={[styles.saveBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#fff' }]}>{t('common.save')}</Text>
               </TouchableOpacity>
             </View>
           </View>

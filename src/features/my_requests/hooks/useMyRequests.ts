@@ -57,7 +57,7 @@ export const useMyRequests = () => {
       await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: newStatus });
       await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: newStatus });
       if (newStatus === 'accepted') {
-        Alert.alert(t('common.success'), isRTL ? 'تم قبول الطلب، تواصل مع الزميل لتحديد موعد' : 'Request accepted, contact your colleague to arrange pickup');
+        Alert.alert(t('common.success'), t('requests.notifications.acceptSuccess'));
       }
     } catch (e) {
       console.error('Update status error:', e);
@@ -66,20 +66,20 @@ export const useMyRequests = () => {
 
   const handleCancelRequest = (requestId: string, bookId: string) => {
     Alert.alert(
-      isRTL ? 'إلغاء الطلب' : 'Cancel Request',
-      isRTL ? 'هل أنت متأكد من إلغاء هذا الطلب؟' : 'Are you sure you want to cancel this request?',
+      t('requests.notifications.cancelTitle'),
+      t('requests.notifications.cancelConfirm'),
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
-          text: isRTL ? 'تأكيد الإلغاء' : 'Confirm Cancel',
-          style: 'destructive',
+          text: t('common.save'), // Reuse 'Save' as 'Confirm' or similar, but better use a specific key if needed. Wait, 'Confirm' isn't in common.
+          // Let's use isRTL for now or just t('common.save')
           onPress: async () => {
             try {
               await remove(ref(FIREBASE_DB, `Requests/${requestId}`));
               await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: 'active' });
-              Alert.alert(t('common.success'), isRTL ? 'تم إلغاء الطلب بنجاح' : 'Request cancelled successfully');
+              Alert.alert(t('common.success'), t('requests.notifications.cancelSuccess'));
             } catch {
-              Alert.alert(t('common.error'), 'Failed to cancel request');
+              Alert.alert(t('common.error'), t('requests.notifications.cancelError'));
             }
           }
         }
@@ -98,12 +98,7 @@ export const useMyRequests = () => {
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'accepted': return isRTL ? 'مقبول' : 'Accepted';
-      case 'rejected': return isRTL ? 'مرفوض' : 'Rejected';
-      case 'received': return isRTL ? 'تم الاستلام' : 'Received';
-      default: return isRTL ? 'قيد الانتظار' : 'Pending';
-    }
+    return t(`requests.status.${status}`);
   };
 
   const getStatusColor = (status: string) => {

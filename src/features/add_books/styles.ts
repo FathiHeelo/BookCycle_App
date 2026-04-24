@@ -41,7 +41,7 @@ export const UploadStyles = StyleSheet.create({
   header: { marginBottom: 30 },
   title: { fontSize: 24, fontWeight: '800', color: '#001B39', marginBottom: 8 },
   subtitle: { fontSize: 14, color: '#64748B', lineHeight: 20 },
-  imageBox: { width: '100%', aspectRatio: 3 / 4, backgroundColor: '#F8FAFC', borderRadius: 24, borderWidth: 2, borderColor: '#E2E8F0', borderStyle: 'dashed', overflow: 'hidden', justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
+  imageBox: { alignSelf: 'center', width: '20%', aspectRatio: 1, backgroundColor: '#F8FAFC', borderRadius: 24, borderWidth: 2, borderColor: '#E2E8F0', borderStyle: 'dashed', overflow: 'hidden', justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
   previewImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   placeholderContainer: { alignItems: 'center' },
   placeholderText: { marginTop: 12, color: '#94A3B8', fontWeight: '600' },

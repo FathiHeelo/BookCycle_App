@@ -4,40 +4,45 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ProfileStyles as styles } from '../styles';
 import { useBooksGiven } from '../hooks/useBooksGiven';
+import { useAppTheme } from '@/context/ThemeContext';
+import { Colors } from '@/constants/theme';
 
 export const BooksGivenUI = () => {
   const { books, loading, handleDelete, getStatusLabel, getStatusColor, t, isRTL } = useBooksGiven();
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
   const cardPadding = Math.min(width * 0.04, 16);
   const textAlign = isRTL ? 'right' : 'left';
   const flexDirection = isRTL ? 'row-reverse' : 'row';
+  const isDark = themeKey === 'dark';
 
   return (
     <View style={styles.historyContainer}>
       <View style={styles.historyHeader}>
-        <Text style={[styles.historyHeaderTitle, { textAlign }]}>{t('profile.history.booksGiven')}</Text>
+        <Text style={[styles.historyHeaderTitle, { textAlign, color: themeColors.text }]}>{t('profile.history.booksGiven')}</Text>
         <TouchableOpacity
           style={[styles.viewAllButton, { alignSelf: isRTL ? 'flex-end' : 'flex-start' }]}
           onPress={() => router.push('/my-shared-items')}
         >
-          <Text style={styles.viewAllText}>{t('profile.history.viewAll')}</Text>
-          <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color="#64748B" />
+          <Text style={[styles.viewAllText, { color: themeColors.textSecondary }]}>{t('profile.history.viewAll')}</Text>
+          <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color={themeColors.textSecondary} />
         </TouchableOpacity>
       </View>
 
       {loading ? (
-        <ActivityIndicator size="small" color="#001B39" />
+        <ActivityIndicator size="small" color={themeColors.primary} />
       ) : (
         books.map((book) => {
           const isUnavailable = book.status === 'requested' || book.status === 'completed' || book.status === 'received';
           return (
             <View
               key={book.id}
-              style={[styles.bookCard, { padding: cardPadding }, isUnavailable && { opacity: 0.75 }]}
+              style={[styles.bookCard, { padding: cardPadding, backgroundColor: themeColors.card, shadowColor: isDark ? '#000' : '#000', elevation: isDark ? 0 : 2 }, isUnavailable && { opacity: 0.75 }]}
             >
               <View style={{ flexDirection, alignItems: 'center', marginBottom: 12 }}>
-                <View style={styles.bookImageContainer}>
+                <View style={[styles.bookImageContainer, { backgroundColor: isDark ? themeColors.background : '#F3F4F6' }]}>
                   <Image
                     source={{ uri: book.imageUrl || book.image || 'https://via.placeholder.com/150' }}
                     style={styles.bookImage}
@@ -60,30 +65,30 @@ export const BooksGivenUI = () => {
                       {getStatusLabel(book.status)}
                     </Text>
                   </View>
-                  <Text style={[styles.bookTitle, { textAlign }]} numberOfLines={1}>{book.title}</Text>
+                  <Text style={[styles.bookTitle, { textAlign, color: themeColors.text }]} numberOfLines={1}>{book.title}</Text>
                   <View style={[styles.metaRow, { flexDirection }]}>
-                    <Ionicons name="school-outline" size={14} color="#6B7280" />
-                    <Text style={[styles.metaText, { textAlign }]} numberOfLines={1}>
+                    <Ionicons name="school-outline" size={14} color={themeColors.textSecondary} />
+                    <Text style={[styles.metaText, { textAlign, color: themeColors.textSecondary }]} numberOfLines={1}>
                       {book.facultyIds ? t(`faculties.${book.facultyIds[0]}`) : (book.facultyId ? t(`faculties.${book.facultyId}`) : 'General')}
                     </Text>
                   </View>
                 </View>
               </View>
 
-              <View style={[styles.actionRow, { flexDirection }]}>
+              <View style={[styles.actionRow, { flexDirection, borderTopColor: themeColors.border }]}>
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.editButton]}
+                  style={[styles.actionButton, styles.editButton, { backgroundColor: isDark ? themeColors.background : '#F3F4F6' }]}
                   onPress={() => router.push({ pathname: '/(tabs)/Add_Books', params: { editId: book.id } })}
                 >
-                  <Ionicons name="pencil" size={16} color="#4B5563" />
-                  <Text style={styles.editButtonText}>{isRTL ? 'تعديل' : 'Edit'}</Text>
+                  <Ionicons name="pencil" size={16} color={themeColors.textSecondary} />
+                  <Text style={[styles.editButtonText, { color: themeColors.textSecondary }]}>{isRTL ? 'تعديل' : 'Edit'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.deleteButton]}
+                  style={[styles.actionButton, styles.deleteButton, { backgroundColor: themeColors.error + '15' }]}
                   onPress={() => handleDelete(book.id)}
                 >
-                  <Ionicons name="trash-outline" size={16} color="#EF4444" />
-                  <Text style={styles.deleteButtonText}>{isRTL ? 'حذف' : 'Delete'}</Text>
+                  <Ionicons name="trash-outline" size={16} color={themeColors.error} />
+                  <Text style={[styles.deleteButtonText, { color: themeColors.error }]}>{isRTL ? 'حذف' : 'Delete'}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -92,9 +97,9 @@ export const BooksGivenUI = () => {
       )}
 
       {!loading && books.length === 0 && (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="book-outline" size={40} color="#E2E8F0" />
-          <Text style={styles.emptyText}>{isRTL ? 'لم تشارك أي مصادر بعد' : 'No materials shared yet'}</Text>
+        <View style={[styles.emptyContainer, { backgroundColor: isDark ? themeColors.background : '#F9FAFB', borderColor: themeColors.border }]}>
+          <Ionicons name="book-outline" size={40} color={themeColors.textSecondary} />
+          <Text style={[styles.emptyText, { color: themeColors.textSecondary }]}>{isRTL ? 'لم تشارك أي مصادر بعد' : 'No materials shared yet'}</Text>
         </View>
       )}
     </View>

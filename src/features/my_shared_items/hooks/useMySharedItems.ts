@@ -48,19 +48,19 @@ export const useMySharedItems = () => {
 
   const handleDelete = (bookId: string) => {
     Alert.alert(
-      isRTL ? 'حذف المصدر' : 'Delete Resource',
-      isRTL ? 'هل أنت متأكد من حذف هذا المصدر نهائياً؟' : 'Are you sure you want to delete this resource permanently?',
+      t('shared.deleteConfirmTitle'),
+      t('shared.deleteConfirmMessage'),
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
-          text: isRTL ? 'حذف' : 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await remove(ref(FIREBASE_DB, `Books/${bookId}`));
-              Alert.alert(t('common.success'), isRTL ? 'تم الحذف بنجاح' : 'Deleted successfully');
+              Alert.alert(t('common.success'), t('shared.deleteSuccess'));
             } catch {
-              Alert.alert(t('common.error'), 'Failed to delete');
+              Alert.alert(t('common.error'), t('shared.deleteError'));
             }
           }
         }
@@ -69,12 +69,7 @@ export const useMySharedItems = () => {
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'requested': return isRTL ? 'مطلوب حالياً' : 'Requested';
-      case 'received':
-      case 'completed': return isRTL ? 'تم التسليم' : 'Given away';
-      default: return isRTL ? 'نشط' : 'Active';
-    }
+    return t(`requests.status.${status}`);
   };
 
   const getStatusColor = (status: string) => {

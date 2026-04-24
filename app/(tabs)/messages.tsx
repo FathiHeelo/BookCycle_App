@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Pressable, ActivityIndicator, SafeAreaView } from 'react-native';
+import { StyleSheet, View, FlatList, Pressable, ActivityIndicator, SafeAreaView, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
-import { ThemedText } from '@/components/themed-text';
 import { ref, onValue } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useRouter } from 'expo-router';
@@ -64,18 +63,18 @@ export default function MessagesTab() {
           params: { otherId: otherId, bookTitle: item.bookTitle }
         })}
       >
-        <View style={[styles.avatar, { backgroundColor: theme.primary + '10' }]}>
+        <View style={[styles.avatar, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.1)' : theme.primary + '10' }]}>
           <Ionicons name="person" size={24} color={theme.primary} />
         </View>
         <View style={[styles.chatInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-          <ThemedText style={styles.bookTitle} numberOfLines={1}>{item.bookTitle || (isRTL ? 'استفسار عام' : 'General Inquiry')}</ThemedText>
-          <ThemedText style={styles.lastMessage} numberOfLines={1}>{item.lastMessage}</ThemedText>
+          <Text style={[styles.bookTitle, { color: theme.text }]} numberOfLines={1}>{item.bookTitle || (isRTL ? 'استفسار عام' : 'General Inquiry')}</Text>
+          <Text style={[styles.lastMessage, { color: theme.textSecondary }]} numberOfLines={1}>{item.lastMessage}</Text>
         </View>
         <View style={styles.metaInfo}>
-          <ThemedText style={styles.timeText}>
+          <Text style={[styles.timeText, { color: theme.textSecondary }]}>
             {new Date(item.lastTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </ThemedText>
-          <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={16} color="#CBD5E1" />
+          </Text>
+          <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={16} color={theme.primary} />
         </View>
       </Pressable>
     );
@@ -102,8 +101,8 @@ export default function MessagesTab() {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="chatbubbles-outline" size={64} color="#CBD5E1" />
-              <ThemedText style={styles.emptyText}>{isRTL ? 'لا توجد محادثات بعد' : 'No messages yet'}</ThemedText>
+              <Ionicons name="chatbubbles-outline" size={64} color={theme.border} />
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{isRTL ? 'لا توجد محادثات بعد' : 'No messages yet'}</Text>
             </View>
           }
         />

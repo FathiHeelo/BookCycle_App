@@ -12,14 +12,14 @@ import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 import { ThemedText } from '@/components/themed-text';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
 import { useI18n } from '@/hooks/use-i18n';
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
   const { t, isRTL } = useI18n();
 
   const handleLogout = async () => {
@@ -31,8 +31,8 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.flex, { backgroundColor: '#FFFFFF' }]}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.flex, { backgroundColor: themeColors.background }]}>
+      <StatusBar barStyle={themeKey === 'dark' ? 'light-content' : 'dark-content'} />
       
       {/* Header Section */}
       <CustomHeader 
@@ -49,32 +49,32 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.welcomeInfo}>
-          <ThemedText style={[styles.welcomeText, { color: '#8E9BAE' }]}>Welcome back,</ThemedText>
-          <ThemedText style={[styles.userName, { color: '#1A1A1A' }]}>{FIREBASE_AUTH.currentUser?.displayName || 'User'}</ThemedText>
+          <ThemedText style={[styles.welcomeText, { color: themeColors.textSecondary }]}>Welcome back,</ThemedText>
+          <ThemedText style={[styles.userName, { color: themeColors.text }]}>{FIREBASE_AUTH.currentUser?.displayName || 'User'}</ThemedText>
         </View>
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: '#1A1A1A' }]}>Quick Actions</ThemedText>
+          <ThemedText style={[styles.sectionTitle, { color: themeColors.text }]}>Quick Actions</ThemedText>
           <View style={styles.actionGrid}>
             <Pressable
-              style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}
+              style={[styles.actionCard, { backgroundColor: themeColors.card, shadowColor: themeKey === 'dark' ? '#000' : '#E5E7EB', elevation: themeKey === 'dark' ? 0 : 2 }]}
               onPress={() => router.push('/(tabs)/Add_Books')}
             >
-  <View style={[styles.iconCircle, { backgroundColor: 'rgba(0,27,57,0.1)' }]}>
-    <Ionicons name="add" size={24} color="#001B39" />
-  </View>
-  <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>{isRTL ? 'إضافة مادة' : 'Add Material'}</ThemedText>
-</Pressable>
+              <View style={[styles.iconCircle, { backgroundColor: themeColors.primary + '15' }]}>
+                <Ionicons name="add" size={24} color={themeColors.primary} />
+              </View>
+              <ThemedText style={[styles.actionLabel, { color: themeColors.text }]}>{isRTL ? 'إضافة مادة' : 'Add Material'}</ThemedText>
+            </Pressable>
             
             <Pressable 
-              style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}
-              onPress={() => router.push('../MyRequestsScreenUI')}
+              style={[styles.actionCard, { backgroundColor: themeColors.card, shadowColor: themeKey === 'dark' ? '#000' : '#E5E7EB', elevation: themeKey === 'dark' ? 0 : 2 }]}
+              onPress={() => router.push('/(tabs)/my-requests')}
             >
-              <View style={[styles.iconCircle, { backgroundColor: 'rgba(245,158,11,0.1)' }]}>
-                <Ionicons name="mail-outline" size={24} color="#F59E0B" />
+              <View style={[styles.iconCircle, { backgroundColor: themeColors.accent ? themeColors.accent + '15' : 'rgba(245,158,11,0.1)' }]}>
+                <Ionicons name="mail-outline" size={24} color={themeColors.accent || '#F59E0B'} />
               </View>
-              <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>Requests</ThemedText>
+              <ThemedText style={[styles.actionLabel, { color: themeColors.text }]}>{isRTL ? 'الطلبات' : 'Requests'}</ThemedText>
             </Pressable>
           </View>
         </View>

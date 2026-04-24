@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   StyleSheet, View, FlatList, Pressable, ActivityIndicator,
-  SafeAreaView, Image, TouchableOpacity,
+  SafeAreaView, Image, TouchableOpacity, Text,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
@@ -27,31 +27,36 @@ export const MyRequestsScreenUI = () => {
   const textAlign = isRTL ? 'right' : 'left';
 
   const renderRequestItem = ({ item }: { item: BookRequest }) => (
-    <View style={[styles.requestCard, { backgroundColor: theme.card, flexDirection }]}>
-      <Image source={{ uri: item.bookImage }} style={styles.bookThumb} />
+    <View style={[styles.requestCard, { flexDirection, backgroundColor: theme.card, shadowColor: themeKey === 'dark' ? '#000' : '#E5E7EB', elevation: themeKey === 'dark' ? 0 : 2 }]}>
+      <Image 
+        source={{ uri: item.bookImage || 'https://via.placeholder.com/150' }} 
+        style={styles.bookThumb} 
+      />
       <View style={[styles.requestInfo, isRTL ? { marginRight: 16 } : { marginLeft: 16 }]}>
-        <ThemedText style={[styles.bookTitle, { textAlign }]} numberOfLines={1}>{item.bookTitle}</ThemedText>
-        <ThemedText style={[styles.personName, { textAlign }]}>
+        <Text style={[styles.bookTitle, { textAlign, color: theme.text }]} numberOfLines={2}>
+          {item.bookTitle}
+        </Text>
+        <Text style={[styles.personName, { textAlign, color: theme.textSecondary }]}>
           {activeTab === 'received'
             ? (isRTL ? `من: ${item.requesterName}` : `From: ${item.requesterName}`)
             : (isRTL ? `إلى: ${item.donorName}` : `To: ${item.donorName}`)}
-        </ThemedText>
+        </Text>
 
         <View style={[styles.statusBadgeRow, { flexDirection }]}>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
-            <ThemedText style={[styles.statusText, { color: getStatusColor(item.status) }]}>
-              {getStatusLabel(item.status)}
-            </ThemedText>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '15' }]}>
+            <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
+              {t(`requests.status.${item.status}`)}
+            </Text>
           </View>
         </View>
 
         {activeTab === 'received' && item.status === 'pending' && (
           <View style={[styles.actionRow, { flexDirection }]}>
             <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'accepted')}>
-              <ThemedText style={styles.acceptBtnText}>{isRTL ? 'قبول' : 'Accept'}</ThemedText>
+              <Text style={styles.acceptBtnText}>{t('requests.accept')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionBtn, styles.rejectBtn]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'rejected')}>
-              <ThemedText style={styles.rejectBtnText}>{isRTL ? 'رفض' : 'Reject'}</ThemedText>
+              <Text style={styles.rejectBtnText}>{t('requests.reject')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -61,7 +66,7 @@ export const MyRequestsScreenUI = () => {
             {item.status === 'accepted' && (
               <TouchableOpacity style={[styles.receivedBtn, { backgroundColor: theme.primary }]} onPress={() => handleMarkReceived(item)}>
                 <Ionicons name="checkmark-done-circle-outline" size={18} color="#fff" />
-                <ThemedText style={styles.receivedBtnText}>{isRTL ? 'تم الاستلام' : 'Received'}</ThemedText>
+                <ThemedText style={styles.receivedBtnText}>{t('requests.markAsReceived')}</ThemedText>
               </TouchableOpacity>
             )}
             <TouchableOpacity
@@ -80,18 +85,18 @@ export const MyRequestsScreenUI = () => {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <CustomHeader 
-        title={isRTL ? 'طلباتي' : 'My Requests'}
+        title={t('requests.title')}
         leftMode="back"
         hideSafeArea
       />
 
-      <View style={[styles.tabContainer, { flexDirection }]}>
+      <View style={[styles.tabContainer, { flexDirection, borderBottomColor: theme.border }]}>
         <Pressable
           style={[styles.tab, activeTab === 'received' && { borderBottomColor: theme.primary, borderBottomWidth: 3 }]}
           onPress={() => setActiveTab('received')}
         >
           <ThemedText style={[styles.tabText, activeTab === 'received' && { color: theme.primary, fontWeight: '800' }]}>
-            {isRTL ? 'طلبات استلمتها' : 'Incoming'}
+            {t('requests.incoming')}
           </ThemedText>
         </Pressable>
         <Pressable
@@ -99,7 +104,7 @@ export const MyRequestsScreenUI = () => {
           onPress={() => setActiveTab('sent')}
         >
           <ThemedText style={[styles.tabText, activeTab === 'sent' && { color: theme.primary, fontWeight: '800' }]}>
-            {isRTL ? 'طلبات أرسلتها' : 'Outgoing'}
+            {t('requests.outgoing')}
           </ThemedText>
         </Pressable>
       </View>
@@ -116,8 +121,8 @@ export const MyRequestsScreenUI = () => {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="mail-unread-outline" size={64} color="#CBD5E1" />
-              <ThemedText style={styles.emptyText}>{isRTL ? 'لا يوجد طلبات حالياً' : 'No requests found'}</ThemedText>
+              <Ionicons name="document-text-outline" size={64} color={theme.textSecondary} />
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('requests.empty')}</Text>
             </View>
           }
         />

@@ -7,6 +7,8 @@ export const translations = {
       cancel: "Cancel",
       save: "Save",
       or: "OR",
+      edit: "Edit",
+      delete: "Delete"
     },
     auth: {
       login: {
@@ -203,6 +205,42 @@ export const translations = {
       arabic: "Arabic",
       appearance: "Appearance",
       account: "Account"
+    },
+    requests: {
+      title: "My Requests",
+      empty: "No requests found.",
+      incoming: "Incoming",
+      outgoing: "Outgoing",
+      status: {
+        pending: "Pending Approval",
+        accepted: "Accepted",
+        rejected: "Rejected",
+        received: "Received",
+        completed: "Completed",
+        active: "Available"
+      },
+      accept: "Accept",
+      reject: "Reject",
+      markAsReceived: "Mark as Received",
+      notifications: {
+        acceptSuccess: "Request accepted, contact your colleague to arrange pickup",
+        cancelTitle: "Cancel Request",
+        cancelConfirm: "Are you sure you want to cancel this request?",
+        cancelSuccess: "Request cancelled successfully",
+        cancelError: "Failed to cancel request"
+      }
+    },
+    shared: {
+      title: "My Shared Items",
+      empty: "No materials shared yet.",
+      deleteConfirmTitle: "Delete Resource",
+      deleteConfirmMessage: "Are you sure you want to delete this resource permanently?",
+      deleteSuccess: "Deleted successfully",
+      deleteError: "Failed to delete",
+      overlay: {
+        requested: "Requested",
+        given: "Given Away"
+      }
     }
   },
 
@@ -214,6 +252,8 @@ export const translations = {
       cancel: "إلغاء",
       save: "حفظ",
       or: "أو",
+      edit: "تعديل",
+      delete: "حذف"
     },
     auth: {
       login: {
@@ -410,6 +450,42 @@ export const translations = {
       arabic: "العربية",
       appearance: "المظهر",
       account: "الحساب"
+    },
+    requests: {
+      title: "طلباتي",
+      empty: "لا توجد طلبات حالياً.",
+      incoming: "طلبات واردة",
+      outgoing: "طلبات صادرة",
+      status: {
+        pending: "بانتظار الموافقة",
+        accepted: "تم القبول",
+        rejected: "مرفوض",
+        received: "تم الاستلام",
+        completed: "مكتمل",
+        active: "نشط"
+      },
+      accept: "قبول",
+      reject: "رفض",
+      markAsReceived: "تم الاستلام",
+      notifications: {
+        acceptSuccess: "تم قبول الطلب، تواصل مع الزميل لتحديد موعد",
+        cancelTitle: "إلغاء الطلب",
+        cancelConfirm: "هل أنت متأكد من إلغاء هذا الطلب؟",
+        cancelSuccess: "تم إلغاء الطلب بنجاح",
+        cancelError: "فشل إلغاء الطلب"
+      }
+    },
+    shared: {
+      title: "موادي المشتركة",
+      empty: "لم تشارك أي مواد بعد.",
+      deleteConfirmTitle: "حذف المصدر",
+      deleteConfirmMessage: "هل أنت متأكد من حذف هذا المصدر نهائياً؟",
+      deleteSuccess: "تم الحذف بنجاح",
+      deleteError: "فشل الحذف",
+      overlay: {
+        requested: "قيد الطلب",
+        given: "تم التسليم"
+      }
     }
   },
 };

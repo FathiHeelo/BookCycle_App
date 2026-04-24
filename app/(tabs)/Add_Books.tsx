@@ -11,6 +11,7 @@ import {
     ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
+    Text,
 } from 'react-native';
 import { ref, push, set, get, update } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
@@ -21,7 +22,6 @@ import { Colors } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
 import { uploadImageToCloudinary } from '@/src/services/cloudinary.service';
-import { ThemedText } from '@/components/themed-text';
 
 export default function Add_Books() {   
     const [step, setStep] = useState(1);
@@ -123,25 +123,26 @@ export default function Add_Books() {
 
     if (loading || saving) {
         return (
-            <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
-                <ActivityIndicator size="large" color="#001B39" />
+            <View style={[styles.screen, { backgroundColor: themeColors.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color={themeColors.primary} />
                 {saving && (
-                    <ThemedText style={{ marginTop: 16, fontWeight: '700' }}>
+                    <Text style={{ marginTop: 16, fontWeight: '700', color: themeColors.text }}>
                         {isRTL ? 'جاري الحفظ...' : 'Saving...'}
-                    </ThemedText>
+                    </Text>
                 )}
             </View>
         );
     }
 
     return (
-        <SafeAreaView style={styles.screen}>
+        <View style={[styles.screen, { backgroundColor: themeColors.background }]}>
+            <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
             <View style={[styles.container, { backgroundColor: themeColors.background }]}>
                 <CustomHeader 
                     title={initialData ? (isRTL ? 'تعديل الكتاب' : 'Edit Book') : (isRTL ? 'إضافة كتاب' : 'Give a Book')}
                     leftMode="none"
                     rightIcons={['search']}
-                    hideSafeArea
+                    hideSafeArea={true}
                 />
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                     <ScrollView
@@ -173,7 +174,7 @@ export default function Add_Books() {
                     </ScrollView>
                 </KeyboardAvoidingView>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 

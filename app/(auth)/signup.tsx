@@ -12,6 +12,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   Text,
   TextInput,
   View,
@@ -21,14 +22,15 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH, FIREBASE_DB } from '@/firebaseConfig';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { FACULTIES } from '@/src/constants/faculties';
 
 export default function SignupScreen() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
   const { t, isRTL } = useI18n();
 
   const signupSchema = useMemo(() => z.object({
@@ -122,146 +124,154 @@ export default function SignupScreen() {
   const flexDirection = isRTL ? 'row-reverse' : 'row';
 
   return (
-    <View style={[styles.flex, { backgroundColor: '#FFFFFF' }]}>
+    <View style={[styles.flex, { backgroundColor: themeColors.background }]}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View style={[styles.header, { flexDirection }]}>
-            <Pressable onPress={() => router.back()} style={styles.backBtn}>
-              <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={24} color="#001B39" />
-            </Pressable>
-            <Text style={[styles.headerTitle, { color: '#001B39' }]}>BookCycle</Text>
-            <LanguageToggle />
+            <View style={{ flexDirection, alignItems: 'center', flex: 1 }}>
+              <Pressable onPress={() => router.back()} style={styles.backBtn}>
+                <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={24} color={themeColors.text} />
+              </Pressable>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="book" size={20} color={themeColors.primary} style={isRTL ? { marginLeft: 6 } : { marginRight: 6 }} />
+                <Text style={[styles.headerTitle, { color: themeColors.text }]}>BookCycle</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection, gap: 12, alignItems: 'center' }}>
+              <ThemeToggle />
+              <LanguageToggle />
+            </View>
           </View>
 
           <View style={styles.heroSection}>
-            <Text style={[styles.heroTitle, { color: '#001B39', textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.title')}</Text>
-            <Text style={[styles.heroSubtitle, { color: '#6B7280', textAlign: isRTL ? 'right' : 'left' }]}>
+            <Text style={[styles.heroTitle, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.title')}</Text>
+            <Text style={[styles.heroSubtitle, { color: themeColors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
               {t('auth.signup.subtitle')}
             </Text>
           </View>
 
           <View style={styles.formContainer}>
             {!!globalError && (
-              <View style={[styles.errorBox, { backgroundColor: theme.error + '10', borderColor: theme.error }]}>
-                <Text style={[styles.errorText, { color: theme.error }]}>{globalError}</Text>
+              <View style={[styles.errorBox, { backgroundColor: themeColors.error + '10', borderColor: themeColors.error }]}>
+                <Text style={[styles.errorText, { color: themeColors.error }]}>{globalError}</Text>
               </View>
             )}
 
             {/* Role Selection */}
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.roleLabel')}</Text>
-              <Pressable onPress={() => setRoleModalVisible(true)} style={[styles.input, { backgroundColor: '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center' }]}>
-                <Text style={{ color: '#1A1A1A', fontSize: 13, fontWeight: '600' }}>
+              <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.roleLabel')}</Text>
+              <Pressable onPress={() => setRoleModalVisible(true)} style={[styles.input, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center' }]}>
+                <Text style={{ color: themeColors.text, fontSize: 13, fontWeight: '600' }}>
                   {roles.find(r => r.id === selectedRole)?.label}
                 </Text>
-                <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
+                <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
               </Pressable>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.fullNameLabel')}</Text>
+              <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.fullNameLabel')}</Text>
               <Controller control={control} name="fullName" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.fullNamePlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} />
+                <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.fullNamePlaceholder')} placeholderTextColor={themeColors.textSecondary} onBlur={onBlur} onChangeText={onChange} value={value} />
               )} />
-              {!!errors.fullName && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.fullName.message}</Text>}
+              {!!errors.fullName && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.fullName.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.emailLabel')}</Text>
+              <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.emailLabel')}</Text>
               <Controller control={control} name="email" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.emailPlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="email-address" autoCapitalize="none" />
+                <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.emailPlaceholder')} placeholderTextColor={themeColors.textSecondary} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="email-address" autoCapitalize="none" />
               )} />
-              {!!errors.email && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.email.message}</Text>}
+              {!!errors.email && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.email.message}</Text>}
             </View>
 
             <View style={[styles.row, { flexDirection }]}>
               <View style={[styles.inputGroup, { flex: 1, marginHorizontal: 4 }]}>
-                <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.passwordLabel')}</Text>
+                <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.passwordLabel')}</Text>
                 <Controller control={control} name="password" render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput style={[styles.input, { backgroundColor: '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.passwordPlaceholder')} placeholderTextColor="#A0AEC0" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
+                  <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.passwordPlaceholder')} placeholderTextColor={themeColors.textSecondary} secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
                 )} />
               </View>
               <View style={[styles.inputGroup, { flex: 1, marginHorizontal: 4 }]}>
-                <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.confirmPasswordLabel')}</Text>
+                <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.confirmPasswordLabel')}</Text>
                 <Controller control={control} name="confirmPassword" render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput style={[styles.input, { backgroundColor: '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.passwordPlaceholder')} placeholderTextColor="#A0AEC0" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
+                  <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.passwordPlaceholder')} placeholderTextColor={themeColors.textSecondary} secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} />
                 )} />
               </View>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.facultyLabel')}</Text>
-              <Pressable onPress={() => setFacultyModalVisible(true)} style={[styles.input, { backgroundColor: '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center' }]}>
-                <Text style={{ color: selectedFacultyId ? '#1A1A1A' : '#A0AEC0', fontSize: 13, fontWeight: '600' }}>
+              <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.facultyLabel')}</Text>
+              <Pressable onPress={() => setFacultyModalVisible(true)} style={[styles.input, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center' }]}>
+                <Text style={{ color: selectedFacultyId ? themeColors.text : themeColors.textSecondary, fontSize: 13, fontWeight: '600' }}>
                   {selectedFacultyId ? t(`faculties.${selectedFacultyId}`) : t('auth.signup.facultyPlaceholder')}
                 </Text>
-                <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
+                <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
               </Pressable>
-              {!!errors.facultyId && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.facultyId.message}</Text>}
+              {!!errors.facultyId && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.facultyId.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.majorLabel')}</Text>
-              <Pressable onPress={() => { if (selectedFacultyId) setMajorModalVisible(true); }} style={[styles.input, { backgroundColor: '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center', opacity: selectedFacultyId ? 1 : 0.6 }]}>
-                <Text style={{ color: watch('major') ? '#1A1A1A' : '#A0AEC0', fontSize: 13, fontWeight: '600' }}>
+              <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.majorLabel')}</Text>
+              <Pressable onPress={() => { if (selectedFacultyId) setMajorModalVisible(true); }} style={[styles.input, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center', opacity: selectedFacultyId ? 1 : 0.6 }]}>
+                <Text style={{ color: watch('major') ? themeColors.text : themeColors.textSecondary, fontSize: 13, fontWeight: '600' }}>
                   {watch('major') || t('auth.signup.majorPlaceholder')}
                 </Text>
-                <Ionicons name="chevron-down" size={20} color="#8E9BAE" />
+                <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
               </Pressable>
-              {!!errors.major && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.major.message}</Text>}
+              {!!errors.major && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.major.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.universityIdLabel')}</Text>
+              <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.universityIdLabel')}</Text>
               <Controller control={control} name="universityID" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, { backgroundColor: '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.universityIdPlaceholder')} placeholderTextColor="#A0AEC0" onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="numeric" />
+                <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.universityIdPlaceholder')} placeholderTextColor={themeColors.textSecondary} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="numeric" />
               )} />
-              {!!errors.universityID && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.universityID.message}</Text>}
+              {!!errors.universityID && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.universityID.message}</Text>}
             </View>
 
-            <Text style={styles.legalText}>
+            <Text style={[styles.legalText, { color: themeColors.textSecondary }]}>
               {t('auth.signup.legalText')}
             </Text>
 
-            <Pressable style={({ pressed }) => [styles.primaryBtn, { backgroundColor: '#001B39' }, pressed && { opacity: 0.9 }]} onPress={handleSubmit(onSignup)} disabled={loading}>
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>{t('auth.signup.signupButton')}</Text>}
+            <Pressable style={({ pressed }) => [styles.primaryBtn, { backgroundColor: themeColors.primary }, pressed && { opacity: 0.9 }]} onPress={handleSubmit(onSignup)} disabled={loading}>
+              {loading ? <ActivityIndicator color={themeKey === 'dark' ? '#0B1020' : '#FFF'} /> : <Text style={[styles.primaryBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{t('auth.signup.signupButton')}</Text>}
             </Pressable>
 
             <View style={[styles.loginLinkRow, { flexDirection }]}>
-              <Text style={styles.loginLinkText}>{t('auth.signup.alreadyAccount')}</Text>
-              <Link href="/login" asChild>
-                <Pressable><Text style={[styles.loginLinkText, { fontWeight: '800', color: '#001B39' }]}>{t('auth.signup.loginLink')}</Text></Pressable>
-              </Link>
+              <Text style={[styles.loginLinkText, { color: themeColors.textSecondary }]}>{t('auth.signup.alreadyAccount')}</Text>
+              <TouchableOpacity onPress={() => router.push('/login')}>
+                <Text style={[styles.loginLinkText, { fontWeight: '800', color: themeColors.primary }]}>{t('auth.signup.loginLink')}</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
       {/* Role Modal */}
-      <Modal visible={roleModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={[styles.modalHeader, { flexDirection }]}>
-              <Text style={styles.modalTitle}>{t('auth.signup.roleLabel')}</Text>
-              <Pressable onPress={() => setRoleModalVisible(false)}><Ionicons name="close" size={24} color="#1A1A1A" /></Pressable>
+      <Modal visible={roleModalVisible} transparent animationType="slide" onRequestClose={() => setRoleModalVisible(false)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setRoleModalVisible(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: themeColors.background }]} onPress={(e) => e.stopPropagation()}>
+            <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
+              <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t('auth.signup.roleLabel')}</Text>
+              <Pressable onPress={() => setRoleModalVisible(false)}><Ionicons name="close" size={24} color={themeColors.textSecondary} /></Pressable>
             </View>
             {roles.map((role) => (
               <Pressable key={role.id} style={[styles.modalItem, { flexDirection }]} onPress={() => { setValue('role', role.id as any); setRoleModalVisible(false); }}>
-                <Ionicons name={role.icon as any} size={20} color="#001B39" style={isRTL ? { marginLeft: 12 } : { marginRight: 12 }} />
-                <Text style={styles.modalItemText}>{role.label}</Text>
-                {selectedRole === role.id && <Ionicons name="checkmark-circle" size={20} color="#10B981" style={{ marginLeft: 'auto' }} />}
+                <Ionicons name={role.icon as any} size={20} color={themeColors.primary} style={isRTL ? { marginLeft: 12 } : { marginRight: 12 }} />
+                <Text style={[styles.modalItemText, { color: themeColors.text }]}>{role.label}</Text>
+                {selectedRole === role.id && <Ionicons name="checkmark-circle" size={20} color={themeColors.success} style={{ marginLeft: 'auto' }} />}
               </Pressable>
             ))}
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
 
-      <Modal visible={facultyModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={[styles.modalHeader, { flexDirection }]}>
-              <Text style={styles.modalTitle}>{t('auth.signup.facultyLabel')}</Text>
-              <Pressable onPress={() => setFacultyModalVisible(false)}><Ionicons name="close" size={24} color="#1A1A1A" /></Pressable>
+      <Modal visible={facultyModalVisible} transparent animationType="slide" onRequestClose={() => setFacultyModalVisible(false)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setFacultyModalVisible(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: themeColors.background }]} onPress={(e) => e.stopPropagation()}>
+            <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
+              <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t('auth.signup.facultyLabel')}</Text>
+              <Pressable onPress={() => setFacultyModalVisible(false)}><Ionicons name="close" size={24} color={themeColors.textSecondary} /></Pressable>
             </View>
             <FlatList
               data={FACULTIES}
@@ -269,34 +279,34 @@ export default function SignupScreen() {
               renderItem={({ item }) => (
                 <Pressable style={[styles.modalItem, { flexDirection }]} onPress={() => { setValue('facultyId', item.id); setValue('major', ''); setFacultyModalVisible(false); }}>
                   <Ionicons name={item.icon as any} size={20} color={item.color} style={isRTL ? { marginLeft: 12 } : { marginRight: 12 }} />
-                  <Text style={styles.modalItemText}>{t(`faculties.${item.id}`)}</Text>
+                  <Text style={[styles.modalItemText, { color: themeColors.text }]}>{t(`faculties.${item.id}`)}</Text>
                 </Pressable>
               )}
-              ItemSeparatorComponent={() => <View style={styles.divider} />}
+              ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
             />
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
 
-      <Modal visible={majorModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={[styles.modalHeader, { flexDirection }]}>
-              <Text style={styles.modalTitle}>{t('auth.signup.majorLabel')}</Text>
-              <Pressable onPress={() => setMajorModalVisible(false)}><Ionicons name="close" size={24} color="#1A1A1A" /></Pressable>
+      <Modal visible={majorModalVisible} transparent animationType="slide" onRequestClose={() => setMajorModalVisible(false)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setMajorModalVisible(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: themeColors.background }]} onPress={(e) => e.stopPropagation()}>
+            <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
+              <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t('auth.signup.majorLabel')}</Text>
+              <Pressable onPress={() => setMajorModalVisible(false)}><Ionicons name="close" size={24} color={themeColors.textSecondary} /></Pressable>
             </View>
             <FlatList
               data={majorOptions}
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <Pressable style={[styles.modalItem, { flexDirection }]} onPress={() => { setValue('major', item); setMajorModalVisible(false); }}>
-                  <Text style={styles.modalItemText}>{item}</Text>
+                  <Text style={[styles.modalItemText, { color: themeColors.text }]}>{item}</Text>
                 </Pressable>
               )}
-              ItemSeparatorComponent={() => <View style={styles.divider} />}
+              ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
             />
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
@@ -304,12 +314,12 @@ export default function SignupScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  container: { flexGrow: 1, paddingHorizontal: 24, paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 40 },
+  container: { flexGrow: 1, paddingHorizontal: 24, paddingTop: Platform.OS === 'ios' ? 50 : 30, paddingBottom: 40 },
   header: { justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 },
   backBtn: { padding: 8, marginLeft: -8 },
   headerTitle: { fontSize: 18, fontWeight: '800', letterSpacing: -0.5 },
   heroSection: { marginBottom: 32 },
-  heroTitle: { fontSize: 28, fontWeight: '800', marginBottom: 12, lineHeight: 34 },
+  heroTitle: { fontSize: 32, fontWeight: '700', marginBottom: 8, lineHeight: 38 },
   heroSubtitle: { fontSize: 14, lineHeight: 20, fontWeight: '500' },
   formContainer: { width: '100%' },
   label: { fontSize: 13, fontWeight: '700', color: '#001B39', marginBottom: 8 },

@@ -4,14 +4,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { ProfileStyles as styles } from '../styles';
 import { UserStats } from '../types';
 import { useI18n } from '@/hooks/use-i18n';
+import { useAppTheme } from '@/context/ThemeContext';
+import { Colors } from '@/constants/theme';
 
 interface Props { stats: UserStats; }
 
 export const ContributorCardUI = ({ stats }: Props) => {
   const { width } = useWindowDimensions();
   const { t, isRTL } = useI18n();
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
   const cardPadding = Math.min(width * 0.06, 24);
   const textAlign = isRTL ? 'right' : 'left';
+  const isDark = themeKey === 'dark';
 
   const safeRating = stats?.rating || 0;
   const safeReliability = stats?.reliability || 0;
@@ -32,8 +37,8 @@ export const ContributorCardUI = ({ stats }: Props) => {
   };
 
   return (
-    <View style={[styles.contributorCardContainer, { padding: cardPadding }]}>
-      <Text style={[styles.headerTitle, { textAlign }]}>
+    <View style={[styles.contributorCardContainer, { padding: cardPadding, backgroundColor: themeColors.card, shadowColor: isDark ? '#000' : '#000', elevation: isDark ? 0 : 5 }]}>
+      <Text style={[styles.headerTitle, { textAlign, color: themeColors.text }]}>
         {isRTL ? 'موثوقية وتأثير المساهم' : 'Contributor Reliability & Impact'}
       </Text>
 
@@ -41,40 +46,40 @@ export const ContributorCardUI = ({ stats }: Props) => {
       <View style={styles.statSection}>
         <View style={[styles.statHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           <View style={[styles.labelRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-            <Ionicons name="star-outline" size={24} color="#001B39" />
-            <Text style={[styles.statLabel, { textAlign }]}>{isRTL ? 'تقييم الطلاب لك' : 'Student Rating'}</Text>
+            <Ionicons name="star-outline" size={24} color={themeColors.primary} />
+            <Text style={[styles.statLabel, { textAlign, color: themeColors.text }]}>{isRTL ? 'تقييم الطلاب لك' : 'Student Rating'}</Text>
           </View>
-          <Text style={styles.statValue}>{safeRating.toFixed(1)}/5</Text>
+          <Text style={[styles.statValue, { color: themeColors.primary }]}>{safeRating.toFixed(1)}/5</Text>
         </View>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: `${(safeRating / 5) * 100}%`, alignSelf: isRTL ? 'flex-end' : 'flex-start' }]} />
+        <View style={[styles.progressBarBg, { backgroundColor: isDark ? themeColors.background : '#F3F4F6' }]}>
+          <View style={[styles.progressBarFill, { width: `${(safeRating / 5) * 100}%`, alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: themeColors.primary }]} />
         </View>
-        <Text style={[styles.description, { textAlign }]}>{getRatingStatement(safeRating)}</Text>
+        <Text style={[styles.description, { textAlign, color: themeColors.textSecondary }]}>{getRatingStatement(safeRating)}</Text>
       </View>
 
       {/* Reliability */}
       <View style={styles.statSection}>
         <View style={[styles.statHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           <View style={[styles.labelRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-            <Ionicons name="shield-checkmark-outline" size={24} color="#001B39" />
-            <Text style={[styles.statLabel, { textAlign }]}>{isRTL ? 'موثوقية المواعيد' : 'Punctuality Reliability'}</Text>
+            <Ionicons name="shield-checkmark-outline" size={24} color={themeColors.primary} />
+            <Text style={[styles.statLabel, { textAlign, color: themeColors.text }]}>{isRTL ? 'موثوقية المواعيد' : 'Punctuality Reliability'}</Text>
           </View>
-          <Text style={styles.statValue}>{safeReliability}%</Text>
+          <Text style={[styles.statValue, { color: themeColors.primary }]}>{safeReliability}%</Text>
         </View>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: `${safeReliability}%`, alignSelf: isRTL ? 'flex-end' : 'flex-start' }]} />
+        <View style={[styles.progressBarBg, { backgroundColor: isDark ? themeColors.background : '#F3F4F6' }]}>
+          <View style={[styles.progressBarFill, { width: `${safeReliability}%`, alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: themeColors.primary }]} />
         </View>
-        <Text style={[styles.description, { textAlign }]}>{getReliabilityStatement(safeReliability)}</Text>
+        <Text style={[styles.description, { textAlign, color: themeColors.textSecondary }]}>{getReliabilityStatement(safeReliability)}</Text>
       </View>
 
       {/* Impact */}
-      <View style={[styles.impactCard, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-        <View style={styles.impactIconContainer}>
-          <Ionicons name="people" size={28} color="#fff" />
+      <View style={[styles.impactCard, { flexDirection: isRTL ? 'row-reverse' : 'row', backgroundColor: themeColors.primary }]}>
+        <View style={[styles.impactIconContainer, { backgroundColor: isDark ? 'rgba(11,16,32,0.2)' : 'rgba(255,255,255,0.2)' }]}>
+          <Ionicons name="people" size={28} color={isDark ? '#0B1020' : '#fff'} />
         </View>
         <View style={[styles.impactInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-          <Text style={styles.impactTitle}>{isRTL ? 'الأثر المجتمعي' : 'Community Impact'}</Text>
-          <Text style={styles.impactValue}>
+          <Text style={[styles.impactTitle, { color: isDark ? 'rgba(11,16,32,0.7)' : 'rgba(255,255,255,0.7)' }]}>{isRTL ? 'الأثر المجتمعي' : 'Community Impact'}</Text>
+          <Text style={[styles.impactValue, { color: isDark ? '#0B1020' : '#fff' }]}>
             {isRTL ? `لقد ساعدت ${safeImpact} زملاء` : `You helped ${safeImpact} colleagues`}
           </Text>
         </View>

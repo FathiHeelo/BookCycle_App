@@ -10,7 +10,7 @@ import { useI18n } from '@/hooks/use-i18n';
 const TabIcon = ({ focused, name, label, themeColors }: any) => {
   if (focused) {
     return (
-      <View style={[styles.highlightContainer, { backgroundColor: '#001B39' }]}>
+      <View style={[styles.highlightContainer, { backgroundColor: themeColors.primary }]}>
         <Ionicons name={name} size={22} color="#FFF" />
         <Text style={[styles.highlightText]}>{label}</Text>
       </View>
@@ -22,9 +22,9 @@ const TabIcon = ({ focused, name, label, themeColors }: any) => {
       <Ionicons 
         name={`${name}-outline` as any} 
         size={24} 
-        color="#94A3B8"
+        color={themeColors.textSecondary}
       />
-      <Text style={[styles.iconText, { color: '#94A3B8', fontWeight: '500' }]}>
+      <Text style={[styles.iconText, { color: themeColors.textSecondary, fontWeight: '500' }]}>
         {label}
       </Text>
     </View>
@@ -47,11 +47,11 @@ export default function TabLayout() {
           borderTopWidth: 0,
           elevation: 0,
           height: Platform.OS === 'ios' ? 90 : 75,
-          borderTopRightRadius: 30, // As per the image
+          borderTopRightRadius: 30,
           borderTopLeftRadius: 30,
-          shadowColor: '#000',
+          shadowColor: theme === 'dark' ? '#000' : '#E5E7EB',
           shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.05,
+          shadowOpacity: theme === 'dark' ? 0.3 : 0.05,
           shadowRadius: 10,
           paddingHorizontal: 10,
         },
@@ -61,6 +61,14 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} name="home" label={isRTL ? 'الرئيسية' : 'Home'} themeColors={themeColors} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} name="search" label={isRTL ? 'استكشف' : 'Explore'} themeColors={themeColors} />
           ),
         }}
       />
@@ -95,12 +103,19 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="my-requests"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} name="mail" label={isRTL ? 'الطلبات' : 'Requests'} themeColors={themeColors} />
+          ),
+         }}
+      />
       
       {/* Hidden from Tab Bar but still inside the Tabs layout so they show the Tab Bar at the bottom */}
-      <Tabs.Screen name="explore" options={{ href: null }} />
       <Tabs.Screen name="profile" options={{ href: null }} />
-      <Tabs.Screen name="my-requests" options={{ href: null }} />
       <Tabs.Screen name="my-shared-items" options={{ href: null }} />
+      
     </Tabs>
   );
 }

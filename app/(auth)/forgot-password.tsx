@@ -18,12 +18,13 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function ForgotPasswordScreen() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const { theme: themeKey } = useAppTheme();
+  const theme = Colors[themeKey];
   const { t } = useI18n();
   
   const forgotPasswordSchema = z.object({
@@ -68,7 +69,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.flex, { backgroundColor: '#FFFFFF' }]}
+      style={[styles.flex, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -77,15 +78,18 @@ export default function ForgotPasswordScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.brandingContainer}>
-          <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#001B39" />
-          </Pressable>
-          <Text style={[styles.appName, { color: '#001B39' }]}>BookCycle</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+            <Pressable onPress={() => router.back()} style={styles.backBtn}>
+              <Ionicons name="arrow-back" size={24} color={theme.primary} />
+            </Pressable>
+            <Text style={[styles.appName, { color: theme.primary }]}>BookCycle</Text>
+          </View>
+          <ThemeToggle />
         </View>
 
         <View style={styles.welcomeContainer}>
-          <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>{t('auth.forgotPassword.title')}</Text>
-          <Text style={[styles.welcomeSubtitle, { color: '#8E9BAE' }]}>
+          <Text style={[styles.welcomeTitle, { color: theme.text }]}>{t('auth.forgotPassword.title')}</Text>
+          <Text style={[styles.welcomeSubtitle, { color: theme.textSecondary }]}>
             {t('auth.forgotPassword.subtitle')}
           </Text>
         </View>
@@ -113,17 +117,17 @@ export default function ForgotPasswordScreen() {
           {!successMsg && (
             <>
               <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: '#4A4A4A' }]}>{t('auth.forgotPassword.emailLabel')}</Text>
+                <Text style={[styles.label, { color: theme.text }]}>{t('auth.forgotPassword.emailLabel')}</Text>
                 <Controller
                   control={control}
                   name="email"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={[styles.inputWrapper, { backgroundColor: '#F1F4F7', borderColor: errors.email ? theme.error : 'transparent' }]}>
+                    <View style={[styles.inputWrapper, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F4F7', borderColor: errors.email ? theme.error : theme.border }]}>
                       <Ionicons name="mail" size={18} color="#8E9BAE" style={styles.inputIcon} />
                       <TextInput
-                        style={[styles.input, { color: '#1A1A1A' }]}
+                        style={[styles.input, { color: theme.text }]}
                         placeholder={t('auth.forgotPassword.emailPlaceholder')}
-                        placeholderTextColor="#A0AEC0"
+                        placeholderTextColor={theme.textSecondary}
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}
@@ -139,7 +143,7 @@ export default function ForgotPasswordScreen() {
               <Pressable
                 style={({ pressed }) => [
                   styles.primaryBtn,
-                  { backgroundColor: '#001B39' },
+                  { backgroundColor: theme.primary },
                   pressed && { opacity: 0.9 }
                 ]}
                 onPress={handleSubmit(onSubmit)}
@@ -149,8 +153,8 @@ export default function ForgotPasswordScreen() {
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <View style={styles.btnContent}>
-                    <Text style={styles.primaryBtnText}>{t('auth.forgotPassword.sendButton')}</Text>
-                    <Ionicons name="paper-plane" size={18} color="#fff" style={{ marginLeft: 8 }} />
+                    <Text style={[styles.primaryBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{t('auth.forgotPassword.sendButton')}</Text>
+                    <Ionicons name="paper-plane" size={18} color={themeKey === 'dark' ? '#0B1020' : '#FFF'} style={{ marginLeft: 8 }} />
                   </View>
                 )}
               </Pressable>

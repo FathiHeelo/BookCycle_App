@@ -3,7 +3,7 @@ import { ScrollView, Text, View, Pressable, TouchableOpacity, SafeAreaView, Acti
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { DetailStyles as styles } from '../styles';
 import { useBookDetails } from '../hooks/useBookDetails';
@@ -18,8 +18,8 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
   } = props;
 
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const { theme: themeKey } = useAppTheme();
+  const theme = Colors[themeKey];
 
   const bookImageUri = book?.imageUrl || book?.image;
   const textAlign = isRTL ? 'right' : 'left';
@@ -66,26 +66,26 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
           <View style={[styles.badgeRow, { flexDirection }]}>
             {book.facultyIds ? (
               book.facultyIds.map((fId: string) => (
-                <View key={fId} style={[styles.badge, { backgroundColor: '#E0F2FE' }]}>
-                  <Text style={[styles.badgeText, { color: '#0369A1' }]}>
+                <View key={fId} style={[styles.badge, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.15)' : '#FEF3C7' }]}>
+                  <Text style={[styles.badgeText, { color: theme.primary }]}>
                     {t(`faculties.${fId}`).toUpperCase()}
                   </Text>
                 </View>
               ))
             ) : (
-              <View style={[styles.badge, { backgroundColor: '#E0F2FE' }]}>
-                <Text style={[styles.badgeText, { color: '#0369A1' }]}>
+              <View style={[styles.badge, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.15)' : '#FEF3C7' }]}>
+                <Text style={[styles.badgeText, { color: theme.primary }]}>
                   {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : (isRTL ? 'عام' : 'GENERAL')}
                 </Text>
               </View>
             )}
-            <View style={[styles.badge, { backgroundColor: '#F1F5F9' }]}>
-              <Text style={[styles.badgeText, { color: '#475569' }]}>{isRTL ? 'غلاف مقوى' : 'HARDCOVER'}</Text>
+            <View style={[styles.badge, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}>
+              <Text style={[styles.badgeText, { color: theme.textSecondary }]}>{isRTL ? 'غلاف مقوى' : 'HARDCOVER'}</Text>
             </View>
           </View>
 
-          <Text style={[styles.title, { color: theme.primary, textAlign }]}>{book.title}</Text>
-          <Text style={[styles.author, { color: '#64748B', textAlign }]}>
+          <Text style={[styles.title, { color: theme.text, textAlign }]}>{book.title}</Text>
+          <Text style={[styles.author, { color: theme.textSecondary, textAlign }]}>
             {t('bookDetails.by', { defaultValue: isRTL ? 'بواسطة' : 'by' })} {book.author || (isRTL ? 'عضو هيئة تدريس' : 'Academic Faculty')}
           </Text>
 
@@ -111,8 +111,8 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
               <View style={[styles.tagContainer, { flexDirection }]}>
                 {book.majors ? (
                   book.majors.map((m: string) => (
-                    <View key={m} style={styles.majorTag}>
-                      <Text style={styles.majorTagText}>{m}</Text>
+                    <View key={m} style={[styles.majorTag, { backgroundColor: themeKey === 'dark' ? theme.background : '#F1F5F9' }]}>
+                      <Text style={[styles.majorTagText, { color: theme.textSecondary }]}>{m}</Text>
                     </View>
                   ))
                 ) : (
@@ -130,8 +130,8 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.primary, textAlign }]}>{t('bookDetails.description')}</Text>
-            <Text style={[styles.description, { color: '#475569', textAlign }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text, textAlign }]}>{t('bookDetails.description')}</Text>
+            <Text style={[styles.description, { color: theme.textSecondary, textAlign }]}>
               {book.description || t('bookDetails.noDescription')}
             </Text>
           </View>
@@ -140,16 +140,16 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             <Text style={[styles.donorLabel, { textAlign }]}>{isRTL ? 'بواسطة' : 'GIFTING BY'}</Text>
             
             <View style={[styles.donorHeader, { flexDirection }]}>
-              <View style={[styles.donorAvatar, { backgroundColor: '#fff' }]}>
+              <View style={[styles.donorAvatar, { backgroundColor: themeKey === 'dark' ? theme.background : '#F1F5F9' }]}>
                 {donorProfile?.photoURL ? (
                   <Image source={{ uri: donorProfile.photoURL }} style={styles.avatarImg} />
                 ) : (
-                  <Ionicons name="person" size={28} color="#94A3B8" />
+                  <Ionicons name="person" size={28} color={theme.textSecondary} />
                 )}
               </View>
               
               <View style={[styles.donorInfo, isRTL ? { marginRight: 16 } : { marginLeft: 16 }]}>
-                <Text style={[styles.donorName, { textAlign, color: '#001B39' }]}>
+                <Text style={[styles.donorName, { textAlign, color: theme.text }]}>
                   {book.donorName}
                 </Text>
                 <Text style={[styles.donorSubtext, { textAlign }]}>
@@ -161,10 +161,10 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             </View>
 
             <TouchableOpacity 
-              style={styles.viewProfileBtn}
+              style={[styles.viewProfileBtn, { borderColor: theme.border, backgroundColor: theme.card }]}
               onPress={() => router.push(`../public-profile/${book.donorUid}`)}
             >
-              <Text style={styles.viewProfileText}>{isRTL ? 'عرض الملف الشخصي' : 'View Profile'}</Text>
+              <Text style={[styles.viewProfileText, { color: theme.primary }]}>{isRTL ? 'عرض الملف الشخصي' : 'View Profile'}</Text>
             </TouchableOpacity>
           </View>
           <View style={{ height: 100 }} />
@@ -184,16 +184,16 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             disabled={requesting || requestStatus === 'success'}
           >
             {requesting ? (
-              <ActivityIndicator color="#FFF" />
+              <ActivityIndicator color={themeKey === 'dark' ? '#0B1020' : '#FFF'} />
             ) : (
               <View style={{ flexDirection, alignItems: 'center' }}>
                 <Ionicons 
                   name={requestStatus === 'success' ? "checkmark-circle" : "heart-outline"} 
                   size={20} 
-                  color="#FFF" 
+                  color={themeKey === 'dark' ? '#0B1020' : '#FFF'} 
                   style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }} 
                 />
-                <Text style={styles.requestBtnText}>
+                <Text style={[styles.requestBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>
                   {requestStatus === 'success' ? (isRTL ? 'تم إرسال الطلب' : 'Request Sent') : (isRTL ? 'اطلب هذا المصدر' : 'Request this Material')}
                 </Text>
               </View>
@@ -235,13 +235,13 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
                 {isRTL ? 'أنت على وشك طلب هذا الكتاب. سيتم إخطار المساهم للموافقة على طلبك.' : 'You are about to request this book. The contributor will be notified to approve your request.'}
               </Text>
             </View>
-            <View style={styles.modalDivider} />
+            <View style={[styles.modalDivider, { backgroundColor: theme.border }]} />
             <View style={[styles.modalFooter, { flexDirection }]}>
-              <Pressable style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelBtnText}>{t('common.cancel')}</Text>
+              <Pressable style={[styles.cancelBtn, { backgroundColor: themeKey === 'dark' ? theme.background : '#F1F5F9' }]} onPress={() => setModalVisible(false)}>
+                <Text style={[styles.cancelBtnText, { color: theme.textSecondary }]}>{t('common.cancel')}</Text>
               </Pressable>
               <Pressable style={[styles.confirmBtn, { backgroundColor: theme.primary }]} onPress={handleRequest}>
-                <Text style={styles.confirmBtnText}>{isRTL ? 'تأكيد الطلب' : 'Confirm Request'}</Text>
+                <Text style={[styles.confirmBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{isRTL ? 'تأكيد الطلب' : 'Confirm Request'}</Text>
               </Pressable>
             </View>
           </View>

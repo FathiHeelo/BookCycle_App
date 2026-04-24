@@ -41,7 +41,8 @@ export const CustomHeader = ({
         backgroundColor: theme.background, 
         flexDirection,
         paddingTop: hideSafeArea ? (insets.top + (Platform.OS === 'ios' ? 0 : 10)) : 10,
-        height: hideSafeArea ? (56 + insets.top + (Platform.OS === 'ios' ? 0 : 10)) : 66
+        height: hideSafeArea ? (56 + insets.top + (Platform.OS === 'ios' ? 0 : 10)) : 66,
+        borderBottomColor: theme.border,
       }
     ]}>
       {/* Left Section */}
@@ -54,14 +55,14 @@ export const CustomHeader = ({
         
         {leftMode === 'avatar' && (
           <TouchableOpacity 
-            style={styles.avatarContainer}
-            onPress={() => router.push('../(tabs)/Profile')}
+            style={[styles.avatarContainer, { borderColor: theme.border }]}
+            onPress={() => router.push('../(tabs)/profile')}
           >
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
             ) : (
-              <View style={[styles.avatar, styles.avatarPlaceholder]}>
-                <Ionicons name="person" size={20} color="#94A3B8" />
+              <View style={[styles.avatar, styles.avatarPlaceholder, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9' }]}>
+                <Ionicons name="person" size={20} color={theme.textSecondary} />
               </View>
             )}
           </TouchableOpacity>
@@ -147,7 +148,6 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 2,
-    borderColor: '#E2E8F0',
     overflow: 'hidden',
   },
   avatar: {
