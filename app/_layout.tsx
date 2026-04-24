@@ -19,6 +19,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import '@/i18n/config';
 import { ThemeProvider as AppThemeProvider, useAppTheme } from '@/context/ThemeContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 
 
 export const unstable_settings = {
@@ -51,16 +52,18 @@ function AuthGuard({ user, splashVisible }: { user: User | null | undefined; spl
 export default function RootLayout() {
   return (
     <AppThemeProvider>
-      <RootLayoutInner />
+      <AuthProvider>
+        <RootLayoutInner />
+      </AuthProvider>
     </AppThemeProvider>
   );
 }
 
 function RootLayoutInner() {
   const { isDark } = useAppTheme();
+  const { user, loading: authLoading } = useAuth();
   const colorScheme = useColorScheme();
   const theme = Colors[isDark ? 'dark' : 'light'];
-  const [user, setUser] = useState<User | null | undefined>(undefined);
   const [splashVisible, setSplashVisible] = useState(true);
 
   // Animation values
@@ -69,11 +72,6 @@ function RootLayoutInner() {
   const textOpacity = useSharedValue(0);
 
   useEffect(() => {
-    // Immediate auth state check
-    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (firebaseUser) => {
-      setUser(firebaseUser);
-    });
-
     // Branded splash delay (2 seconds)
     const splashTimer = setTimeout(() => {
       setSplashVisible(false);
@@ -85,7 +83,6 @@ function RootLayoutInner() {
     textOpacity.value = withDelay(400, withTiming(1, { duration: 800 }));
 
     return () => {
-      unsubscribe();
       clearTimeout(splashTimer);
     };
   }, []);
@@ -100,7 +97,7 @@ function RootLayoutInner() {
   }));
 
   // Show a splash-like loader while splashVisible is true or auth is still initializing
-  if (splashVisible || user === undefined) {
+  if (splashVisible || authLoading) {
     return (
       <View style={[styles.splashContainer, { backgroundColor: theme.background }]}>
         <Animated.View style={[styles.logoContainer, animatedLogoStyle]}>
@@ -126,6 +123,12 @@ function RootLayoutInner() {
         <Stack.Screen name="welcome" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="book-details/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="public-profile/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="all-messages" options={{ headerShown: false }} />
+        <Stack.Screen name="my-requests" options={{ headerShown: false }} />
+        <Stack.Screen name="my-shared-items" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         <Stack.Screen name="change-password" options={{ title: 'Change Password', headerShown: false }} />
       </Stack>

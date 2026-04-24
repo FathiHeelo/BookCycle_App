@@ -9,6 +9,7 @@ interface ThemeContextType {
   themeMode: ThemeMode;
   isDark: boolean;
   setThemeMode: (mode: ThemeMode) => void;
+  toggleTheme: () => void;
 }
 
 const THEME_KEY = 'user-theme-mode';
@@ -18,6 +19,7 @@ const ThemeContext = createContext<ThemeContextType>({
   themeMode: 'system',
   isDark: false,
   setThemeMode: () => {},
+  toggleTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -40,9 +42,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const theme: 'light' | 'dark' =
     themeMode === 'system' ? (systemScheme ?? 'light') : themeMode;
 
+  const toggleTheme = () => {
+    setThemeMode(theme === 'dark' ? 'light' : 'dark');
+  };
+
   return (
     <ThemeContext.Provider
-      value={{ theme, themeMode, isDark: theme === 'dark', setThemeMode }}
+      value={{ theme, themeMode, isDark: theme === 'dark', setThemeMode, toggleTheme }}
     >
       {children}
     </ThemeContext.Provider>

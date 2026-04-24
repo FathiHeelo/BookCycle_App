@@ -13,19 +13,22 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function LoginScreen() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
-  const { t } = useI18n();
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
+  const { t, isRTL } = useI18n();
+  const flexDirection = isRTL ? 'row-reverse' : 'row';
 
   const loginSchema = z.object({
     email: z.string()
@@ -75,7 +78,7 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.flex, { backgroundColor: '#FFFFFF' }]}
+      style={[styles.flex, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -83,38 +86,49 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.brandingContainer}>
-          <Ionicons name="book" size={24} color="#001B39" />
-          <Text style={[styles.appName, { color: '#001B39' }]}>BookCycle</Text>
+        <View style={[styles.header, { flexDirection }]}>
+          <View style={{ flexDirection, alignItems: 'center', flex: 1 }}>
+            <Pressable onPress={() => router.back()} style={styles.backBtn}>
+              <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={24} color={themeColors.text} />
+            </Pressable>
+            <View style={styles.brandingContainer}>
+              <Ionicons name="book" size={20} color={themeColors.primary} style={{ marginRight: 6 }} />
+              <Text style={[styles.headerTitle, { color: themeColors.text }]}>BookCycle</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection, gap: 12, alignItems: 'center' }}>
+            <ThemeToggle />
+            <LanguageToggle />
+          </View>
         </View>
 
         <View style={styles.welcomeContainer}>
-          <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>{t('auth.login.title')}</Text>
-          <Text style={[styles.welcomeSubtitle, { color: '#8E9BAE' }]}>
+          <Text style={[styles.welcomeTitle, { color: themeColors.text }]}>{t('auth.login.title')}</Text>
+          <Text style={[styles.welcomeSubtitle, { color: themeColors.textSecondary }]}>
             {t('auth.login.subtitle')}
           </Text>
         </View>
 
         <View style={styles.formContainer}>
           {!!globalError && (
-            <View style={[styles.errorBox, { backgroundColor: theme.error + '10', borderColor: theme.error }]}>
-              <Text style={[styles.errorText, { color: theme.error }]}>{globalError}</Text>
+            <View style={[styles.errorBox, { backgroundColor: themeColors.error + '10', borderColor: themeColors.error }]}>
+              <Text style={[styles.errorText, { color: themeColors.error }]}>{globalError}</Text>
             </View>
           )}
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: '#4A4A4A' }]}>{t('auth.login.emailLabel')}</Text>
+            <Text style={[styles.label, { color: themeColors.text }]}>{t('auth.login.emailLabel')}</Text>
             <Controller
               control={control}
               name="email"
               render={({ field: { onChange, onBlur, value } }: any) => (
-                <View style={[styles.inputWrapper, { backgroundColor: '#F1F4F7', borderColor: errors.email ? theme.error : 'transparent' }]}>
-                  <Ionicons name="mail" size={18} color="#8E9BAE" style={styles.inputIcon} />
+                <View style={[styles.inputWrapper, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', borderColor: errors.email ? themeColors.error : themeColors.border }]}>
+                  <Ionicons name="mail" size={18} color={themeColors.textSecondary} style={styles.inputIcon} />
                   <TextInput
-                    style={[styles.input, { color: '#1A1A1A' }]}
+                    style={[styles.input, { color: themeColors.text }]}
                     placeholder={t('auth.login.emailPlaceholder')}
-                    placeholderTextColor="#A0AEC0"
+                    placeholderTextColor={themeColors.textSecondary}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
@@ -124,101 +138,98 @@ export default function LoginScreen() {
                 </View>
               )}
             />
-            {!!errors.email && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.email.message}</Text>}
+            {!!errors.email && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.email.message}</Text>}
           </View>
 
           {/* Password */}
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
-              <Text style={[styles.label, { color: '#4A4A4A' }]}>{t('auth.login.passwordLabel')}</Text>
-              <Link href="/forgot-password" asChild>
-                <Pressable>
-                  <Text style={[styles.forgotText, { color: '#001B39' }]}>{t('auth.login.forgotPassword')}</Text>
-                </Pressable>
-              </Link>
+              <Text style={[styles.label, { color: themeColors.text }]}>{t('auth.login.passwordLabel')}</Text>
+              <TouchableOpacity onPress={() => router.push('/forgot-password')}>
+                <Text style={[styles.forgotText, { color: themeColors.primary }]}>{t('auth.login.forgotPassword')}</Text>
+              </TouchableOpacity>
             </View>
             <Controller
               control={control}
               name="password"
               render={({ field: { onChange, onBlur, value } }: any) => (
-                <View style={[styles.inputWrapper, { backgroundColor: '#F1F4F7', borderColor: errors.password ? theme.error : 'transparent' }]}>
-                  <Ionicons name="lock-closed" size={18} color="#8E9BAE" style={styles.inputIcon} />
+                <View style={[styles.inputWrapper, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', borderColor: errors.password ? themeColors.error : themeColors.border }]}>
+                  <Ionicons name="lock-closed" size={18} color={themeColors.textSecondary} style={styles.inputIcon} />
                   <TextInput
-                    style={[styles.input, { color: '#1A1A1A' }]}
+                    style={[styles.input, { color: themeColors.text }]}
                     placeholder={t('auth.login.passwordPlaceholder')}
-                    placeholderTextColor="#A0AEC0"
+                    placeholderTextColor={themeColors.textSecondary}
                     secureTextEntry={!showPassword}
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
                   />
                   <Pressable onPress={() => setShowPassword(!showPassword)}>
-                    <Ionicons name={showPassword ? "eye-off" : "eye"} size={18} color="#8E9BAE" />
+                    <Ionicons name={showPassword ? "eye-off" : "eye"} size={18} color={themeColors.textSecondary} />
                   </Pressable>
                 </View>
               )}
             />
-            {!!errors.password && <Text style={[styles.fieldError, { color: theme.error }]}>{errors.password.message}</Text>}
+            {!!errors.password && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.password.message}</Text>}
           </View>
 
           {/* Login Button */}
           <Pressable
             style={({ pressed }) => [
               styles.primaryBtn,
-              { backgroundColor: '#001B39' },
+              { backgroundColor: themeColors.primary },
               pressed && { opacity: 0.9 }
             ]}
             onPress={handleSubmit(onLogin)}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={themeKey === 'dark' ? '#0B1020' : '#fff'} />
             ) : (
               <View style={styles.btnContent}>
-                <Text style={styles.primaryBtnText}>{t('auth.login.loginButton')}</Text>
-                <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />
+                <Text style={[styles.primaryBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{t('auth.login.loginButton')}</Text>
+                <Ionicons name="arrow-forward" size={18} color={themeKey === 'dark' ? '#0B1020' : '#FFF'} style={{ marginLeft: 8 }} />
               </View>
             )}
           </Pressable>
 
           {/* OR Divider */}
           <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={[styles.dividerText, { color: '#A0AEC0' }]}>{t('common.or')}</Text>
-            <View style={styles.dividerLine} />
+            <View style={[styles.dividerLine, { backgroundColor: themeColors.border }]} />
+            <Text style={[styles.dividerText, { color: themeColors.textSecondary }]}>{t('common.or')}</Text>
+            <View style={[styles.dividerLine, { backgroundColor: themeColors.border }]} />
           </View>
 
           {/* Sign Up Button */}
           <Pressable
             style={({ pressed }) => [
               styles.primaryBtn,
-              { backgroundColor: '#F1F4F7' },
+              { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7' },
               pressed && { opacity: 0.9 }
             ]}
             onPress={() => router.push('/(auth)/signup')}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#001B39" />
+              <ActivityIndicator color={themeColors.primary} />
             ) : (
               <View style={styles.btnContent}>
-                <Text style={[styles.primaryBtnText, { color: '#001B39' }]}>{t('auth.login.signupButton')}</Text>
-                <Ionicons name="arrow-forward-outline" size={18} color="#001B39" style={{ marginLeft: 8 }} />
+                <Text style={[styles.primaryBtnText, { color: themeColors.text }]}>{t('auth.login.signupButton')}</Text>
+                <Ionicons name="arrow-forward-outline" size={18} color={themeColors.text} style={{ marginLeft: 8 }} />
               </View>
             )}
           </Pressable>
           
           {/* Footer Info */}
           <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: '#8E9BAE' }]}>
+            <Text style={[styles.footerText, { color: themeColors.textSecondary }]}>
               {t('auth.login.footer')}
             </Text>
           </View>
 
-          {/* Utility Icons */}
+          {/* Utility Icons removed from here */}
           <View style={styles.utilityIcons}>
             <Ionicons name="help-circle" size={24} color="#8E9BAE" />
-            <LanguageToggle />
           </View>
         </View>
       </ScrollView>
@@ -231,19 +242,27 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Platform.OS === 'ios' ? 80 : 60,
+    paddingTop: Platform.OS === 'ios' ? 50 : 30,
     paddingBottom: 40,
   },
   brandingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.xxl,
   },
-  appName: {
-    fontSize: 22,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  headerTitle: {
+    fontSize: 18,
     fontWeight: '800',
-    marginLeft: 8,
     letterSpacing: -0.5,
+  },
+  backBtn: {
+    padding: 8,
+    marginLeft: -8,
   },
   welcomeContainer: {
     marginBottom: Spacing.xl,

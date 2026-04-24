@@ -12,12 +12,15 @@ import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 import { ThemedText } from '@/components/themed-text';
+import { CustomHeader } from '@/src/components/shared/CustomHeader';
+import { useI18n } from '@/hooks/use-i18n';
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
+  const { t, isRTL } = useI18n();
 
   const handleLogout = async () => {
     try {
@@ -28,89 +31,53 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.flex, { backgroundColor: '#FFFFFF' }]}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.flex, { backgroundColor: themeColors.background }]}>
+      <StatusBar barStyle={themeKey === 'dark' ? 'light-content' : 'dark-content'} />
       
       {/* Header Section */}
-      <View style={[styles.header, { backgroundColor: '#FFFFFF' }]}>
-        <View style={styles.headerTop}>
-          <Ionicons name="book" size={24} color="#001B39" />
-          <ThemedText style={[styles.headerTitle, { color: '#001B39' }]}>BookCycle</ThemedText>
-        </View>
-        <View style={styles.welcomeInfo}>
-          <ThemedText style={[styles.welcomeText, { color: '#8E9BAE' }]}>Welcome back,</ThemedText>
-          <ThemedText style={[styles.userName, { color: '#1A1A1A' }]}>{FIREBASE_AUTH.currentUser?.displayName || 'User'}</ThemedText>
-        </View>
-      </View>
+      <CustomHeader 
+        title="BookCycle"
+        leftMode="avatar"
+        avatarUrl={FIREBASE_AUTH.currentUser?.photoURL || undefined}
+        rightIcons={['search']}
+        hideSafeArea
+      />
 
       <ScrollView
         style={styles.flex}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.welcomeInfo}>
+          <ThemedText style={[styles.welcomeText, { color: themeColors.textSecondary }]}>Welcome back,</ThemedText>
+          <ThemedText style={[styles.userName, { color: themeColors.text }]}>{FIREBASE_AUTH.currentUser?.displayName || 'User'}</ThemedText>
+        </View>
+
         {/* Quick Actions */}
         <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: '#1A1A1A' }]}>Quick Actions</ThemedText>
+          <ThemedText style={[styles.sectionTitle, { color: themeColors.text }]}>Quick Actions</ThemedText>
           <View style={styles.actionGrid}>
-            <Pressable style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}>
-              <View style={[styles.iconCircle, { backgroundColor: 'rgba(0,27,57,0.1)' }]}>
-                <Ionicons name="add" size={24} color="#001B39" />
+            <Pressable
+              style={[styles.actionCard, { backgroundColor: themeColors.card, shadowColor: themeKey === 'dark' ? '#000' : '#E5E7EB', elevation: themeKey === 'dark' ? 0 : 2 }]}
+              onPress={() => router.push('/(tabs)/Add_Books')}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: themeColors.primary + '15' }]}>
+                <Ionicons name="add" size={24} color={themeColors.primary} />
               </View>
-              <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>Add Book</ThemedText>
+              <ThemedText style={[styles.actionLabel, { color: themeColors.text }]}>{isRTL ? 'إضافة مادة' : 'Add Material'}</ThemedText>
             </Pressable>
             
-            <Pressable style={[styles.actionCard, { backgroundColor: '#F1F4F7' }]}>
-              <View style={[styles.iconCircle, { backgroundColor: 'rgba(16,185,129,0.1)' }]}>
-                <Ionicons name="gift-outline" size={24} color="#10B981" />
+            <Pressable 
+              style={[styles.actionCard, { backgroundColor: themeColors.card, shadowColor: themeKey === 'dark' ? '#000' : '#E5E7EB', elevation: themeKey === 'dark' ? 0 : 2 }]}
+              onPress={() => router.push('/(tabs)/my-requests')}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: themeColors.accent ? themeColors.accent + '15' : 'rgba(245,158,11,0.1)' }]}>
+                <Ionicons name="mail-outline" size={24} color={themeColors.accent || '#F59E0B'} />
               </View>
-              <ThemedText style={[styles.actionLabel, { color: '#001B39' }]}>My Gifts</ThemedText>
+              <ThemedText style={[styles.actionLabel, { color: themeColors.text }]}>{isRTL ? 'الطلبات' : 'Requests'}</ThemedText>
             </Pressable>
           </View>
         </View>
-
-        {/* Account Section */}
-        <View style={styles.section}>
-          <ThemedText style={[styles.sectionTitle, { color: '#1A1A1A' }]}>Account Settings</ThemedText>
-          <View style={[styles.accountCard, { backgroundColor: '#F1F4F7' }]}>
-            <Pressable
-              style={styles.accountItem}
-              onPress={() => router.push('/change-password')}
-            >
-              <View style={styles.accountItemLeft}>
-                <Ionicons name="lock-closed-outline" size={20} color="#001B39" />
-                <ThemedText style={[styles.accountItemText, { color: '#1A1A1A' }]}>Change Password</ThemedText>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#8E9BAE" />
-            </Pressable>
-
-            <View style={[styles.itemDivider, { backgroundColor: '#E5E7EB' }]} />
-
-            <Pressable
-              style={styles.accountItem}
-              onPress={() => router.push('/verify-phone')}
-            >
-              <View style={styles.accountItemLeft}>
-                <Ionicons name="shield-checkmark-outline" size={20} color="#001B39" />
-                <ThemedText style={[styles.accountItemText, { color: '#1A1A1A' }]}>Security & Verification</ThemedText>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#8E9BAE" />
-            </Pressable>
-          </View>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.logoutBtn,
-              { backgroundColor: 'rgba(239,68,68,0.1)' },
-              pressed && { opacity: 0.8 }
-            ]}
-            onPress={handleLogout}
-          >
-            <Ionicons name="log-out-outline" size={20} color="#EF4444" style={styles.logoutIcon} />
-            <ThemedText style={styles.logoutText}>Sign Out</ThemedText>
-          </Pressable>
-        </View>
-
-        <View style={styles.footerSpace} />
       </ScrollView>
     </View>
   );
@@ -127,8 +94,29 @@ const styles = StyleSheet.create({
   },
   headerTop: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: Spacing.md,
+  },
+  notifBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F1F4F7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  notifBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   headerTitle: {
     fontSize: 20,
@@ -137,7 +125,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   welcomeInfo: {
-    marginTop: 5,
+    marginBottom: Spacing.xl,
   },
   welcomeText: {
     fontSize: 15,
@@ -150,6 +138,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl,
+    paddingBottom: 120, // Prevents tab bar overlap
   },
   section: {
     marginBottom: Spacing.xl,

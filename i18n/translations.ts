@@ -7,6 +7,8 @@ export const translations = {
       cancel: "Cancel",
       save: "Save",
       or: "OR",
+      edit: "Edit",
+      delete: "Delete"
     },
     auth: {
       login: {
@@ -23,7 +25,7 @@ export const translations = {
       },
       signup: {
         title: "Join the Circle of Knowledge",
-        subtitle: "Create your academic profile to start gifting and requesting textbooks within the Najah community.",
+        subtitle: "Create your academic profile to start gifting and requesting study materials within the Najah community.",
         fullNameLabel: "Full Name",
         fullNamePlaceholder: "Enter your full name",
         emailLabel: "Student Email",
@@ -39,6 +41,10 @@ export const translations = {
         universityIdPlaceholder: "e.g. 11920345",
         legalText: "By clicking Sign Up, you agree to our Terms of Use and Privacy Policy regarding academic data.",
         signupButton: "Sign Up",
+        roleLabel: "Academic Role",
+        rolePlaceholder: "Select your role",
+        student: "Student",
+        professor: "Professor / Doctor",
         alreadyAccount: "Already have an account? ",
         loginLink: "Log In",
       },
@@ -161,6 +167,29 @@ export const translations = {
         received: "Received"
       }
     },
+    bookDetails: {
+      title: "Material Details",
+      description: "Description",
+      donor: "Contributor",
+      price: "Price",
+      free: "Free",
+      noDescription: "No description provided."
+    },
+    conditions: {
+      new: "New",
+      like_new: "Like New",
+      good: "Good",
+      fair: "Fair",
+      poor: "Poor"
+    },
+    categories: {
+      title: "Category",
+      placeholder: "Select category",
+      books: "Textbooks",
+      notes: "Notes & Summaries",
+      hardware: "Tools & Supplies",
+      others: "Others"
+    },
     settings: {
       title: "Settings",
       profile: "Profile",
@@ -176,6 +205,53 @@ export const translations = {
       arabic: "Arabic",
       appearance: "Appearance",
       account: "Account"
+    },
+    requests: {
+      title: "My Requests",
+      empty: "No requests found.",
+      incoming: "Incoming",
+      outgoing: "Outgoing",
+      status: {
+        pending: "Pending Approval",
+        accepted: "Accepted",
+        rejected: "Rejected",
+        received: "Received",
+        completed: "Completed",
+        active: "Available"
+      },
+      accept: "Accept",
+      reject: "Reject",
+      markAsReceived: "Mark as Received",
+      notifications: {
+        acceptSuccess: "Request accepted, contact your colleague to arrange pickup",
+        cancelTitle: "Cancel Request",
+        cancelConfirm: "Are you sure you want to cancel this request?",
+        cancelSuccess: "Request cancelled successfully",
+        cancelError: "Failed to cancel request"
+      }
+    },
+    shared: {
+      title: "My Shared Items",
+      empty: "No materials shared yet.",
+      deleteConfirmTitle: "Delete Resource",
+      deleteConfirmMessage: "Are you sure you want to delete this resource permanently?",
+      deleteSuccess: "Deleted successfully",
+      deleteError: "Failed to delete",
+      overlay: {
+        requested: "Requested",
+        given: "Given Away"
+      }
+    },
+    welcome: {
+      title: "Welcome to BookCycle",
+      subtitle: "The best way to share knowledge.",
+      features: {
+        exchangeTitle: "Exchange Books",
+        exchangeDesc: "Give your books a second life by swapping them with your colleagues.",
+        ecoTitle: "Eco-Friendly",
+        ecoDesc: "Reduce paper waste and promote sustainability."
+      },
+      footer: "student for student"
     }
   },
 
@@ -187,6 +263,8 @@ export const translations = {
       cancel: "إلغاء",
       save: "حفظ",
       or: "أو",
+      edit: "تعديل",
+      delete: "حذف"
     },
     auth: {
       login: {
@@ -203,7 +281,7 @@ export const translations = {
       },
       signup: {
         title: "انضم إلى دائرة المعرفة",
-        subtitle: "قم بإنشاء ملفك الأكاديمي لبدء إهداء وطلب الكتب الدراسية داخل مجتمع النجاح.",
+        subtitle: "قم بإنشاء ملفك الأكاديمي لبدء إهداء وطلب المواد الدراسية داخل مجتمع النجاح.",
         fullNameLabel: "الاسم الكامل",
         fullNamePlaceholder: "أدخل اسمك الكامل",
         emailLabel: "البريد الإلكتروني للطالب",
@@ -219,6 +297,10 @@ export const translations = {
         universityIdPlaceholder: "مثال: 11920345",
         legalText: "بالنقر فوق إنشاء حساب، فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بنا فيما يتعلق بالبيانات الأكاديمية.",
         signupButton: "إنشاء حساب",
+        roleLabel: "المسمى الأكاديمي",
+        rolePlaceholder: "اختر مسمّاك الأكاديمي",
+        student: "طالب",
+        professor: "دكتور جامعي",
         alreadyAccount: "هل لديك حساب بالفعل؟ ",
         loginLink: "تسجيل الدخول",
       },
@@ -310,7 +392,7 @@ export const translations = {
       },
       stats: {
         communityImpact: "أثر المجتمع",
-        totalBooks: "إجمالي المواد الدراسية",
+        totalBooks: "إجمالي المصادر الدراسية",
         given: "تمت المشاركة",
         thankYou: "شكراً لمساهمتك!"
       },
@@ -332,14 +414,37 @@ export const translations = {
         }
       },
       history: {
-        booksGiven: "المواد الدراسية التي شاركتها",
-        booksReceived: "المواد الدراسية التي استلمتها",
+        booksGiven: "المصادر الدراسية التي شاركتها",
+        booksReceived: "المصادر الدراسية التي استلمتها",
         viewAll: "عرض الكل",
         viewHistory: "عرض السجل",
         givenTo: "تمت المشاركة مع",
         donor: "المساهم",
         received: "تم الاستلام"
       }
+    },
+    bookDetails: {
+      title: "تفاصيل المصدر",
+      description: "الوصف",
+      donor: "المساهم",
+      price: "السعر",
+      free: "مجاني",
+      noDescription: "لا يوجد وصف متوفر."
+    },
+    conditions: {
+      new: "جديد",
+      like_new: "شبه جديد",
+      good: "جيد",
+      fair: "مقبول",
+      poor: "سيئ"
+    },
+    categories: {
+      title: "التصنيف",
+      placeholder: "اختر التصنيف",
+      books: "كتب دراسية",
+      notes: "ملخصات ونوتات",
+      hardware: "أدوات ومستلزمات",
+      others: "أخرى"
     },
     settings: {
       title: "الإعدادات",
@@ -356,6 +461,53 @@ export const translations = {
       arabic: "العربية",
       appearance: "المظهر",
       account: "الحساب"
+    },
+    requests: {
+      title: "طلباتي",
+      empty: "لا توجد طلبات حالياً.",
+      incoming: "طلبات واردة",
+      outgoing: "طلبات صادرة",
+      status: {
+        pending: "بانتظار الموافقة",
+        accepted: "تم القبول",
+        rejected: "مرفوض",
+        received: "تم الاستلام",
+        completed: "مكتمل",
+        active: "نشط"
+      },
+      accept: "قبول",
+      reject: "رفض",
+      markAsReceived: "تم الاستلام",
+      notifications: {
+        acceptSuccess: "تم قبول الطلب، تواصل مع الزميل لتحديد موعد",
+        cancelTitle: "إلغاء الطلب",
+        cancelConfirm: "هل أنت متأكد من إلغاء هذا الطلب؟",
+        cancelSuccess: "تم إلغاء الطلب بنجاح",
+        cancelError: "فشل إلغاء الطلب"
+      }
+    },
+    shared: {
+      title: "موادي المشتركة",
+      empty: "لم تشارك أي مواد بعد.",
+      deleteConfirmTitle: "حذف المصدر",
+      deleteConfirmMessage: "هل أنت متأكد من حذف هذا المصدر نهائياً؟",
+      deleteSuccess: "تم الحذف بنجاح",
+      deleteError: "فشل الحذف",
+      overlay: {
+        requested: "قيد الطلب",
+        given: "تم التسليم"
+      }
+    },
+    welcome: {
+      title: "أهلاً بك في BookCycle",
+      subtitle: "الطريقة الأفضل لمشاركة المعرفة.",
+      features: {
+        exchangeTitle: "تبادل الكتب",
+        exchangeDesc: "امنح كتبك حياة ثانية عن طريق تبادلها مع زملائك.",
+        ecoTitle: "صديق للبيئة",
+        ecoDesc: "قلل من استهلاك الورق وساهم في الاستدامة."
+      },
+      footer: "من طالب إلى طالب"
     }
   },
 };

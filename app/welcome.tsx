@@ -13,61 +13,66 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useI18n } from '@/hooks/use-i18n'; // استيراد الـ hook الخاص بالترجمة
-import { LanguageToggle } from '@/components/LanguageToggle'; // استيراد كبسة اللغة
+import { LanguageToggle } from '@/components/LanguageToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAppTheme } from '@/context/ThemeContext';
 
 export default function WelcomeScreen() {
   const { t } = useI18n(); // تفعيل التراجم
+  const { theme: themeKey } = useAppTheme();
+  const themeColors = Colors[themeKey];
 
   // مصفوفة الميزات مع استخدام نصوص مترجمة
   const WELCOME_FEATURES = [
     {
       id: '1',
       icon: 'book',
-      title: t('Exchange Books') || 'Exchange Books',
-      description: t('Give your books a second life by swapping them with your colleagues.') || 'Give your books a second life by swapping them with your colleagues.',
+      title: t('welcome.features.exchangeTitle'),
+      description: t('welcome.features.exchangeDesc'),
     },
     {
       id: '2',
       icon: 'leaf',
-      title: t('Eco-Friendly') || 'Eco-Friendly',
-      description: t('Reduce paper waste and promote sustainability.') || 'Reduce paper waste and promote sustainability.',
+      title: t('welcome.features.ecoTitle'),
+      description: t('welcome.features.ecoDesc'),
     },
   ];
 
   return (
-    <SafeAreaView style={styles.flex}>
+    <SafeAreaView style={[styles.flex, { backgroundColor: themeColors.background }]}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* صف أيقونة اللغة في الأعلى */}
+        {/* صف أيقونة اللغة والدارك مود في الأعلى */}
         <View style={styles.topActions}>
+           <ThemeToggle />
            <LanguageToggle />
         </View>
 
         <View style={styles.header}>
           <View style={styles.brandingContainer}>
-            <Ionicons name="book" size={24} color="#001B39" />
-            <Text style={[styles.appName, { color: '#001B39' }]}>BookCycle</Text>
+            <Ionicons name="book" size={24} color={themeColors.primary} />
+            <Text style={[styles.appName, { color: themeColors.primary }]}>BookCycle</Text>
           </View>
           
           <View style={styles.welcomeTextContainer}>
-            <Text style={[styles.welcomeTitle, { color: '#1A1A1A' }]}>
-                {t('Welcome to BookCycle') || 'Welcome to BookCycle'}
+            <Text style={[styles.welcomeTitle, { color: themeColors.text }]}>
+                {t('welcome.title')}
             </Text>
-            <Text style={[styles.welcomeSubtitle, { color: '#8E9BAE' }]}>
-                {t('The best way to share knowledge.') || 'The best way to share knowledge.'}
+            <Text style={[styles.welcomeSubtitle, { color: themeColors.textSecondary }]}>
+                {t('welcome.subtitle')}
             </Text>
           </View>
         </View>
 
         <View style={styles.cardsContainer}>
           {WELCOME_FEATURES.map(feature => (
-            <View key={feature.id} style={styles.card}>
-              <View style={styles.cardIconWrapper}>
-                <Ionicons name={feature.icon as any} size={24} color="#001B39" />
+            <View key={feature.id} style={[styles.card, { backgroundColor: themeColors.card }]}>
+              <View style={[styles.cardIconWrapper, { backgroundColor: themeKey === 'dark' ? themeColors.background : '#FFFFFF' }]}>
+                <Ionicons name={feature.icon as any} size={24} color={themeColors.primary} />
               </View>
               <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{feature.title}</Text>
-                <Text style={styles.cardText}>{feature.description}</Text>
+                <Text style={[styles.cardTitle, { color: themeColors.text }]}>{feature.title}</Text>
+                <Text style={[styles.cardText, { color: themeColors.textSecondary }]}>{feature.description}</Text>
               </View>
             </View>
           ))}
@@ -75,28 +80,28 @@ export default function WelcomeScreen() {
 
         <View style={styles.buttonContainer}>
           <Pressable
-            style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9 }]}
+            style={({ pressed }) => [styles.primaryBtn, { backgroundColor: themeColors.primary }, pressed && { opacity: 0.9 }]}
             onPress={() => router.push('/signup')}
           >
             <View style={styles.btnContent}>
-              <Text style={styles.primaryBtnText}>{t('auth.login.signupButton')}</Text>
-              <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />
+              <Text style={[styles.primaryBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{t('auth.login.signupButton')}</Text>
+              <Ionicons name="arrow-forward" size={18} color={themeKey === 'dark' ? '#0B1020' : '#FFF'} style={{ marginLeft: 8 }} />
             </View>
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [styles.secondaryBtn, pressed && { opacity: 0.9 }]}
+            style={({ pressed }) => [styles.secondaryBtn, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7' }, pressed && { opacity: 0.9 }]}
             onPress={() => router.push('/login')}
           >
             <View style={styles.btnContent}>
-              <Text style={styles.secondaryBtnText}>{t('auth.login.loginButton')}</Text>
-              <Ionicons name="arrow-forward-outline" size={18} color="#001B39" style={{ marginLeft: 8 }} />
+              <Text style={[styles.secondaryBtnText, { color: themeColors.text }]}>{t('auth.login.loginButton')}</Text>
+              <Ionicons name="arrow-forward-outline" size={18} color={themeColors.text} style={{ marginLeft: 8 }} />
             </View>
           </Pressable>
         </View>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: '#8E9BAE' }]}>student for student</Text>
+          <Text style={[styles.footerText, { color: themeColors.textSecondary }]}>{t('welcome.footer')}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -114,8 +119,10 @@ const styles = StyleSheet.create({
   topActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    alignItems: 'center',
     width: '100%',
     marginBottom: 10,
+    gap: 12,
   },
   header: { width: '100%', marginBottom: Spacing.xxl },
   brandingContainer: {

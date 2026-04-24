@@ -1,10 +1,10 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, initializeAuth, GoogleAuthProvider, getReactNativePersistence } from "firebase/auth";
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { getDatabase } from "firebase/database";
+import { getStorage } from "firebase/storage";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
@@ -19,11 +19,25 @@ export const firebaseConfig = {
 
 // Initialize Firebase (Modular)
 export const FIREBASE_APP = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-export const FIREBASE_AUTH = getAuth(FIREBASE_APP);
+
+// Initialize Auth with persistence for React Native / Expo
+let auth;
+try {
+  auth = initializeAuth(FIREBASE_APP, {
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+  });
+} catch (e) {
+  // If already initialized, just get the instance
+  auth = getAuth(FIREBASE_APP);
+}
+
+export const FIREBASE_AUTH = auth;
+
 export const FIREBASE_DB = getDatabase(FIREBASE_APP);
+export const FIREBASE_STORAGE = getStorage(FIREBASE_APP);
 export const GOOGLE_AUTH_PROVIDER = new GoogleAuthProvider();
 
 // Initialize Firebase (Compat) - Required by older libraries like expo-firebase-recaptcha
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
-}
+}
