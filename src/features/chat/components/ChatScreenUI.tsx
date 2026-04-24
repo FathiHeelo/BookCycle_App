@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import {
   View, FlatList, TextInput, Pressable, KeyboardAvoidingView,
-  Platform, SafeAreaView, ActivityIndicator,
+  Platform, SafeAreaView, ActivityIndicator, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,7 +22,7 @@ interface ChatScreenUIProps {
 export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScreenUIProps) => {
   const {
     currentUser, messages, inputText, setInputText, loading,
-    handleSend, t, isRTL
+    handleSend, otherUser, t, isRTL
   } = useChat(chatId, otherId, bookTitle);
 
   const router = useRouter();
@@ -33,24 +33,77 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
 
-  const renderMessage = ({ item }: { item: Message }) => {
+  const formatTime = (timestamp: number) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const renderMessage = ({ item, index }: { item: Message, index: number }) => {
     const isMine = item.senderId === currentUser?.uid;
+    const showAvatar = index === 0 || messages[index - 1].senderId !== item.senderId;
+    
     return (
       <View style={[
         styles.messageWrapper, 
-        { flexDirection: isMine ? (isRTL ? 'row-reverse' : 'row') : (isRTL ? 'row' : 'row-reverse') }
+        { alignItems: isMine ? 'flex-end' : 'flex-start' }
       ]}>
         <View style={[
-          styles.bubble, 
-          isMine ? styles.myBubble : styles.theirBubble,
-          isMine ? { backgroundColor: theme.primary } : { backgroundColor: '#F1F5F9' }
+          styles.messageRow,
+          { flexDirection: isMine ? (isRTL ? 'row' : 'row-reverse') : (isRTL ? 'row-reverse' : 'row') }
         ]}>
-          <ThemedText style={[
-            styles.messageText, 
-            { color: isMine ? '#FFF' : '#1E293B', textAlign }
-          ]}>
-            {item.text}
-          </ThemedText>
+          {/* Avatar for other user */}
+          {!isMine && (
+            <View style={styles.avatarMessage}>
+              {otherUser?.photoURL ? (
+                <Image source={{ uri: otherUser.photoURL }} style={styles.avatarImg} />
+              ) : (
+                <Ionicons name="person" size={16} color={theme.textSecondary} />
+              )}
+            </View>
+          )}
+
+          {/* Avatar/Badge for "Me" */}
+          {isMine && (
+            <View style={styles.meBadge}>
+              <ThemedText style={styles.meBadgeText}>ME</ThemedText>
+            </View>
+          )}
+
+          <View style={{ alignItems: isMine ? 'flex-end' : 'flex-start', flexShrink: 1 }}>
+            <View style={[
+              styles.bubble, 
+              isMine ? styles.myBubble : styles.theirBubble,
+              isMine 
+                ? { backgroundColor: colorScheme === 'dark' ? theme.primary : '#001B39' } 
+                : { backgroundColor: colorScheme === 'dark' ? theme.card : '#F1F5F9' }
+            ]}>
+              {item.imageUrl && (
+                <Image source={{ uri: item.imageUrl }} style={styles.messageImage} />
+              )}
+              <ThemedText style={[
+                styles.messageText, 
+                { 
+                  color: isMine ? (colorScheme === 'dark' ? '#000' : '#FFF') : theme.text, 
+                  textAlign 
+                }
+              ]}>
+                {item.text}
+              </ThemedText>
+            </View>
+            
+            <View style={[styles.metaRow, { flexDirection }]}>
+              <ThemedText style={styles.timestamp}>{formatTime(item.timestamp)}</ThemedText>
+              {isMine && (
+                <Ionicons 
+                  name="checkmark-done" 
+                  size={14} 
+                  color={item.isRead ? theme.success : '#94A3B8'} 
+                  style={styles.readReceipt}
+                />
+              )}
+            </View>
+          </View>
         </View>
       </View>
     );
@@ -58,22 +111,41 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { flexDirection, borderBottomColor: '#F1F5F9' }]}>
+      {/* Header */}
+      <View style={[styles.header, { flexDirection, borderBottomColor: theme.border }]}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color={theme.primary} />
         </Pressable>
-        <View style={styles.headerInfo}>
-          <ThemedText style={[styles.headerName, { textAlign }]}>{otherName || 'Academic Contributor'}</ThemedText>
-          <ThemedText style={[styles.headerSub, { textAlign }]} numberOfLines={1}>
-            {bookTitle ? `${t('bookDetails.title')}: ${bookTitle}` : 'Chat'}
-          </ThemedText>
+        
+        <View style={styles.avatarSmall}>
+          {otherUser?.photoURL ? (
+            <Image source={{ uri: otherUser.photoURL }} style={styles.avatarImg} />
+          ) : (
+            <Ionicons name="person" size={24} color={theme.textSecondary} style={{ alignSelf: 'center', marginTop: 8 }} />
+          )}
         </View>
+
+        <View style={styles.headerInfo}>
+          <ThemedText style={[styles.headerName, { textAlign, color: theme.text }]}>
+            {otherUser?.fullName || otherName || 'Academic Contributor'}
+          </ThemedText>
+          <View style={[styles.headerSubRow, { flexDirection }]}>
+            <View style={styles.statusDot} />
+            <ThemedText style={[styles.headerSub, { textAlign }]}>
+              {isRTL ? 'نشط الآن' : 'Active now'}
+            </ThemedText>
+          </View>
+        </View>
+
+        <Pressable style={styles.backBtn}>
+          <Ionicons name="information-circle-outline" size={24} color={theme.primary} />
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
         style={styles.flex}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         {loading ? (
           <View style={styles.center}>
@@ -87,26 +159,50 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
             keyExtractor={item => item.id}
             contentContainerStyle={styles.listContent}
             onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            ListHeaderComponent={() => (
+              <View style={styles.dateSeparator}>
+                <View style={styles.dateBadge}>
+                  <ThemedText style={styles.dateText}>{isRTL ? 'اليوم' : 'TODAY'}</ThemedText>
+                </View>
+              </View>
+            )}
           />
         )}
 
-        <View style={[styles.inputBar, { flexDirection, backgroundColor: theme.card }]}>
-          <TextInput
-            style={[styles.textInput, { textAlign }]}
-            placeholder={isRTL ? 'اكتب رسالة...' : 'Type a message...'}
-            value={inputText}
-            onChangeText={setInputText}
-            multiline
-          />
-          <Pressable 
-            style={[styles.sendBtn, { backgroundColor: theme.primary }]}
-            onPress={handleSend}
-            disabled={!inputText.trim()}
-          >
-            <Ionicons name={isRTL ? "send" : "send"} size={20} color="#FFF" style={isRTL ? { transform: [{ rotate: '180deg' }] } : undefined} />
-          </Pressable>
+        <View style={[styles.inputBarContainer, { borderTopColor: theme.border, backgroundColor: theme.background }]}>
+          <View style={[styles.inputBar, { backgroundColor: colorScheme === 'dark' ? theme.card : '#F1F5F9' }]}>
+            <Pressable style={styles.attachBtn}>
+              <Ionicons name="add-circle-outline" size={24} color={theme.primary} />
+            </Pressable>
+            
+            <TextInput
+              style={[styles.textInput, { textAlign, color: theme.text }]}
+              placeholder={isRTL ? 'اكتب رسالة...' : 'Type a message...'}
+              placeholderTextColor={theme.textSecondary}
+              value={inputText}
+              onChangeText={setInputText}
+              multiline
+            />
+
+            <Pressable 
+              style={[
+                styles.sendBtn, 
+                { backgroundColor: inputText.trim() ? theme.primary : 'transparent' }
+              ]}
+              onPress={handleSend}
+              disabled={!inputText.trim()}
+            >
+              <Ionicons 
+                name={isRTL ? "send" : "send"} 
+                size={20} 
+                color={inputText.trim() ? (colorScheme === 'dark' ? '#000' : '#FFF') : theme.textSecondary} 
+                style={isRTL ? { transform: [{ rotate: '180deg' }] } : undefined} 
+              />
+            </Pressable>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
+

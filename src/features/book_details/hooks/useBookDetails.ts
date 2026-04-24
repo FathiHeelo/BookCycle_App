@@ -26,6 +26,17 @@ export const useBookDetails = (id?: string) => {
         return;
       }
 
+      // Handle Mock Data
+      if (id.startsWith('mock-')) {
+        const { MOCK_SOURCES } = require('@/src/constants/mockData');
+        const mockBook = MOCK_SOURCES.find((b: any) => b.id === id);
+        if (mockBook) {
+          setBook(mockBook);
+          setLoading(false);
+          return;
+        }
+      }
+
       try {
         const bookRef = ref(FIREBASE_DB, `Books/${id}`);
         const snapshot = await get(bookRef);
@@ -60,6 +71,7 @@ export const useBookDetails = (id?: string) => {
         setLoading(false);
       }
     };
+
 
     const fetchOtherBooks = async (facultyId: string) => {
       try {

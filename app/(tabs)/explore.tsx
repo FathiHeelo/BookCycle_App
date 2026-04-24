@@ -19,16 +19,19 @@ import { FIREBASE_DB } from '@/firebaseConfig';
 import { useRouter } from 'expo-router';
 import { useI18n } from '@/hooks/use-i18n';
 
+import { MOCK_SOURCES } from '@/src/constants/mockData';
+
 interface Resource {
   id: string;
   title: string;
-  imageUrl: string;
+  titleAr?: string;
+  imageUrl?: string;
   image?: string;
-  donorName: string;
+  donorName?: string;
   facultyId?: string;
   facultyIds?: string[];
-  createdAt: string;
-  status: string;
+  createdAt?: string;
+  status?: string;
   [key: string]: any;
 }
 
@@ -49,29 +52,37 @@ export default function ExploreScreen() {
     
     const unsubscribe = onValue(resourcesRef, (snapshot) => {
       const data = snapshot.val();
+      let firebaseList: Resource[] = [];
+      
       if (data) {
-        const list: Resource[] = Object.keys(data).map(key => ({
+        firebaseList = Object.keys(data).map(key => ({
           id: key,
           ...data[key]
-        }))
-        .filter(item => item.status === 'active' || item.title) 
+        }));
+      }
+
+      // Merge with MOCK_SOURCES
+      const combinedList: Resource[] = [...firebaseList, ...MOCK_SOURCES]
+        .filter(item => item.status === 'active' || item.title || item.status === undefined) // Include mock data which might not have status
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
-        setResources(list);
-      } else {
-        setResources([]);
-      }
+      setResources(combinedList);
       setLoading(false);
     }, (error) => {
       console.error('Firebase error:', error);
+      // Even on error, show mock data
+      setResources(MOCK_SOURCES as Resource[]);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
+
   const renderResourceCard = ({ item }: { item: Resource }) => {
-    const isNew = new Date().getTime() - new Date(item.createdAt).getTime() < 1000 * 60 * 60 * 24 * 3;
+    const isNew = item.createdAt 
+      ? (new Date().getTime() - new Date(item.createdAt).getTime() < 1000 * 60 * 60 * 24 * 3)
+      : false;
     const facultyId = item.facultyIds?.[0] || item.facultyId;
     const isUnavailable = item.status === 'requested' || item.status === 'received' || item.status === 'completed';
     const statusText = item.status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
@@ -110,7 +121,7 @@ export default function ExploreScreen() {
           )}
           
           <Text style={[styles.resourceTitle, { color: theme.text, textAlign }]} numberOfLines={2}>
-            {item.title || (isRTL ? 'مادة بدون عنوان' : 'Untitled Material')}
+            {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مادة بدون عنوان' : 'Untitled Material')}
           </Text>
 
           <View style={[styles.donorContainer, { flexDirection }]}>
@@ -118,7 +129,7 @@ export default function ExploreScreen() {
               <Ionicons name="person" size={10} color={theme.textSecondary} />
             </View>
             <Text style={[styles.donorText, { color: theme.textSecondary }]}>
-              {t('profile.history.donor')}: <Text style={[styles.donorName, { color: theme.primary }]}>{item.donorName}</Text>
+              {t('profile.history.donor')}: <Text style={[styles.donorName, { color: theme.primary }]}>{item.donorName || (isRTL ? 'مساهم أكاديمي' : 'Academic Contributor')}</Text>
             </Text>
           </View>
         </View>

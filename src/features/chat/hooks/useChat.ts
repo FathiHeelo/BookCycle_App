@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ref, onValue, push, set, serverTimestamp } from 'firebase/database';
+import { ref, onValue, push, set, serverTimestamp, get } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
 import { Message } from '../types';
@@ -11,6 +11,24 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [otherUser, setOtherUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchOtherUser = async () => {
+      if (!otherId) return;
+      try {
+        const userRef = ref(FIREBASE_DB, `Users/${otherId}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          setOtherUser(snapshot.val());
+        }
+      } catch (e) {
+        console.error('Error fetching other user:', e);
+      }
+    };
+    fetchOtherUser();
+  }, [otherId]);
+
 
   useEffect(() => {
     if (!chatId || !currentUser) return;
@@ -67,6 +85,7 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
     setInputText,
     loading,
     handleSend,
+    otherUser,
     t,
     isRTL
   };
