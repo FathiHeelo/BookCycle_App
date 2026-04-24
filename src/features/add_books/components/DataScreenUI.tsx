@@ -9,12 +9,13 @@ import {
     TouchableOpacity,
     View,
     TouchableWithoutFeedback,
+    Pressable,
 } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { DataStyles as styles } from '../styles';
-import { RESOURCE_CATEGORIES } from '../constants';
+import { RESOURCE_CATEGORIES, BOOK_CONDITIONS } from '../constants';
 import { useAddBookData } from '../hooks/useAddBookData';
 import { useAppTheme } from '@/context/ThemeContext';
 
@@ -58,16 +59,22 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
                 <View style={styles.form}>
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { textAlign, color: themeColors.text }]}>{t('categories.title')}</Text>
-                        <TouchableOpacity
-                            activeOpacity={0.7}
-                            onPress={() => setCategoryModalVisible(true)}
-                            style={[styles.selector, { flexDirection, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F8FAFC', borderColor: themeColors.border }, errors.categoryId && styles.inputError]}
-                        >
-                            <Text style={[styles.selectorText, { color: themeColors.text }, !watch('categoryId') && { color: themeColors.textSecondary }]} numberOfLines={1}>
-                                {watch('categoryId') ? t(`categories.${watch('categoryId')}`) : t('categories.placeholder')}
-                            </Text>
-                            <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
-                        </TouchableOpacity>
+                        <Controller
+                            control={control}
+                            name="categoryId"
+                            render={({ field: { value, onChange } }) => (
+                                <TouchableOpacity
+                                    activeOpacity={0.7}
+                                    onPress={() => setCategoryModalVisible(true)}
+                                    style={[styles.selector, { flexDirection, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F8FAFC', borderColor: themeColors.border }, errors.categoryId && styles.inputError]}
+                                >
+                                    <Text style={[styles.selectorText, { color: themeColors.text }, !value && { color: themeColors.textSecondary }]} numberOfLines={1}>
+                                        {value ? t(`categories.${value}`) : t('categories.placeholder')}
+                                    </Text>
+                                    <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
+                                </TouchableOpacity>
+                            )}
+                        />
                     </View>
 
                     {/* Title */}
@@ -148,16 +155,22 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
                     {/* Condition */}
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { textAlign, color: themeColors.text }]}>{isRTL ? 'حالة المصدر' : 'Material Condition'}</Text>
-                        <TouchableOpacity
-                            activeOpacity={0.7}
-                            onPress={() => setConditionModalVisible(true)}
-                            style={[styles.selector, { flexDirection, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F8FAFC', borderColor: themeColors.border }, errors.conditionId && styles.inputError]}
-                        >
-                            <Text style={[styles.selectorText, { color: themeColors.text }, !watch('conditionId') && { color: themeColors.textSecondary }]} numberOfLines={1}>
-                                {watch('conditionId') ? t(`conditions.${watch('conditionId')}`) : (isRTL ? 'اختر الحالة' : 'Select Condition')}
-                            </Text>
-                            <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
-                        </TouchableOpacity>
+                        <Controller
+                            control={control}
+                            name="conditionId"
+                            render={({ field: { value, onChange } }) => (
+                                <TouchableOpacity
+                                    activeOpacity={0.7}
+                                    onPress={() => setConditionModalVisible(true)}
+                                    style={[styles.selector, { flexDirection, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F8FAFC', borderColor: themeColors.border }, errors.conditionId && styles.inputError]}
+                                >
+                                    <Text style={[styles.selectorText, { color: themeColors.text }, !value && { color: themeColors.textSecondary }]} numberOfLines={1}>
+                                        {value ? t(`conditions.${value}`) : (isRTL ? 'اختر الحالة' : 'Select Condition')}
+                                    </Text>
+                                    <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
+                                </TouchableOpacity>
+                            )}
+                        />
                     </View>
 
                     {/* Description */}
@@ -189,125 +202,142 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
 
             {/* Modals for Category, Faculty, Major, Condition */}
             <Modal visible={categoryModalVisible} transparent animationType="slide" onRequestClose={() => setCategoryModalVisible(false)}>
-                <TouchableWithoutFeedback onPress={() => setCategoryModalVisible(false)}>
-                    <View style={styles.modalOverlay}>
-                        <TouchableWithoutFeedback>
-                            <View style={[styles.modalContent, { backgroundColor: themeColors.background }]}>
-                                <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
-                                    <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t('categories.title')}</Text>
-                                    <TouchableOpacity onPress={() => setCategoryModalVisible(false)}>
-                                        <Ionicons name="close" size={24} color={themeColors.text} />
-                                    </TouchableOpacity>
-                                </View>
-                                <FlatList
-                                    data={RESOURCE_CATEGORIES}
-                                    keyExtractor={(item) => item.id}
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity
-                                            style={[styles.modalItem, { flexDirection }]}
-                                            onPress={() => {
-                                                setValue('categoryId', item.id);
-                                                setCategoryModalVisible(false);
-                                            }}
-                                        >
-                                            <Ionicons name={item.icon as any} size={22} color={themeColors.primary} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
-                                            <Text style={[styles.modalItemText, { textAlign, color: themeColors.text }]}>{t(`categories.${item.id}`)}</Text>
-                                        </TouchableOpacity>
-                                    )}
-                                    ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
-                                    contentContainerStyle={{ paddingBottom: 20 }}
-                                />
-                            </View>
-                        </TouchableWithoutFeedback>
-                    </View>
-                </TouchableWithoutFeedback>
+                <Pressable style={styles.modalOverlay} onPress={() => setCategoryModalVisible(false)}>
+                    <Pressable style={[styles.modalContent, { backgroundColor: themeColors.background }]} onPress={() => {}}>
+                        <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
+                            <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t('categories.title')}</Text>
+                            <TouchableOpacity onPress={() => setCategoryModalVisible(false)}>
+                                <Ionicons name="close" size={24} color={themeColors.text} />
+                            </TouchableOpacity>
+                        </View>
+                        <FlatList
+                            data={RESOURCE_CATEGORIES}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[styles.modalItem, { flexDirection }]}
+                                    onPress={() => {
+                                        setValue('categoryId', item.id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                        setCategoryModalVisible(false);
+                                    }}
+                                >
+                                    <Ionicons name={item.icon as any} size={22} color={themeColors.primary} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
+                                    <Text style={[styles.modalItemText, { textAlign, color: themeColors.text }]}>{t(`categories.${item.id}`)}</Text>
+                                </TouchableOpacity>
+                            )}
+                            ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                        />
+                    </Pressable>
+                </Pressable>
             </Modal>
             
             {/* ... Other modals are similarly structured in Data.tsx ... */}
             {/* Faculty Modal */}
             <Modal visible={facultyModalVisible} transparent animationType="slide" onRequestClose={() => setFacultyModalVisible(false)}>
-                <TouchableWithoutFeedback onPress={() => setFacultyModalVisible(false)}>
-                    <View style={styles.modalOverlay}>
-                        <TouchableWithoutFeedback>
-                            <View style={[styles.modalContent, { backgroundColor: themeColors.background }]}>
-                                <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
-                                    <Text style={[styles.modalTitle, { color: themeColors.text }]}>{isRTL ? 'اختر الكليات' : 'Select Faculties'}</Text>
-                                    <TouchableOpacity onPress={() => setFacultyModalVisible(false)}>
-                                        <Text style={{ color: themeColors.primary, fontWeight: '700' }}>{t('common.save')}</Text>
+                <Pressable style={styles.modalOverlay} onPress={() => setFacultyModalVisible(false)}>
+                    <Pressable style={[styles.modalContent, { backgroundColor: themeColors.background }]} onPress={() => {}}>
+                        <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
+                            <Text style={[styles.modalTitle, { color: themeColors.text }]}>{isRTL ? 'اختر الكليات' : 'Select Faculties'}</Text>
+                            <TouchableOpacity onPress={() => setFacultyModalVisible(false)}>
+                                <Text style={{ color: themeColors.primary, fontWeight: '700' }}>{t('common.save')}</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <FlatList
+                            data={facultyList}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => {
+                                const isSelected = selectedFacultyIds.includes(item.id);
+                                return (
+                                    <TouchableOpacity
+                                        style={[styles.modalItem, { flexDirection }]}
+                                        onPress={() => toggleFaculty(item.id)}
+                                    >
+                                        <Ionicons name={item.icon as any} size={22} color={item.color} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.modalItemText, { textAlign, fontWeight: isSelected ? '800' : '500', color: themeColors.text }]}>
+                                                {item.id === 'all' ? (isRTL ? 'الجميع' : 'All') : t(`faculties.${item.id}`)}
+                                            </Text>
+                                            {item.id === 'all' && (
+                                                <Text style={[styles.hintText, { textAlign, color: themeColors.textSecondary }]}>{isRTL ? '(إذا كانت المادة متطلب جامعة إجباري)' : '(If university requirement)'}</Text>
+                                            )}
+                                        </View>
+                                        {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
                                     </TouchableOpacity>
-                                </View>
-                                <FlatList
-                                    data={facultyList}
-                                    keyExtractor={(item) => item.id}
-                                    renderItem={({ item }) => {
-                                        const isSelected = selectedFacultyIds.includes(item.id);
-                                        return (
-                                            <TouchableOpacity
-                                                style={[styles.modalItem, { flexDirection }]}
-                                                onPress={() => toggleFaculty(item.id)}
-                                            >
-                                                <Ionicons name={item.icon as any} size={22} color={item.color} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
-                                                <View style={{ flex: 1 }}>
-                                                    <Text style={[styles.modalItemText, { textAlign, fontWeight: isSelected ? '800' : '500', color: themeColors.text }]}>
-                                                        {item.id === 'all' ? (isRTL ? 'الجميع' : 'All') : t(`faculties.${item.id}`)}
-                                                    </Text>
-                                                    {item.id === 'all' && (
-                                                        <Text style={[styles.hintText, { textAlign, color: themeColors.textSecondary }]}>{isRTL ? '(إذا كانت المادة متطلب جامعة إجباري)' : '(If university requirement)'}</Text>
-                                                    )}
-                                                </View>
-                                                {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
-                                            </TouchableOpacity>
-                                        );
-                                    }}
-                                    ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
-                                    contentContainerStyle={{ paddingBottom: 20 }}
-                                />
-                            </View>
-                        </TouchableWithoutFeedback>
-                    </View>
-                </TouchableWithoutFeedback>
+                                );
+                            }}
+                            ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                        />
+                    </Pressable>
+                </Pressable>
             </Modal>
 
             {/* Major Modal */}
             <Modal visible={majorModalVisible} transparent animationType="slide" onRequestClose={() => setMajorModalVisible(false)}>
-                <TouchableWithoutFeedback onPress={() => setMajorModalVisible(false)}>
-                    <View style={styles.modalOverlay}>
-                        <TouchableWithoutFeedback>
-                            <View style={[styles.modalContent, { backgroundColor: themeColors.background }]}>
-                                <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
-                                    <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t('auth.signup.majorLabel')}</Text>
-                                    <TouchableOpacity onPress={() => setMajorModalVisible(false)}>
-                                        <Text style={{ color: themeColors.primary, fontWeight: '700' }}>{t('common.save')}</Text>
+                <Pressable style={styles.modalOverlay} onPress={() => setMajorModalVisible(false)}>
+                    <Pressable style={[styles.modalContent, { backgroundColor: themeColors.background }]} onPress={() => {}}>
+                        <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
+                            <Text style={[styles.modalTitle, { color: themeColors.text }]}>{t('auth.signup.majorLabel')}</Text>
+                            <TouchableOpacity onPress={() => setMajorModalVisible(false)}>
+                                <Text style={{ color: themeColors.primary, fontWeight: '700' }}>{t('common.save')}</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <FlatList
+                            data={availableMajorsList}
+                            keyExtractor={(item) => item}
+                            renderItem={({ item }) => {
+                                const isSelected = selectedMajors.includes(item);
+                                return (
+                                    <TouchableOpacity
+                                        style={[styles.modalItem, { flexDirection }]}
+                                        onPress={() => toggleMajor(item)}
+                                    >
+                                        <Text style={[styles.modalItemText, { textAlign, fontWeight: isSelected ? '800' : '500', color: themeColors.text }]}>
+                                          {item === 'all' ? (isRTL ? 'الجميع' : 'All') : item}
+                                        </Text>
+                                        {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
                                     </TouchableOpacity>
-                                </View>
-                                <FlatList
-                                    data={availableMajorsList}
-                                    keyExtractor={(item) => item}
-                                    renderItem={({ item }) => {
-                                        const isSelected = selectedMajors.includes(item);
-                                        return (
-                                            <TouchableOpacity
-                                                style={[styles.modalItem, { flexDirection }]}
-                                                onPress={() => toggleMajor(item)}
-                                            >
-                                                <Text style={[styles.modalItemText, { textAlign, fontWeight: isSelected ? '800' : '500', color: themeColors.text }]}>
-                                                  {item === 'all' ? (isRTL ? 'الجميع' : 'All') : item}
-                                                </Text>
-                                                {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
-                                            </TouchableOpacity>
-                                        );
-                                    }}
-                                    ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
-                                    contentContainerStyle={{ paddingBottom: 20 }}
-                                />
-                            </View>
-                        </TouchableWithoutFeedback>
-                    </View>
-                </TouchableWithoutFeedback>
+                                );
+                            }}
+                            ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                        />
+                    </Pressable>
+                </Pressable>
             </Modal>
 
             {/* Condition Modal */}
-            {/* Same implementation mapping BOOK_CONDITIONS (imported in actual hook/app) */}
+            <Modal visible={conditionModalVisible} transparent animationType="slide" onRequestClose={() => setConditionModalVisible(false)}>
+                <Pressable style={styles.modalOverlay} onPress={() => setConditionModalVisible(false)}>
+                    <Pressable style={[styles.modalContent, { backgroundColor: themeColors.background }]} onPress={() => {}}>
+                        <View style={[styles.modalHeader, { flexDirection, borderBottomColor: themeColors.border }]}>
+                            <Text style={[styles.modalTitle, { color: themeColors.text }]}>{isRTL ? 'حالة المصدر' : 'Material Condition'}</Text>
+                            <TouchableOpacity onPress={() => setConditionModalVisible(false)}>
+                                <Ionicons name="close" size={24} color={themeColors.text} />
+                            </TouchableOpacity>
+                        </View>
+                        <FlatList
+                            data={BOOK_CONDITIONS}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[styles.modalItem, { flexDirection }]}
+                                    onPress={() => {
+                                        setValue('conditionId', item.id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                        setConditionModalVisible(false);
+                                    }}
+                                >
+                                    <Ionicons name={item.icon as any} size={22} color={themeColors.primary} style={isRTL ? { marginLeft: 16 } : { marginRight: 16 }} />
+                                    <Text style={[styles.modalItemText, { textAlign, color: themeColors.text }]}>{t(`conditions.${item.id}`)}</Text>
+                                </TouchableOpacity>
+                            )}
+                            ItemSeparatorComponent={() => <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                        />
+                    </Pressable>
+                </Pressable>
+            </Modal>
         </SafeAreaView>
     );
 };

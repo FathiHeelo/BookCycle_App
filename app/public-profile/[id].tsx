@@ -10,14 +10,16 @@ import {
   Dimensions,
   FlatList,
   Text,
+  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '../../constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
-import { ref, get, query, orderByChild, equalTo } from 'firebase/database';
-import { FIREBASE_DB } from '@/firebaseConfig';
+import { ref, get, query, orderByChild, equalTo, onValue } from 'firebase/database';
+import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
+import RatingModal from '@/src/components/RatingModal';
 
 const { width } = Dimensions.get('window');
 
@@ -47,7 +49,9 @@ export default function PublicProfileScreen() {
 
   const [user, setUser] = useState<UserProfile | null>(null);
   const [books, setBooks] = useState<BookItem[]>([]);
+  const [stats, setStats] = useState({ rating: 0, totalRatings: 0 });
   const [loading, setLoading] = useState(true);
+  const [ratingVisible, setRatingVisible] = useState(false);
 
   const textAlign = isRTL ? 'right' : 'left';
   const flexDirection = isRTL ? 'row-reverse' : 'row';
@@ -82,6 +86,20 @@ export default function PublicProfileScreen() {
     };
 
     fetchData();
+
+    // Stats Listener
+    const statsRef = ref(FIREBASE_DB, `Users/${id}/stats`);
+    const unsubStats = onValue(statsRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val();
+        setStats({
+          rating: data.rating || 0,
+          totalRatings: data.totalRatings || 0
+        });
+      }
+    });
+
+    return () => unsubStats();
   }, [id]);
 
   if (loading) {
@@ -122,10 +140,24 @@ export default function PublicProfileScreen() {
               <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'كتب' : 'Books'}</Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-            <View style={styles.statItem}>
-              <Text style={[styles.statValue, { color: theme.text }]}>4.9</Text>
+            <Pressable 
+              style={styles.statItem}
+              onPress={() => {
+                const currentUser = FIREBASE_AUTH.currentUser;
+                if (!currentUser) {
+                  Alert.alert(t('common.error'), t('auth.errors.mustBeLoggedIn'));
+                  return;
+                }
+                if (currentUser.uid === id) {
+                  Alert.alert(t('common.error'), isRTL ? 'لا يمكنك تقييم نفسك' : 'You cannot rate yourself');
+                  return;
+                }
+                setRatingVisible(true);
+              }}
+            >
+              <Text style={[styles.statValue, { color: theme.text }]}>{stats.rating > 0 ? stats.rating.toFixed(1) : '0.0'}</Text>
               <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'تقييم' : 'Rating'}</Text>
-            </View>
+            </Pressable>
           </View>
         </View>
 
@@ -177,6 +209,13 @@ export default function PublicProfileScreen() {
           )}
         </View>
       </ScrollView>
+
+      <RatingModal
+        visible={ratingVisible}
+        onClose={() => setRatingVisible(false)}
+        targetUid={id as string}
+        targetName={user?.fullName || 'Contributor'}
+      />
     </SafeAreaView>
   );
 }

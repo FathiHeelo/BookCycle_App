@@ -27,14 +27,14 @@ export default function WelcomeScreen() {
     {
       id: '1',
       icon: 'book',
-      title: t('Exchange Books') || 'Exchange Books',
-      description: t('Give your books a second life by swapping them with your colleagues.') || 'Give your books a second life by swapping them with your colleagues.',
+      title: t('welcome.features.exchangeTitle'),
+      description: t('welcome.features.exchangeDesc'),
     },
     {
       id: '2',
       icon: 'leaf',
-      title: t('Eco-Friendly') || 'Eco-Friendly',
-      description: t('Reduce paper waste and promote sustainability.') || 'Reduce paper waste and promote sustainability.',
+      title: t('welcome.features.ecoTitle'),
+      description: t('welcome.features.ecoDesc'),
     },
   ];
 
@@ -56,10 +56,10 @@ export default function WelcomeScreen() {
           
           <View style={styles.welcomeTextContainer}>
             <Text style={[styles.welcomeTitle, { color: themeColors.text }]}>
-                {t('Welcome to BookCycle') || 'Welcome to BookCycle'}
+                {t('welcome.title')}
             </Text>
             <Text style={[styles.welcomeSubtitle, { color: themeColors.textSecondary }]}>
-                {t('The best way to share knowledge.') || 'The best way to share knowledge.'}
+                {t('welcome.subtitle')}
             </Text>
           </View>
         </View>
@@ -101,7 +101,7 @@ export default function WelcomeScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: themeColors.textSecondary }]}>student for student</Text>
+          <Text style={[styles.footerText, { color: themeColors.textSecondary }]}>{t('welcome.footer')}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

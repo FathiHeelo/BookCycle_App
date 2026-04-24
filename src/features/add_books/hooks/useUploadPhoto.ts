@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useI18n } from '@/hooks/use-i18n';
@@ -6,6 +6,11 @@ import { useI18n } from '@/hooks/use-i18n';
 export const useUploadPhoto = (initialImage?: string, onNext?: (imageUri: string) => void) => {
   const { t, isRTL } = useI18n();
   const [image, setImage] = useState<string | null>(initialImage || null);
+  
+  // Sync state with prop if it changes (e.g. when editing or going back)
+  React.useEffect(() => {
+    if (initialImage) setImage(initialImage);
+  }, [initialImage]);
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();

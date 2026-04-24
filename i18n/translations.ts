@@ -241,6 +241,17 @@ export const translations = {
         requested: "Requested",
         given: "Given Away"
       }
+    },
+    welcome: {
+      title: "Welcome to BookCycle",
+      subtitle: "The best way to share knowledge.",
+      features: {
+        exchangeTitle: "Exchange Books",
+        exchangeDesc: "Give your books a second life by swapping them with your colleagues.",
+        ecoTitle: "Eco-Friendly",
+        ecoDesc: "Reduce paper waste and promote sustainability."
+      },
+      footer: "student for student"
     }
   },
 
@@ -486,6 +497,17 @@ export const translations = {
         requested: "قيد الطلب",
         given: "تم التسليم"
       }
+    },
+    welcome: {
+      title: "أهلاً بك في BookCycle",
+      subtitle: "الطريقة الأفضل لمشاركة المعرفة.",
+      features: {
+        exchangeTitle: "تبادل الكتب",
+        exchangeDesc: "امنح كتبك حياة ثانية عن طريق تبادلها مع زملائك.",
+        ecoTitle: "صديق للبيئة",
+        ecoDesc: "قلل من استهلاك الورق وساهم في الاستدامة."
+      },
+      footer: "من طالب إلى طالب"
     }
   },
 };
