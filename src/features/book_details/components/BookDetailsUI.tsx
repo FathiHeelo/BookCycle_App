@@ -84,7 +84,9 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             </View>
           </View>
 
-          <Text style={[styles.title, { color: theme.text, textAlign }]}>{book.title}</Text>
+          <Text style={[styles.title, { color: theme.text, textAlign }]}>
+            {isRTL ? (book.titleAr || book.title) : book.title}
+          </Text>
           <Text style={[styles.author, { color: theme.textSecondary, textAlign }]}>
             {t('bookDetails.by', { defaultValue: isRTL ? 'بواسطة' : 'by' })} {book.author || (isRTL ? 'عضو هيئة تدريس' : 'Academic Faculty')}
           </Text>
@@ -132,7 +134,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.text, textAlign }]}>{t('bookDetails.description')}</Text>
             <Text style={[styles.description, { color: theme.textSecondary, textAlign }]}>
-              {book.description || t('bookDetails.noDescription')}
+              {isRTL ? (book.descriptionAr || book.description) : (book.description || t('bookDetails.noDescription'))}
             </Text>
           </View>
 

@@ -3,4 +3,6 @@ export interface Message {
   senderId: string;
   text: string;
   timestamp: number;
+  imageUrl?: string;
+  isRead?: boolean;
 }
