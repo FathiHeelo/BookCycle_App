@@ -63,8 +63,12 @@ export default function ExploreScreen() {
 
       // Merge with MOCK_SOURCES
       const combinedList: Resource[] = [...firebaseList, ...MOCK_SOURCES]
-        .filter(item => item.status === 'active' || item.title || item.status === undefined) // Include mock data which might not have status
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        .filter(item => (item.title || item.titleAr) && (item.imageUrl || item.image))
+        .sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
         
       setResources(combinedList);
       setLoading(false);
