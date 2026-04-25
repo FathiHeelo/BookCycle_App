@@ -14,11 +14,11 @@ export const FacultyScroller: React.FC<FacultyScrollerProps> = ({
   t
 }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { direction: 'ltr' }]}>
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false} 
-        contentContainerStyle={[styles.scrollContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+        contentContainerStyle={[styles.scrollContent, { flexDirection: 'row' }]}
       >
         {faculties.map((faculty) => {
           const isSelected = selectedIds.includes(faculty.id);
@@ -34,7 +34,7 @@ export const FacultyScroller: React.FC<FacultyScrollerProps> = ({
                 { 
                   backgroundColor: isSelected ? theme.primary : theme.card,
                   borderColor: isSelected ? theme.primary : theme.border,
-                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                  flexDirection: 'row'
                 }
               ]}
               onPress={() => onToggle(faculty.id)}
