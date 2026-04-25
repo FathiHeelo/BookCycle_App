@@ -12,23 +12,27 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
   const [otherUser, setOtherUser] = useState<any>(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState<any>(null);
 
   useEffect(() => {
-    const fetchOtherUser = async () => {
-      if (!otherId) return;
+    const fetchUsers = async () => {
       try {
-        const userRef = ref(FIREBASE_DB, `Users/${otherId}`);
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          setOtherUser(snapshot.val());
+        if (otherId) {
+          const otherRef = ref(FIREBASE_DB, `Users/${otherId}`);
+          const otherSnap = await get(otherRef);
+          if (otherSnap.exists()) setOtherUser(otherSnap.val());
+        }
+        if (currentUser) {
+          const currentRef = ref(FIREBASE_DB, `Users/${currentUser.uid}`);
+          const currentSnap = await get(currentRef);
+          if (currentSnap.exists()) setCurrentUserProfile(currentSnap.val());
         }
       } catch (e) {
-        console.error('Error fetching other user:', e);
+        console.error('Error fetching users:', e);
       }
     };
-    fetchOtherUser();
-  }, [otherId]);
-
+    fetchUsers();
+  }, [otherId, currentUser]);
 
   useEffect(() => {
     if (!chatId || !currentUser) return;
@@ -40,7 +44,7 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
         const list: Message[] = Object.keys(data).map(key => ({
           id: key,
           ...data[key]
-        })).sort((a, b) => a.timestamp - b.timestamp);
+        })).sort((a, b) => b.timestamp - a.timestamp);
         setMessages(list);
       } else {
         setMessages([]);
@@ -64,6 +68,7 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
         senderId: currentUser.uid,
         text: messageText,
         timestamp: serverTimestamp(),
+        isRead: false,
       });
       
       const chatMetaRef = ref(FIREBASE_DB, `Chats/${chatId}`);
@@ -78,13 +83,68 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
     }
   };
 
+  const handleSendImage = async (imageUrl: string) => {
+    if (!currentUser || !chatId) return;
+
+    try {
+      const messagesRef = ref(FIREBASE_DB, `Messages/${chatId}`);
+      const newMessageRef = push(messagesRef);
+      await set(newMessageRef, {
+        senderId: currentUser.uid,
+        imageUrl,
+        text: '',
+        timestamp: serverTimestamp(),
+        isRead: false,
+      });
+      
+      const chatMetaRef = ref(FIREBASE_DB, `Chats/${chatId}`);
+      await set(chatMetaRef, {
+        lastMessage: '📷 Image',
+        lastTimestamp: serverTimestamp(),
+        participants: [currentUser.uid, otherId],
+        bookTitle: bookTitle || '',
+      });
+    } catch (e) {
+      console.error('Send image error:', e);
+    }
+  };
+
+  const handleSendLocation = async (latitude: number, longitude: number) => {
+    if (!currentUser || !chatId) return;
+
+    try {
+      const messagesRef = ref(FIREBASE_DB, `Messages/${chatId}`);
+      const newMessageRef = push(messagesRef);
+      await set(newMessageRef, {
+        senderId: currentUser.uid,
+        location: { latitude, longitude },
+        text: '',
+        timestamp: serverTimestamp(),
+        isRead: false,
+      });
+      
+      const chatMetaRef = ref(FIREBASE_DB, `Chats/${chatId}`);
+      await set(chatMetaRef, {
+        lastMessage: '📍 Location',
+        lastTimestamp: serverTimestamp(),
+        participants: [currentUser.uid, otherId],
+        bookTitle: bookTitle || '',
+      });
+    } catch (e) {
+      console.error('Send location error:', e);
+    }
+  };
+
   return {
     currentUser,
+    currentUserProfile,
     messages,
     inputText,
     setInputText,
     loading,
     handleSend,
+    handleSendImage,
+    handleSendLocation,
     otherUser,
     t,
     isRTL

@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { Radius, Spacing } from '@/constants/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -15,6 +16,7 @@ export const ChatStyles = StyleSheet.create({
     gap: 12,
   },
   backBtn: { padding: 4 },
+  headerInfoContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
   headerInfo: { flex: 1 },
   headerName: { fontSize: 18, fontWeight: '800', letterSpacing: -0.5 },
   headerSubRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -50,7 +52,7 @@ export const ChatStyles = StyleSheet.create({
   },
   messageRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     maxWidth: '85%',
     gap: 8,
   },
@@ -135,23 +137,47 @@ export const ChatStyles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: 'rgba(148, 163, 184, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  meBadge: {
-    width: 32,
-    height: 32,
+  locationContainer: {
+    padding: 12,
     borderRadius: 16,
-    backgroundColor: '#001B39',
+    alignItems: 'center',
+    gap: 8,
+    minWidth: 150,
+  },
+  locationText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  viewMapBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: Radius.sm,
+    marginTop: 4,
+  },
+  viewMapText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  fullImageOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.95)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
   },
-  meBadgeText: {
-    color: '#FFF',
-    fontSize: 10,
-    fontWeight: '900',
-  }
+  fullImage: {
+    width: width,
+    height: width * 1.5,
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 10,
+  },
 });
 

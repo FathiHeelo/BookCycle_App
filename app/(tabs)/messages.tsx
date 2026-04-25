@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Pressable, ActivityIndicator, SafeAreaView, Text } from 'react-native';
+import { StyleSheet, View, FlatList, Pressable, ActivityIndicator, SafeAreaView, Text, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
@@ -30,6 +30,8 @@ export default function MessagesTab() {
 
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const flexDirection = isRTL ? 'row-reverse' : 'row';
 
@@ -52,6 +54,11 @@ export default function MessagesTab() {
 
     return () => unsubscribe();
   }, [currentUser]);
+
+  const filteredChats = chats.filter(chat => 
+    chat.bookTitle?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    chat.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderChatItem = ({ item }: { item: Chat }) => {
     const otherId = item.participants?.find(p => p !== currentUser?.uid);
@@ -85,9 +92,37 @@ export default function MessagesTab() {
       <CustomHeader 
         title={isRTL ? 'الرسائل' : 'Messages'}
         leftMode="none"
-        rightIcons={['search']}
+        rightIcons={[isSearching ? 'menu' : 'search']}
+        onRightIconPress={(icon) => {
+          if (icon === 'search') setIsSearching(true);
+          if (icon === 'menu') {
+            setIsSearching(false);
+            setSearchQuery('');
+          }
+        }}
         hideSafeArea
       />
+
+      {isSearching && (
+        <View style={[styles.searchBarContainer, { backgroundColor: theme.background, borderBottomColor: theme.border }]}>
+          <View style={[styles.searchBar, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9', flexDirection }]}>
+            <Ionicons name="search" size={18} color={theme.textSecondary} />
+            <TextInput
+              style={[styles.searchInput, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}
+              placeholder={isRTL ? 'بحث عن محادثة...' : 'Search chats...'}
+              placeholderTextColor={theme.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoFocus
+            />
+            {searchQuery.length > 0 && (
+              <Pressable onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={18} color={theme.textSecondary} />
+              </Pressable>
+            )}
+          </View>
+        </View>
+      )}
 
       {loading ? (
         <View style={styles.center}>
@@ -95,7 +130,7 @@ export default function MessagesTab() {
         </View>
       ) : (
         <FlatList
-          data={chats}
+          data={filteredChats}
           renderItem={renderChatItem}
           keyExtractor={item => item.id}
           contentContainerStyle={styles.listContent}
@@ -140,4 +175,22 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyContainer: { alignItems: 'center', marginTop: 100, gap: 16 },
   emptyText: { fontSize: 16, color: '#94A3B8', fontWeight: '600' },
+  searchBarContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  searchBar: {
+    height: 40,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '500',
+    padding: 0,
+  },
 });

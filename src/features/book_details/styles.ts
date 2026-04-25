@@ -20,7 +20,6 @@ export const DetailStyles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.9)',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -35,7 +34,6 @@ export const DetailStyles = StyleSheet.create({
   },
   mainContent: {
     marginTop: -30,
-    backgroundColor: '#FFF',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: Spacing.lg,
@@ -77,14 +75,12 @@ export const DetailStyles = StyleSheet.create({
     padding: 16,
     borderRadius: Radius.lg,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
   },
   infoCardWide: {
     width: '100%',
     padding: 16,
     borderRadius: Radius.lg,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
     marginBottom: 32,
   },
   infoLabel: {
@@ -143,7 +139,6 @@ export const DetailStyles = StyleSheet.create({
     padding: 20,
     borderRadius: Radius.lg,
     marginBottom: 32,
-    backgroundColor: '#F8FAFC',
   },
   donorLabel: {
     fontSize: 10,
@@ -258,7 +253,6 @@ export const DetailStyles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 34 : 20,
     paddingHorizontal: 20,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
   },
   bottomBarInner: {
     flexDirection: 'row',
@@ -281,7 +275,6 @@ export const DetailStyles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
   },

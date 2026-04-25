@@ -54,14 +54,56 @@ export const useMyRequests = () => {
 
   const handleUpdateStatus = async (requestId: string, bookId: string, newStatus: string) => {
     try {
-      await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: newStatus });
-      await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: newStatus });
       if (newStatus === 'accepted') {
-        Alert.alert(t('common.success'), t('requests.notifications.acceptSuccess'));
+        Alert.alert(
+          isRTL ? 'تأكيد الموافقة' : 'Confirm Acceptance',
+          isRTL 
+            ? 'عند موافقتك على هذا الطلب، سيتم حجز المصدر لهذا الشخص ولن يتمكن أي مستخدم آخر من طلبه. هل أنت متأكد من موافقتك؟'
+            : 'By accepting this request, the resource will be reserved for this user and no one else can request it. Are you sure?',
+          [
+            { text: t('common.cancel'), style: 'cancel' },
+            { 
+              text: isRTL ? 'موافق' : 'Confirm', 
+              onPress: async () => {
+                await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: 'accepted' });
+                // We set the book status to 'requested' so it shows as unavailable to others
+                await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: 'requested' });
+                Alert.alert(t('common.success'), t('requests.notifications.acceptSuccess'));
+              }
+            }
+          ]
+        );
+      } else {
+        await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: newStatus });
+        await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: newStatus });
       }
     } catch (e) {
       console.error('Update status error:', e);
     }
+  };
+
+  const handleRepublish = async (requestId: string, bookId: string) => {
+    Alert.alert(
+      isRTL ? 'إعادة نشر المصدر' : 'Republish Resource',
+      isRTL 
+        ? 'سيتم إلغاء هذا الطلب وإعادة توفير المصدر لجميع المستخدمين الآخرين. استخدم هذا الخيار إذا لم يتم الاتفاق مع الشخص الحالي.'
+        : 'This request will be cancelled and the resource will be available to all other users. Use this if the deal fell through.',
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { 
+          text: isRTL ? 'إعادة نشر' : 'Republish', 
+          onPress: async () => {
+            try {
+              await remove(ref(FIREBASE_DB, `Requests/${requestId}`));
+              await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: 'active' });
+              Alert.alert(t('common.success'), isRTL ? 'تم إعادة نشر المصدر بنجاح' : 'Resource republished successfully');
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleCancelRequest = (requestId: string, bookId: string) => {
@@ -106,6 +148,7 @@ export const useMyRequests = () => {
       case 'accepted': return '#10B981';
       case 'rejected': return '#EF4444';
       case 'received': return '#3B82F6';
+      case 'completed': return '#10B981';
       default: return '#F59E0B';
     }
   };
@@ -113,7 +156,7 @@ export const useMyRequests = () => {
   return {
     activeTab, setActiveTab, requests, loading,
     ratingVisible, setRatingVisible, selectedDonor,
-    handleUpdateStatus, handleCancelRequest, handleMarkReceived,
+    handleUpdateStatus, handleCancelRequest, handleMarkReceived, handleRepublish,
     getStatusLabel, getStatusColor, t, isRTL,
   };
 };

@@ -36,7 +36,8 @@ export const BookCard: React.FC<BookCardProps> = ({
         />
         {isUnavailable && (
           <View style={[StyleSheet.absoluteFill, BookCardStyles.overlay]}>
-            <View style={BookCardStyles.statusBadge}>
+            <View style={[BookCardStyles.statusBadge, { backgroundColor: item.status === 'requested' ? '#F59E0B' : '#10B981' }]}>
+              <Ionicons name={item.status === 'requested' ? "timer-outline" : "checkmark-done"} size={12} color="#FFF" />
               <Text style={BookCardStyles.statusText}>{statusText}</Text>
             </View>
           </View>

@@ -9,9 +9,13 @@ import {
   FlatList, 
   Pressable, 
   ActivityIndicator,
-  Text 
+  Text,
+  Modal,
+  TextInput,
+  Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
 import { ref, onValue } from 'firebase/database';
@@ -43,9 +47,58 @@ export default function ExploreScreen() {
 
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFaculties, setSelectedFaculties] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<'latest' | 'all'>('latest');
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = React.useRef<TextInput>(null);
 
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
+
+  // Load Preferences
+  useEffect(() => {
+    const loadPrefs = async () => {
+      try {
+        const savedFaculties = await AsyncStorage.getItem('explore_faculties');
+        const savedSort = await AsyncStorage.getItem('explore_sort_v2');
+        if (savedFaculties) setSelectedFaculties(JSON.parse(savedFaculties));
+        if (savedSort) setSortBy(savedSort as 'latest' | 'all');
+      } catch (e) {
+        console.error('Error loading preferences:', e);
+      }
+    };
+    loadPrefs();
+  }, []);
+
+  // Save Preferences
+  const savePreferences = async (faculties: string[], sort: 'latest' | 'all') => {
+    try {
+      await AsyncStorage.setItem('explore_faculties', JSON.stringify(faculties));
+      await AsyncStorage.setItem('explore_sort_v2', sort);
+    } catch (e) {
+      console.error('Error saving preferences:', e);
+    }
+  };
+
+  const toggleFaculty = (facultyId: string) => {
+    const newSelection = selectedFaculties.includes(facultyId)
+      ? selectedFaculties.filter(id => id !== facultyId)
+      : [...selectedFaculties, facultyId];
+    setSelectedFaculties(newSelection);
+    savePreferences(newSelection, sortBy);
+  };
+
+  const handleSortChange = (sort: 'latest' | 'all') => {
+    setSortBy(sort);
+    savePreferences(selectedFaculties, sort);
+  };
+
+  const clearFilters = () => {
+    setSelectedFaculties([]);
+    setSortBy('all');
+    savePreferences([], 'all');
+  };
 
   useEffect(() => {
     const resourcesRef = ref(FIREBASE_DB, 'Books');
@@ -81,6 +134,53 @@ export default function ExploreScreen() {
 
     return () => unsubscribe();
   }, []);
+
+  const filteredResources = React.useMemo(() => {
+    let list = [...resources];
+
+    // Filter by Faculty
+    if (selectedFaculties.length > 0) {
+      list = list.filter(item => {
+        const itemFaculty = item.facultyIds?.[0] || item.facultyId;
+        return itemFaculty && selectedFaculties.includes(itemFaculty);
+      });
+    }
+
+    // Filter by Search Query
+    if (searchQuery) {
+      list = list.filter(item => {
+        const title = isRTL ? (item.titleAr || item.title) : (item.title || '');
+        return title.toLowerCase().includes(searchQuery.toLowerCase());
+      });
+    }
+
+    // Sort
+    if (sortBy === 'latest') {
+      list.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+    }
+
+    return list;
+  }, [resources, selectedFaculties, sortBy]);
+
+  const faculties = [
+    { id: 'med', icon: 'medical' },
+    { id: 'eng', icon: 'construct' },
+    { id: 'it', icon: 'code-working' },
+    { id: 'bus', icon: 'business' },
+    { id: 'sci', icon: 'flask' },
+    { id: 'law', icon: 'briefcase' },
+    { id: 'art', icon: 'color-palette' },
+    { id: 'hum', icon: 'book' },
+    { id: 'pha', icon: 'bandage' },
+    { id: 'nur', icon: 'heart' },
+    { id: 'den', icon: 'happy' },
+    { id: 'vet', icon: 'paw' },
+    { id: 'sha', icon: 'ribbon' },
+  ];
 
 
   const renderResourceCard = ({ item }: { item: Resource }) => {
@@ -125,7 +225,7 @@ export default function ExploreScreen() {
           )}
           
           <Text style={[styles.resourceTitle, { color: theme.text, textAlign }]} numberOfLines={2}>
-            {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مادة بدون عنوان' : 'Untitled Material')}
+            {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مصدر بدون عنوان' : 'Untitled Resource')}
           </Text>
 
           <View style={[styles.donorContainer, { flexDirection }]}>
@@ -145,11 +245,57 @@ export default function ExploreScreen() {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={themeKey === 'dark' ? 'light-content' : 'dark-content'} />
       
-      <View style={[styles.header, { flexDirection }]}>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>{isRTL ? 'المواد المتاحة' : 'Available Materials'}</Text>
-        <Pressable style={[styles.filterButton, { backgroundColor: theme.card }]}>
-          <Ionicons name="options-outline" size={20} color={theme.primary} />
-        </Pressable>
+      <View style={styles.header}>
+        <View style={[styles.headerTop, { flexDirection }]}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.headerTitle, { color: theme.text, textAlign }]}>{isRTL ? 'منصة المصادر' : 'Resource Hub'}</Text>
+            <Text style={[styles.headerSubtitle, { color: theme.primary, textAlign }]}>{isRTL ? 'الأكاديمية المفتوحة' : 'Open Academic'}</Text>
+          </View>
+          <View style={[styles.headerActions, { flexDirection }]}>
+            <Pressable 
+              style={[styles.headerIconBtn, { backgroundColor: theme.card }]}
+              onPress={() => searchInputRef.current?.focus()}
+            >
+              <Ionicons name="search-outline" size={20} color={theme.primary} />
+            </Pressable>
+            <Pressable 
+              style={[styles.headerIconBtn, { backgroundColor: theme.card }]}
+              onPress={() => setIsFilterModalVisible(true)}
+            >
+              <Ionicons name="options-outline" size={20} color={theme.primary} />
+              {selectedFaculties.length > 0 && <View style={styles.filterBadge} />}
+            </Pressable>
+          </View>
+        </View>
+
+        <View style={[styles.searchContainer, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9', flexDirection }]}>
+          <Ionicons name="search" size={18} color={theme.textSecondary} />
+          <TextInput 
+            ref={searchInputRef}
+            style={[styles.searchInput, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}
+            placeholder={isRTL ? 'عن أي مصدر أكاديمي تبحث؟' : 'What resource are you looking for?'}
+            placeholderTextColor={theme.textSecondary}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
+        {selectedFaculties.length > 0 && (
+          <View style={styles.activeFiltersContainer}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.activeFiltersList, { flexDirection }]}>
+              {selectedFaculties.map(fid => (
+                <Pressable 
+                  key={fid} 
+                  style={[styles.filterChip, { backgroundColor: theme.primary + '15' }]}
+                  onPress={() => toggleFaculty(fid)}
+                >
+                  <Text style={[styles.filterChipText, { color: theme.primary }]}>{t(`faculties.${fid}`)}</Text>
+                  <Ionicons name="close-circle" size={14} color={theme.primary} />
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        )}
       </View>
 
       {loading ? (
@@ -158,7 +304,7 @@ export default function ExploreScreen() {
         </View>
       ) : (
         <FlatList
-          data={resources}
+          data={filteredResources}
           renderItem={renderResourceCard}
           keyExtractor={(item) => item.id}
           numColumns={2}
@@ -167,12 +313,88 @@ export default function ExploreScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="library-outline" size={64} color={theme.border} />
-              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{isRTL ? 'لا توجد مواد متاحة حالياً' : 'No materials available yet'}</Text>
+              <Ionicons name="search-outline" size={64} color={theme.border} />
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{isRTL ? 'لم نجد أي مصادر تطابق بحثك' : 'No resources match your search'}</Text>
             </View>
           }
         />
       )}
+
+      {/* Filter Modal */}
+      <Modal
+        visible={isFilterModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsFilterModalVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setIsFilterModalVisible(false)}>
+          <Pressable style={[styles.modalContent, { backgroundColor: theme.card }]}>
+            <View style={[styles.modalHeader, { flexDirection }]}>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>{isRTL ? 'تصفية النتائج' : 'Filter Results'}</Text>
+              <Pressable onPress={clearFilters}>
+                <Text style={{ color: theme.primary, fontWeight: '700' }}>{isRTL ? 'مسح الكل' : 'Clear All'}</Text>
+              </Pressable>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* Time Filter */}
+              <Text style={[styles.filterSectionTitle, { color: theme.text, textAlign }]}>{isRTL ? 'الوقت' : 'Time'}</Text>
+              <View style={[styles.filterOptions, { flexDirection }]}>
+                <Pressable 
+                  onPress={() => handleSortChange('latest')}
+                  style={[styles.filterOption, sortBy === 'latest' && { backgroundColor: theme.primary }]}
+                >
+                  <Text style={[styles.filterOptionText, sortBy === 'latest' && { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>
+                    {isRTL ? 'الأحدث' : 'Latest'}
+                  </Text>
+                </Pressable>
+                <Pressable 
+                  onPress={() => handleSortChange('all')}
+                  style={[styles.filterOption, sortBy === 'all' && { backgroundColor: theme.primary }]}
+                >
+                  <Text style={[styles.filterOptionText, sortBy === 'all' && { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>
+                    {isRTL ? 'مش مهم' : 'Anytime'}
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* Faculty Filter */}
+              <Text style={[styles.filterSectionTitle, { color: theme.text, textAlign, marginTop: 24 }]}>{isRTL ? 'الكليات المفضلة' : 'Preferred Faculties'}</Text>
+              <View style={[styles.facultyGrid, { flexDirection }]}>
+                {faculties.map((f) => (
+                  <Pressable 
+                    key={f.id}
+                    onPress={() => toggleFaculty(f.id)}
+                    style={[
+                      styles.facultyItem, 
+                      selectedFaculties.includes(f.id) && { backgroundColor: theme.primary + '20', borderColor: theme.primary }
+                    ]}
+                  >
+                    <Ionicons 
+                      name={f.icon as any} 
+                      size={18} 
+                      color={selectedFaculties.includes(f.id) ? theme.primary : theme.textSecondary} 
+                    />
+                    <Text style={[
+                      styles.facultyItemText, 
+                      { color: selectedFaculties.includes(f.id) ? theme.text : theme.textSecondary }
+                    ]}>
+                      {t(`faculties.${f.id}`)}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </ScrollView>
+
+            <Pressable 
+              style={[styles.applyBtn, { backgroundColor: theme.primary }]}
+              onPress={() => setIsFilterModalVisible(false)}
+            >
+              <Text style={[styles.applyBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{isRTL ? 'تطبيق' : 'Apply'}</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -180,20 +402,77 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: Spacing.md,
+    gap: 16,
   },
-  headerTitle: { fontSize: 22, fontWeight: '800' },
-  filterButton: {
-    width: 40,
-    height: 40,
+  headerTop: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  headerTitle: { fontSize: 32, fontWeight: '900', letterSpacing: -1 },
+  headerSubtitle: { fontSize: 16, fontWeight: '800', marginTop: -4, letterSpacing: 1, textTransform: 'uppercase' },
+  headerActions: {
+    gap: 8,
+    alignItems: 'center',
+  },
+  headerIconBtn: {
+    width: 44,
+    height: 44,
     borderRadius: Radius.md,
-    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  searchContainer: {
+    height: 50,
+    borderRadius: Radius.md,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  activeFiltersContainer: {
+    marginTop: 8,
+  },
+  activeFiltersList: {
+    gap: 8,
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: Radius.pill,
+    gap: 6,
+  },
+  filterChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  filterButton: {
+    width: 48,
+    height: 48,
+    borderRadius: Radius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#EF4444',
+    borderWidth: 1.5,
+    borderColor: '#FFF',
   },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   listContent: { padding: Spacing.md, paddingBottom: 100 },
@@ -230,4 +509,77 @@ const styles = StyleSheet.create({
   donorName: { fontWeight: '700', color: '#475569' },
   emptyState: { marginTop: 100, alignItems: 'center', gap: 16 },
   emptyText: { fontSize: 16, color: '#94A3B8', fontWeight: '600' },
+
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+  },
+  filterSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  filterOptions: {
+    gap: 12,
+  },
+  filterOption: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: Radius.pill,
+    backgroundColor: 'rgba(148, 163, 184, 0.1)',
+  },
+  filterOptionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  facultyGrid: {
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  facultyItem: {
+    width: '31%',
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: Radius.md,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    backgroundColor: 'rgba(148, 163, 184, 0.05)',
+    padding: 8,
+  },
+  facultyItemText: {
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  applyBtn: {
+    height: 54,
+    borderRadius: Radius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  applyBtnText: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
 });
