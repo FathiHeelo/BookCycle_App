@@ -5,4 +5,8 @@ export interface Message {
   timestamp: number;
   imageUrl?: string;
   isRead?: boolean;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
 }

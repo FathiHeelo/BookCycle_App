@@ -48,10 +48,10 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header Overlay */}
       <View style={[styles.floatingHeader, { flexDirection }]}>
-        <Pressable onPress={() => router.back()} style={styles.roundButton}>
+        <Pressable onPress={() => router.back()} style={[styles.roundButton, { backgroundColor: themeKey === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255,255,255,0.9)' }]}>
           <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={22} color={theme.primary} />
         </Pressable>
-        <Pressable onPress={handleShare} style={styles.roundButton}>
+        <Pressable onPress={handleShare} style={[styles.roundButton, { backgroundColor: themeKey === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255,255,255,0.9)' }]}>
           <Ionicons name="share-outline" size={22} color={theme.primary} />
         </Pressable>
       </View>
@@ -62,7 +62,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
           style={styles.heroImage} 
         />
 
-        <View style={styles.mainContent}>
+        <View style={[styles.mainContent, { backgroundColor: theme.card }]}>
           <View style={[styles.badgeRow, { flexDirection }]}>
             {book.facultyIds ? (
               book.facultyIds.map((fId: string) => (
@@ -92,13 +92,13 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
           </Text>
 
           <View style={[styles.infoGrid, { flexDirection }]}>
-            <View style={[styles.infoCard, { backgroundColor: theme.card }]}>
+            <View style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <Text style={[styles.infoLabel, { textAlign }]}>{t('categories.title').toUpperCase()}</Text>
               <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
                 {book.categoryId ? t(`categories.${book.categoryId}`) : (isRTL ? 'مصدر دراسي' : 'Study Resource')}
               </Text>
             </View>
-            <View style={[styles.infoCard, { backgroundColor: theme.card }]}>
+            <View style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الطبعة/الموديل' : 'EDITION/MODEL').toUpperCase()}</Text>
               <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
                 {book.edition || (isRTL ? 'أحدث طبعة' : 'Latest')}
@@ -108,7 +108,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
 
           {/* Majors Section */}
           {(book.majors || book.major) && (
-            <View style={[styles.infoCardWide, { backgroundColor: theme.card }]}>
+            <View style={[styles.infoCardWide, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <Text style={[styles.infoLabel, { textAlign }]}>{t('auth.signup.majorLabel').toUpperCase()}</Text>
               <View style={[styles.tagContainer, { flexDirection }]}>
                 {book.majors ? (
@@ -124,7 +124,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             </View>
           )}
 
-          <View style={[styles.infoCardWide, { backgroundColor: theme.card }]}>
+          <View style={[styles.infoCardWide, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الحالة' : 'CONDITION').toUpperCase()}</Text>
             <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
               {book.conditionId ? t(`conditions.${book.conditionId}`) : (isRTL ? 'مثل الجديد ✨' : 'Like New ✨')}
@@ -138,7 +138,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             </Text>
           </View>
 
-          <View style={styles.donorSection}>
+          <View style={[styles.donorSection, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.05)' : '#F8FAFC', borderColor: theme.border, borderWidth: 1 }]}>
             <Text style={[styles.donorLabel, { textAlign }]}>{isRTL ? 'بواسطة' : 'GIFTING BY'}</Text>
             
             <View style={[styles.donorHeader, { flexDirection }]}>
@@ -154,7 +154,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
                 <Text style={[styles.donorName, { textAlign, color: theme.text }]}>
                   {book.donorName}
                 </Text>
-                <Text style={[styles.donorSubtext, { textAlign }]}>
+                <Text style={[styles.donorSubtext, { textAlign, color: theme.textSecondary }]}>
                   {donorProfile?.role === 'professor' ? t('auth.signup.professor') : t('auth.signup.student')}
                   {' • '}
                   {isRTL ? `${donorStats?.impact || 0} مساهمة` : `${donorStats?.impact || 0} Contributions`}
@@ -174,35 +174,45 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
       </ScrollView>
 
       {/* Fixed Bottom Bar */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.background }]}>
+      <View style={[styles.bottomBar, { backgroundColor: theme.background, borderTopColor: theme.border }]}>
         <View style={[styles.bottomBarInner, { flexDirection }]}>
           <Pressable 
             style={[
               styles.requestBtn, 
               { backgroundColor: requestStatus === 'success' ? '#10B981' : theme.primary },
-              requesting && { opacity: 0.7 }
+              (requesting || book.status === 'requested' || book.status === 'received' || book.status === 'completed') && { opacity: 0.7 }
             ]}
-            onPress={() => requestStatus === 'none' && setModalVisible(true)}
-            disabled={requesting || requestStatus === 'success'}
+            onPress={() => {
+              if (book.status === 'requested' || book.status === 'received' || book.status === 'completed') {
+                Alert.alert(isRTL ? 'غير متوفر' : 'Not Available', isRTL ? 'هذا المصدر تم حجزه أو استلامه بالفعل.' : 'This resource has already been requested or received.');
+                return;
+              }
+              requestStatus === 'none' && setModalVisible(true);
+            }}
+            disabled={requesting || requestStatus === 'success' || book.status === 'requested' || book.status === 'received' || book.status === 'completed'}
           >
             {requesting ? (
               <ActivityIndicator color={themeKey === 'dark' ? '#0B1020' : '#FFF'} />
             ) : (
               <View style={{ flexDirection, alignItems: 'center' }}>
                 <Ionicons 
-                  name={requestStatus === 'success' ? "checkmark-circle" : "heart-outline"} 
+                  name={requestStatus === 'success' ? "checkmark-circle" : (book.status === 'requested' || book.status === 'received' || book.status === 'completed' ? "lock-closed" : "heart-outline")} 
                   size={20} 
                   color={themeKey === 'dark' ? '#0B1020' : '#FFF'} 
                   style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }} 
                 />
                 <Text style={[styles.requestBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>
-                  {requestStatus === 'success' ? (isRTL ? 'تم إرسال الطلب' : 'Request Sent') : (isRTL ? 'اطلب هذا المصدر' : 'Request this Material')}
+                  {requestStatus === 'success' 
+                    ? (isRTL ? 'تم إرسال الطلب' : 'Request Sent') 
+                    : (book.status === 'requested' || book.status === 'received' || book.status === 'completed' 
+                        ? (isRTL ? 'غير متوفر' : 'Not Available') 
+                        : (isRTL ? 'اطلب هذا المصدر' : 'Request this Resource'))}
                 </Text>
               </View>
             )}
           </Pressable>
           <Pressable 
-            style={styles.messageBtn}
+            style={[styles.messageBtn, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}
             onPress={() => {
               const currentUser = FIREBASE_AUTH.currentUser;
               if (!currentUser) {
@@ -233,7 +243,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
                 <Ionicons name="gift" size={32} color={theme.primary} />
               </View>
               <Text style={[styles.modalTitle, { color: theme.primary }]}>{isRTL ? 'تأكيد الطلب' : 'Confirm Request'}</Text>
-              <Text style={styles.modalSubtitle}>
+              <Text style={[styles.modalSubtitle, { color: theme.textSecondary }]}>
                 {isRTL ? 'أنت على وشك طلب هذا الكتاب. سيتم إخطار المساهم للموافقة على طلبك.' : 'You are about to request this book. The contributor will be notified to approve your request.'}
               </Text>
             </View>

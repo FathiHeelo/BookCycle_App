@@ -44,17 +44,18 @@ const MainPage: React.FC = () => {
 
   const toggleFacultyFilter = (id: string) => {
     let current = [...selectedFacultyIds];
-    if (id === 'all') {
-      current = ['all'];
+    const index = current.indexOf(id);
+    
+    if (index > -1) {
+      // Remove if selected
+      current.splice(index, 1);
+      // Ensure at least one is selected if we want, or allow empty (depends on UX)
+      // If we want 'all' to be default when empty:
+      if (current.length === 0) current = ['all'];
     } else {
-      current = current.filter(f => f !== 'all');
-      const index = current.indexOf(id);
-      if (index > -1) {
-        current.splice(index, 1);
-        if (current.length === 0) current = ['all'];
-      } else {
-        current.push(id);
-      }
+      // Add if not selected
+      current.push(id);
+      // If we added 'all', maybe we want to keep others? User said 'treat it as regular'
     }
     setSelectedFacultyIds(current);
   };
@@ -72,62 +73,73 @@ const MainPage: React.FC = () => {
     updateCustomizedFaculties(current);
   };
 
-  const ListHeader = () => (
+  const listHeader = useMemo(() => (
     <View style={styles.headerContent}>
-      <View style={styles.titleSection}>
-        <Text style={[styles.mainTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>
-          {isRTL ? TITLES.GIVING_HUB_AR : TITLES.GIVING_HUB_EN}
-        </Text>
-        <Text style={[styles.subtitle, { color: theme.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-          {isRTL ? TITLES.SUBTITLE_AR : TITLES.SUBTITLE_EN}
-        </Text>
+      <View style={styles.topSection}>
+        <View style={styles.titleSection}>
+          <Text style={[styles.mainTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>
+            {isRTL ? TITLES.GIVING_HUB_AR : TITLES.GIVING_HUB_EN}
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.primary, textAlign: isRTL ? 'right' : 'left' }]}>
+            {isRTL ? TITLES.SUBTITLE_AR : TITLES.SUBTITLE_EN}
+          </Text>
+        </View>
+
+        <View style={{ paddingHorizontal: 20, zIndex: 1000, marginBottom: 20 }}>
+          <SearchBar 
+            query={searchQuery}
+            onQueryChange={setSearchQuery}
+            predictions={predictions}
+            onPredictionSelect={(p) => setSearchQuery(p)}
+            isRTL={isRTL}
+            theme={theme}
+            placeholder={isRTL ? TITLES.SEARCH_PLACEHOLDER_AR : TITLES.SEARCH_PLACEHOLDER_EN}
+          />
+        </View>
       </View>
 
-      <View style={{ paddingHorizontal: 20, zIndex: 1000 }}>
-        <SearchBar 
-          query={searchQuery}
-          onQueryChange={setSearchQuery}
-          predictions={predictions}
-          onPredictionSelect={(p) => setSearchQuery(p)}
+      <View style={[styles.facultySection, { backgroundColor: themeKey === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
+        <View style={styles.sectionHeader}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.sectionTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>
+              {isRTL ? TITLES.BROWSE_FACULTY_AR : TITLES.BROWSE_FACULTY_EN}
+            </Text>
+            <Text style={[styles.sectionSubtitle, { color: theme.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+              {isRTL ? TITLES.BROWSE_FACULTY_SUBTITLE_AR : TITLES.BROWSE_FACULTY_SUBTITLE_EN}
+            </Text>
+          </View>
+          <TouchableOpacity 
+            onPress={() => setModalVisible(true)}
+            style={[styles.customizeBtn, { borderColor: theme.primary }]}
+          >
+            <Text style={[styles.viewAll, { color: theme.primary }]}>
+              {isRTL ? TITLES.VIEW_ALL_AR : TITLES.VIEW_ALL_EN}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <FacultyScroller 
+          faculties={visibleFaculties}
+          selectedIds={selectedFacultyIds}
+          onToggle={toggleFacultyFilter}
           isRTL={isRTL}
           theme={theme}
-          placeholder={isRTL ? TITLES.SEARCH_PLACEHOLDER_AR : TITLES.SEARCH_PLACEHOLDER_EN}
+          t={t}
         />
       </View>
 
-      <View style={styles.sectionHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.sectionTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>
-            {isRTL ? TITLES.BROWSE_FACULTY_AR : TITLES.BROWSE_FACULTY_EN}
-          </Text>
-          <Text style={[styles.sectionSubtitle, { color: theme.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-            {isRTL ? TITLES.BROWSE_FACULTY_SUBTITLE_AR : TITLES.BROWSE_FACULTY_SUBTITLE_EN}
+      <View style={styles.featuredHeader}>
+        <View style={[styles.line, { backgroundColor: theme.border }]} />
+        <View style={[styles.featuredBadge, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          <Ionicons name="sparkles" size={14} color={theme.primary} />
+          <Text style={[styles.featuredTitle, { color: theme.text }]}>
+            {isRTL ? TITLES.FEATURED_GIFTS_AR : TITLES.FEATURED_GIFTS_EN}
           </Text>
         </View>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Text style={[styles.viewAll, { color: theme.primary }]}>
-            {isRTL ? TITLES.VIEW_ALL_AR : TITLES.VIEW_ALL_EN}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <FacultyScroller 
-        faculties={visibleFaculties}
-        selectedIds={selectedFacultyIds}
-        onToggle={toggleFacultyFilter}
-        isRTL={isRTL}
-        theme={theme}
-        t={t}
-      />
-
-      <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>
-          {isRTL ? TITLES.FEATURED_GIFTS_AR : TITLES.FEATURED_GIFTS_EN}
-        </Text>
-        <Ionicons name="filter-outline" size={18} color={theme.textSecondary} />
+        <View style={[styles.line, { backgroundColor: theme.border }]} />
       </View>
     </View>
-  );
+  ), [theme, isRTL, searchQuery, predictions, visibleFaculties, selectedFacultyIds, themeKey]);
 
   return (
     <View style={[MainStyles.container, { backgroundColor: theme.background }]}>
@@ -160,7 +172,7 @@ const MainPage: React.FC = () => {
           )}
           keyExtractor={(item) => item.id}
           numColumns={2}
-          ListHeaderComponent={ListHeader}
+          ListHeaderComponent={listHeader}
           contentContainerStyle={MainStyles.listContent}
           columnWrapperStyle={[MainStyles.columnWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row', paddingHorizontal: 20 }]}
           showsVerticalScrollIndicator={false}
@@ -237,19 +249,28 @@ const styles = StyleSheet.create({
   headerContent: {
     paddingTop: 10,
   },
+  topSection: {
+    marginBottom: 10,
+  },
   titleSection: {
     paddingHorizontal: 20,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   mainTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '900',
-    letterSpacing: -0.5,
+    letterSpacing: -1,
   },
   subtitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 4,
+    fontSize: 15,
+    fontWeight: '800',
+    marginTop: -2,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  facultySection: {
+    paddingVertical: 20,
+    marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -262,15 +283,50 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '800',
+    letterSpacing: -0.5,
   },
   sectionSubtitle: {
-    fontSize: 11,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: '600',
     marginTop: 2,
+    opacity: 0.8,
+  },
+  customizeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: Radius.sm,
+    borderWidth: 1.5,
   },
   viewAll: {
+    fontSize: 12,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  featuredHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    gap: 12,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+  },
+  featuredBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    gap: 8,
+  },
+  featuredTitle: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   modalOverlay: {
     flex: 1,

@@ -11,6 +11,7 @@ import {
   FlatList,
   Text,
   Alert,
+  TouchableOpacity
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -137,38 +138,43 @@ export default function PublicProfileScreen() {
           <View style={[styles.statsRow, { flexDirection, borderTopColor: theme.border }]}>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: theme.text }]}>{books.length}</Text>
-              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'كتب' : 'Books'}</Text>
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'مصادر' : 'Resources'}</Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-            <Pressable 
-              style={styles.statItem}
-              onPress={() => {
-                const currentUser = FIREBASE_AUTH.currentUser;
-                if (!currentUser) {
-                  Alert.alert(t('common.error'), t('auth.errors.mustBeLoggedIn'));
-                  return;
-                }
-                if (currentUser.uid === id) {
-                  Alert.alert(t('common.error'), isRTL ? 'لا يمكنك تقييم نفسك' : 'You cannot rate yourself');
-                  return;
-                }
-                setRatingVisible(true);
-              }}
-            >
+            <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: theme.text }]}>{stats.rating > 0 ? stats.rating.toFixed(1) : '0.0'}</Text>
               <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'تقييم' : 'Rating'}</Text>
-            </Pressable>
+            </View>
           </View>
+
+          <TouchableOpacity 
+            style={[styles.rateBtn, { backgroundColor: theme.primary }]}
+            onPress={() => {
+              const currentUser = FIREBASE_AUTH.currentUser;
+              if (!currentUser) {
+                Alert.alert(t('common.error'), t('auth.errors.mustBeLoggedIn'));
+                return;
+              }
+              if (currentUser.uid === id) {
+                Alert.alert(isRTL ? 'عذراً' : 'Sorry', isRTL ? 'لا يمكنك تقييم نفسك' : 'You cannot rate yourself');
+                return;
+              }
+              setRatingVisible(true);
+            }}
+          >
+            <Ionicons name="star" size={18} color={themeKey === 'dark' ? '#0B1020' : '#FFF'} />
+            <Text style={[styles.rateBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{isRTL ? 'تقييم المساهم' : 'Rate Contributor'}</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Books List */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { textAlign, color: theme.text }]}>
-            {isRTL ? 'الكتب المتوفرة' : 'Available Books'}
+            {isRTL ? 'المصادر المتوفرة' : 'Available Resources'}
           </Text>
           
           {books.length === 0 ? (
-            <Text style={[styles.emptyText, { textAlign, color: theme.textSecondary }]}>{isRTL ? 'لا توجد كتب معروضة حالياً' : 'No books available at the moment'}</Text>
+            <Text style={[styles.emptyText, { textAlign, color: theme.textSecondary }]}>{isRTL ? 'لا توجد مصادر معروضة حالياً' : 'No resources available at the moment'}</Text>
           ) : (
             <View style={styles.booksGrid}>
               {books.map((book) => {
@@ -273,6 +279,22 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 20, fontWeight: '800' },
   statLabel: { fontSize: 12, fontWeight: '700' },
   statDivider: { width: 1, height: 30 },
+  rateBtn: {
+    marginTop: 24,
+    width: '100%',
+    height: 48,
+    borderRadius: Radius.md,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+  },
+  rateBtnText: {
+    fontSize: 15,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   section: { marginBottom: 32 },
   sectionTitle: { fontSize: 20, fontWeight: '800', marginBottom: 16 },
   booksGrid: {

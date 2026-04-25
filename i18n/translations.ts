@@ -8,7 +8,9 @@ export const translations = {
       save: "Save",
       or: "OR",
       edit: "Edit",
-      delete: "Delete"
+      delete: "Delete",
+      ok: "OK",
+      error: "Error"
     },
     auth: {
       login: {
@@ -264,7 +266,9 @@ export const translations = {
       save: "حفظ",
       or: "أو",
       edit: "تعديل",
-      delete: "حذف"
+      delete: "حذف",
+      ok: "موافق",
+      error: "خطأ"
     },
     auth: {
       login: {

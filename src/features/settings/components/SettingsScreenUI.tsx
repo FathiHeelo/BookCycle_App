@@ -81,22 +81,6 @@ export const SettingsScreenUI = () => {
           <Pressable
             style={({ pressed }) => [
               styles.logoutRow,
-              { opacity: pressed ? 0.7 : 1, flexDirection: isRTL ? 'row-reverse' : 'row', borderBottomWidth: 1, borderBottomColor: themeColors.border || '#F1F5F9' },
-            ]}
-            onPress={() => router.push('/verify-phone')}
-          >
-            <View style={[styles.logoutIconBg, { backgroundColor: themeColors.primary + '15' }]}>
-              <Ionicons name="shield-checkmark-outline" size={20} color={themeColors.primary} />
-            </View>
-            <View style={{ flex: 1, marginLeft: isRTL ? 0 : 12, marginRight: isRTL ? 12 : 0 }}>
-              <Text style={[styles.logoutLabel, { textAlign, color: themeColors.text }]}>{isRTL ? 'الأمان والتحقق' : 'Security & Verification'}</Text>
-            </View>
-            <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={18} color={themeColors.textSecondary} />
-          </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.logoutRow,
               { opacity: pressed ? 0.7 : 1, flexDirection: isRTL ? 'row-reverse' : 'row' },
             ]}
             onPress={handleLogout}

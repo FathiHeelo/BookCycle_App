@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useI18n } from '@/hooks/use-i18n';
+import { CustomHeader } from '@/src/components/shared/CustomHeader';
 
 export default function ChangePasswordScreen() {
   const { t } = useI18n();
@@ -86,17 +87,18 @@ export default function ChangePasswordScreen() {
       style={[styles.flex, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      <CustomHeader 
+        title={t('auth.changePassword.title')}
+        leftMode="back"
+        hideSafeArea
+      />
+
       <ScrollView
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[styles.container, { paddingTop: 20 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={theme.text} />
-        </Pressable>
-
         <View style={styles.welcomeContainer}>
-          <Text style={[styles.welcomeTitle, { color: theme.text }]}>{t('auth.changePassword.title')}</Text>
           <Text style={[styles.welcomeSubtitle, { color: theme.textSecondary }]}>
             {t('auth.changePassword.description')}
           </Text>
@@ -110,15 +112,15 @@ export default function ChangePasswordScreen() {
           )}
 
           {successMsg && (
-            <View style={[styles.successBox, { backgroundColor: '#D1FAE5', borderColor: '#10B981' }]}>
-              <Text style={styles.successText}>{successMsg}</Text>
+            <View style={[styles.successBox, { backgroundColor: colorScheme === 'dark' ? 'rgba(16, 185, 129, 0.1)' : '#D1FAE5', borderColor: '#10B981' }]}>
+              <Text style={[styles.successText, { color: colorScheme === 'dark' ? '#10B981' : '#065F46' }]}>{successMsg}</Text>
             </View>
           )}
 
           {/* Current Password */}
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.textSecondary }]}>{t('auth.changePassword.currentPassword')}</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: '#F1F3F5', borderColor: 'transparent' }]}>
+            <View style={[styles.inputWrapper, { backgroundColor: colorScheme === 'dark' ? theme.card : '#F1F3F5', borderColor: 'transparent' }]}>
               <Ionicons name="key-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { color: theme.text }]}
@@ -140,7 +142,7 @@ export default function ChangePasswordScreen() {
           {/* New Password */}
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.textSecondary }]}>{t('auth.changePassword.newPassword')}</Text>
-            <View style={[styles.inputWrapper, { backgroundColor: '#F1F3F5', borderColor: 'transparent' }]}>
+            <View style={[styles.inputWrapper, { backgroundColor: colorScheme === 'dark' ? theme.card : '#F1F3F5', borderColor: 'transparent' }]}>
               <Ionicons name="lock-closed-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, { color: theme.text }]}
@@ -170,9 +172,9 @@ export default function ChangePasswordScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colorScheme === 'dark' ? '#000' : '#fff'} />
             ) : (
-              <Text style={styles.primaryBtnText}>{t('auth.changePassword.updatePassword')}</Text>
+              <Text style={[styles.primaryBtnText, { color: colorScheme === 'dark' ? '#000' : '#fff' }]}>{t('auth.changePassword.updatePassword')}</Text>
             )}
           </Pressable>
         </View>
