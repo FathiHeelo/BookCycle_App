@@ -1,50 +1,77 @@
-# Welcome to your Expo app 👋
+# 📚 BookCycle App – Campus Resource Exchange Platform
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 📌 Overview
+BookCycle is a mobile application designed for university students to exchange academic resources such as textbooks, notes, and study materials.
 
-## Get started
+The platform allows students to share resources they no longer need and connect with others, promoting a collaborative and sustainable campus environment.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🧠 Core Features
 
-2. Start the app
+- 📦 Resource Sharing  
+  Upload and share books, notes, and study materials.
 
-   ```bash
-   npx expo start
-   ```
+- 🔐 User Authentication  
+  Secure login and registration using Firebase Authentication.
 
-In the output, you'll find options to open the app in a
+- ⚡ Real-Time Database  
+  Instant data sync using Firebase Realtime Database.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- 💬 Chat System  
+  Direct messaging between users.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- 🖼️ Image Upload  
+  Upload book images using Cloudinary.
 
-## Get a fresh project
+- 📱 Modern UI  
+  Clean and responsive interface built with React Native.
 
-When you're ready, run:
+---
+
+## 🏗️ System Design Highlights
+
+- Structured Firebase Database:
+  - `Books` (owned by donor)
+  - `Users`
+  - `Chats`
+  - `UserChats` (for scalability)
+
+- Security Rules:
+  - Only authenticated users can read data
+  - Only owners can modify their resources
+  - Chat access limited to participants
+
+- Media Handling:
+  - Image compression using Expo Image Manipulator
+  - Cloudinary for external storage
+
+---
+
+## 🚀 Key Improvements
+
+- Scalable database structure
+- Efficient chat system design
+- Optimized image uploads
+- Secure access control
+- Clean and modular codebase
+
+---
+
+## 🛠️ Technologies Used
+
+- React Native (Expo)
+- Firebase (Authentication + Realtime Database)
+- Cloudinary
+- JavaScript / TypeScript
+- Expo Image Manipulator
+
+---
+
+## ▶️ How to Run
 
 ```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+git clone https://github.com/FathiHeelo/BookCycle_App.git
+cd BookCycle_App
+npm install
+npx expo start
