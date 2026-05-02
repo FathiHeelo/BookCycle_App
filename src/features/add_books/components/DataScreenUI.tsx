@@ -10,12 +10,13 @@ import {
     View,
     TouchableWithoutFeedback,
     Pressable,
+    ActivityIndicator,
 } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { DataStyles as styles } from '../styles';
-import { RESOURCE_CATEGORIES, BOOK_CONDITIONS } from '../constants';
+import { RESOURCE_CATEGORIES, BOOK_CONDITIONS, VIBRANT_GOLD } from '../constants';
 import { useAddBookData } from '../hooks/useAddBookData';
 import { useAppTheme } from '@/context/ThemeContext';
 
@@ -26,6 +27,7 @@ type DataScreenUIProps = ReturnType<typeof useAddBookData> & {
 export const DataScreenUI = (props: DataScreenUIProps) => {
     const { 
         control, handleSubmit, errors, watch, setValue, onSubmit, 
+        handleGenerateDescription, aiLoading, remainingRequests,
         facultyModalVisible, setFacultyModalVisible, majorModalVisible, setMajorModalVisible,
         conditionModalVisible, setConditionModalVisible, categoryModalVisible, setCategoryModalVisible,
         selectedFacultyIds, selectedMajors, availableMajorsList, facultyList,
@@ -175,7 +177,25 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
 
                     {/* Description */}
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { textAlign, color: themeColors.text }]}>{t('bookDetails.description')}</Text>
+                        <View style={{ flexDirection, justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <Text style={[styles.label, { textAlign, color: themeColors.text, marginBottom: 0 }]}>{t('bookDetails.description')}</Text>
+                            <TouchableOpacity 
+                                onPress={handleGenerateDescription} 
+                                disabled={aiLoading}
+                                style={{ flexDirection, alignItems: 'center', gap: 4 }}
+                            >
+                                {aiLoading ? (
+                                    <ActivityIndicator size="small" color={themeColors.primary} />
+                                ) : (
+                                    <>
+                                        <Ionicons name="sparkles" size={14} color={VIBRANT_GOLD} />
+                                        <Text style={{ fontSize: 12, color: VIBRANT_GOLD, fontWeight: '600' }}>
+                                            {isRTL ? 'توليد بالذكاء الاصطناعي' : 'Generate with AI'}
+                                        </Text>
+                                    </>
+                                )}
+                            </TouchableOpacity>
+                        </View>
                         <Controller
                             control={control}
                             name="description"
@@ -191,6 +211,11 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
                                 />
                             )}
                         />
+                        {remainingRequests !== null && (
+                            <Text style={{ fontSize: 10, color: themeColors.textSecondary, marginTop: 4, textAlign }}>
+                                {isRTL ? `المتبقي اليوم: ${remainingRequests}/3` : `Remaining today: ${remainingRequests}/3`}
+                            </Text>
+                        )}
                     </View>
 
                     <TouchableOpacity style={[styles.mainButton, { flexDirection, backgroundColor: themeColors.primary }]} onPress={handleSubmit(onSubmit)}>

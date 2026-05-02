@@ -3,6 +3,7 @@ import { getAuth, initializeAuth, GoogleAuthProvider, getReactNativePersistence 
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
+import { getFunctions } from "firebase/functions";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 
@@ -35,6 +36,7 @@ export const FIREBASE_AUTH = auth;
 
 export const FIREBASE_DB = getDatabase(FIREBASE_APP);
 export const FIREBASE_STORAGE = getStorage(FIREBASE_APP);
+export const FIREBASE_FUNCTIONS = getFunctions(FIREBASE_APP, 'europe-west1');
 export const GOOGLE_AUTH_PROVIDER = new GoogleAuthProvider();
 
 // Initialize Firebase (Compat) - Required by older libraries like expo-firebase-recaptcha

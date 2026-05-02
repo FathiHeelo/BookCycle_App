@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -6,14 +6,18 @@ import { useI18n } from '@/hooks/use-i18n';
 import { FACULTIES } from '@/src/constants/faculties';
 import { AddBookFormData } from '../types';
 import { VIBRANT_GOLD } from '../constants';
+import { aiService } from '@/src/services/ai/ai.service';
+import { Alert } from 'react-native';
 
-export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: (data: AddBookFormData) => void) => {
+export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: (data: AddBookFormData) => void, analysisResult?: any) => {
     const { t, isRTL } = useI18n();
 
     const [facultyModalVisible, setFacultyModalVisible] = useState(false);
     const [majorModalVisible, setMajorModalVisible] = useState(false);
     const [conditionModalVisible, setConditionModalVisible] = useState(false);
     const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [remainingRequests, setRemainingRequests] = useState<number | null>(null);
 
     const bookDataSchema = z.object({
         title: z.string().min(2, t('auth.errors.fullNameMinLength')),
@@ -43,6 +47,26 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
             description: initialData?.description || '',
         },
     });
+
+    // Pre-fill from analysisResult (comes from upload step mock or real AI)
+    useEffect(() => {
+        if (!analysisResult) return;
+        // description auto-generated in upload step
+        if (analysisResult.description) {
+            setValue('description', analysisResult.description);
+        }
+        // category selected on upload step
+        if (analysisResult.category) {
+            setValue('categoryId', analysisResult.category);
+        }
+        // Legacy real-AI fields (title, course, faculty) — keep for future
+        if (analysisResult.title) setValue('title', analysisResult.title);
+        if (analysisResult.course) setValue('courseName', analysisResult.course);
+        if (analysisResult.faculty) {
+            const found = FACULTIES.find(f => f.id === analysisResult.faculty || t(`faculties.${f.id}`) === analysisResult.faculty);
+            if (found) setValue('facultyIds', [found.id]);
+        }
+    }, [analysisResult]);
 
     const selectedFacultyIds: string[] = watch('facultyIds') || [];
     const selectedMajors: string[] = watch('majors') || [];
@@ -108,6 +132,25 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
         setValue('majors', current);
     };
 
+    const handleGenerateDescription = async () => {
+        const formData = watch();
+        if (!formData.title || !formData.categoryId) {
+            Alert.alert(isRTL ? 'تنبيه' : 'Notice', isRTL ? 'يرجى إدخال العنوان والفئة أولاً' : 'Please enter title and category first');
+            return;
+        }
+
+        setAiLoading(true);
+        try {
+            const result = await aiService.generateDescription(formData);
+            setValue('description', result.description);
+            setRemainingRequests(result.remainingRequests);
+        } catch (error: any) {
+            Alert.alert(isRTL ? 'خطأ' : 'Error', error.message);
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
     const onSubmit = (data: AddBookFormData) => {
         if (onNext) onNext(data);
     };
@@ -124,6 +167,9 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
         watch,
         setValue,
         onSubmit,
+        handleGenerateDescription,
+        aiLoading,
+        remainingRequests,
         facultyModalVisible, setFacultyModalVisible,
         majorModalVisible, setMajorModalVisible,
         conditionModalVisible, setConditionModalVisible,
