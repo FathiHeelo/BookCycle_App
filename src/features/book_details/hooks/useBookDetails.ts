@@ -133,6 +133,28 @@ export const useBookDetails = (id?: string) => {
         createdAt: new Date().toISOString(),
       });
 
+      // Send Notification to Donor
+      try {
+        const { NotificationService } = require('@/src/services/notification.service');
+        await NotificationService.createNotification({
+          recipientId: book?.donorUid || '',
+          senderId: user.uid,
+          senderName: user.displayName || 'A Student',
+          type: 'resource_request',
+          title: isRTL ? 'طلب مصدر جديد' : 'New resource request',
+          body: isRTL 
+            ? `${user.displayName || 'طالب'} طلب مصدرك: ${book?.title}` 
+            : `${user.displayName || 'A student'} requested your resource: ${book?.title}`,
+          resourceId: id,
+          resourceTitle: book?.title,
+          actionTarget: 'resource_requests',
+          read: false,
+          createdAt: null // handled by service
+        });
+      } catch (notifErr) {
+        console.error('Failed to send notification:', notifErr);
+      }
+
       setRequestStatus('success');
       setModalVisible(false);
       Alert.alert(t('common.success', { defaultValue: 'Success!' }), t('bookDetails.requestSent', { defaultValue: 'Your request has been sent to the contributor.' }));

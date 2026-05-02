@@ -91,6 +91,28 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             {t('bookDetails.by', { defaultValue: isRTL ? 'بواسطة' : 'by' })} {book.author || (isRTL ? 'عضو هيئة تدريس' : 'Academic Faculty')}
           </Text>
 
+          {book.price && (
+            <View style={[styles.infoCardWide, { 
+              backgroundColor: 'rgba(16, 185, 129, 0.05)', 
+              borderColor: '#10B981', 
+              borderWidth: 1,
+              marginBottom: 12,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }]}>
+              <View>
+                <Text style={[styles.infoLabel, { textAlign, color: '#10B981', marginBottom: 0 }]}>
+                  {(isRTL ? 'السعر المطلوب' : 'REQUESTED PRICE').toUpperCase()}
+                </Text>
+                <Text style={{ color: theme.textSecondary, fontSize: 11, textAlign }}>
+                  {isRTL ? 'هذا المصدر متاح للبيع' : 'This resource is available for sale'}
+                </Text>
+              </View>
+              <Text style={{ color: '#10B981', fontSize: 24, fontWeight: '900' }}>₪{book.price}</Text>
+            </View>
+          )}
+
           <View style={[styles.infoGrid, { flexDirection }]}>
             <View style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <Text style={[styles.infoLabel, { textAlign }]}>{t('categories.title').toUpperCase()}</Text>

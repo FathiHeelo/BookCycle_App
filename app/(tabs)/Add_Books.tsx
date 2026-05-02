@@ -25,11 +25,20 @@ import { uploadImageToCloudinary } from '@/src/services/cloudinary.service';
 
 export default function Add_Books() {   
     const [step, setStep] = useState(1);
-    const [bookId, setBookId] = useState<string | undefined>(undefined); // Only used for editing
+    const [bookId, setBookId] = useState<string | undefined>(undefined);
     const [tempImageUri, setTempImageUri] = useState<string | undefined>(undefined);
     const [initialData, setInitialData] = useState<any>(undefined);
+    const [analysisResult, setAnalysisResult] = useState<any>(undefined);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
+
+    const resetForm = () => {
+        setStep(1);
+        setBookId(undefined);
+        setTempImageUri(undefined);
+        setInitialData(undefined);
+        setAnalysisResult(undefined);
+    };
     
     const { width } = useWindowDimensions();
     const router = useRouter();
@@ -108,14 +117,30 @@ export default function Add_Books() {
                 await set(newBookRef, bookData);
             }
 
-            Alert.alert(
-                t('common.success'), 
-                isRTL ? 'تم حفظ المصدر بنجاح!' : 'Resource saved successfully!',
-                [{ text: t('common.save'), onPress: () => router.replace('/(tabs)/profile') }]
-            );
+            if (Platform.OS === 'web') {
+                alert(isRTL ? 'تم الحفظ بنجاح! 🎉' : 'Saved successfully! 🎉');
+                resetForm();
+                router.replace('/(tabs)');
+            } else {
+                Alert.alert(
+                    isRTL ? 'تم الحفظ بنجاح! 🎉' : 'Saved! 🎉',
+                    isRTL ? 'تم إضافة المصدر بنجاح.' : 'Your resource has been added successfully.',
+                    [{
+                        text: isRTL ? 'حسناً' : 'OK',
+                        onPress: () => {
+                            resetForm();
+                            router.replace('/(tabs)');
+                        },
+                    }]
+                );
+            }
         } catch (error) {
             console.error('Error saving book:', error);
-            Alert.alert(t('common.error'), isRTL ? 'فشل في حفظ البيانات.' : 'Failed to save data.');
+            if (Platform.OS === 'web') {
+                alert(isRTL ? 'فشل في حفظ البيانات.' : 'Failed to save data.');
+            } else {
+                Alert.alert(t('common.error'), isRTL ? 'فشل في حفظ البيانات.' : 'Failed to save data.');
+            }
         } finally {
             setSaving(false);
         }
@@ -157,8 +182,9 @@ export default function Add_Books() {
                             {step === 1 && (
                                 <AddBookUploadScreen 
                                     initialImage={tempImageUri ?? undefined}
-                                    onNext={(uri: string) => {
+                                    onNext={(uri: string, analysis?: any) => {
                                         setTempImageUri(uri);
+                                        setAnalysisResult(analysis);
                                         setStep(2);
                                     }} 
                                 />
@@ -166,8 +192,12 @@ export default function Add_Books() {
                             {step === 2 && (
                                 <AddBookDataScreen 
                                     onNext={handleSaveBook}
-                                    onBack={() => setStep(1)}
-                                    initialData={initialData} 
+                                    onBack={(currentData) => {
+                                        if (currentData) setInitialData(currentData);
+                                        setStep(1);
+                                    }}
+                                    initialData={initialData}
+                                    analysisResult={analysisResult}
                                 />
                             )}
                         </View>

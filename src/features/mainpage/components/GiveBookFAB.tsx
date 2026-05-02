@@ -25,7 +25,7 @@ export const GiveBookFAB: React.FC<GiveBookFABProps> = ({ isRTL, theme }) => {
     >
       <Ionicons name="add-circle" size={24} color={theme.background} />
       <Text style={[styles.fabText, { color: theme.background }]}>
-        {isRTL ? 'أهدِ كتاباً' : 'Give a book'}
+{isRTL ? 'شارك شيئًا جديدًا' : 'Share something new'}
       </Text>
     </TouchableOpacity>
   );

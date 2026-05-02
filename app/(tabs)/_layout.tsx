@@ -6,7 +6,9 @@ import { Colors } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, query, orderByChild, limitToLast, get } from 'firebase/database';
+import { NotificationService } from '@/src/services/notification.service';
+import { useNotifications } from '@/hooks/use-notifications';
 
 // Custom Tab Icon Component
 const TabIcon = ({ focused, name, label, themeColors, hasNotification }: any) => {
@@ -42,11 +44,16 @@ export default function TabLayout() {
   const themeColors = Colors[theme];
   const { t, isRTL } = useI18n();
   const [hasNewRequests, setHasNewRequests] = useState(false);
+  const { unreadCount, setupPushNotifications } = useNotifications();
 
   useEffect(() => {
     const user = FIREBASE_AUTH.currentUser;
     if (!user) return;
 
+    // 1. Push Notification Registration
+    setupPushNotifications();
+
+    // 2. Requests Badge
     const requestsRef = ref(FIREBASE_DB, 'Requests');
     const unsubscribe = onValue(requestsRef, (snapshot) => {
       const data = snapshot.val();
@@ -115,19 +122,34 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Profile"
+        name="profile"
         options={{
+          href: null,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} name="person" label={isRTL ? 'حسابي' : 'Profile'} themeColors={themeColors} />
           ),
         }}
       />
-      
       <Tabs.Screen
         name="settings"
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} name="settings" label={isRTL ? 'الإعدادات' : 'Settings'} themeColors={themeColors} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          href: null,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon 
+              focused={focused} 
+              name="notifications" 
+              label={isRTL ? 'التنبيهات' : 'Alerts'} 
+              themeColors={themeColors} 
+              hasNotification={unreadCount > 0} 
+            />
           ),
         }}
       />
@@ -140,8 +162,6 @@ export default function TabLayout() {
          }}
       />
       
-      {/* Hidden from Tab Bar but still inside the Tabs layout so they show the Tab Bar at the bottom */}
-      <Tabs.Screen name="profile" options={{ href: null }} />
       <Tabs.Screen name="my-shared-items" options={{ href: null }} />
       
     </Tabs>

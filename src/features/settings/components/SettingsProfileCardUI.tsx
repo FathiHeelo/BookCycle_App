@@ -8,7 +8,10 @@ import { Colors } from '@/constants/theme';
 import { router } from 'expo-router';
 import { SettingsStyles as styles } from '../styles';
 
+import { useProfileData } from '@/src/features/profile/hooks/useProfileData';
+
 export const SettingsProfileCardUI = () => {
+  const { userProfile } = useProfileData();
   const auth = getAuth();
   const user = auth.currentUser;
   const { width } = useWindowDimensions();
@@ -20,13 +23,16 @@ export const SettingsProfileCardUI = () => {
   const textAlign = isRTL ? 'right' : 'left';
   const rowDir = isRTL ? 'row-reverse' : 'row';
 
+  const photoURL = userProfile?.photoURL || user?.photoURL;
+  const displayName = userProfile?.fullName || user?.displayName || 'Student';
+
   return (
     <Pressable onPress={() => router.push('/profile')}>
       <View style={[styles.profileCard, { backgroundColor: themeColors.card, flexDirection: rowDir }]}>
         <View style={[styles.avatarWrapper, { width: imageSize, height: imageSize, borderRadius: imageSize / 2 }]}>
-          {user?.photoURL ? (
+          {photoURL ? (
             <Image
-              source={{ uri: user.photoURL }}
+              source={{ uri: photoURL }}
               style={[styles.avatar, { width: imageSize, height: imageSize, borderRadius: imageSize / 2 }]}
             />
           ) : (
@@ -39,7 +45,7 @@ export const SettingsProfileCardUI = () => {
 
         <View style={[styles.profileInfoContainer, { marginLeft: isRTL ? 0 : 16, marginRight: isRTL ? 16 : 0 }]}>
           <Text style={[styles.profileName, { color: themeColors.text, textAlign }]} numberOfLines={1}>
-            {user?.displayName ?? 'Student'}
+            {displayName}
           </Text>
           <Text style={[styles.profileEmail, { color: themeColors.textSecondary, textAlign }]} numberOfLines={1}>
             {user?.email ?? ''}

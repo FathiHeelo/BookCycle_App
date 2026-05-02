@@ -228,13 +228,29 @@ export default function ExploreScreen() {
             {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مصدر بدون عنوان' : 'Untitled Resource')}
           </Text>
 
-          <View style={[styles.donorContainer, { flexDirection }]}>
-            <View style={[styles.avatarCircle, { backgroundColor: themeKey === 'dark' ? theme.background : '#E2E8F0' }]}>
-              <Ionicons name="person" size={10} color={theme.textSecondary} />
+          {/* Price & Donor Info Row */}
+          <View style={[styles.donorContainer, { flexDirection, justifyContent: 'space-between', width: '100%', marginTop: 8 }]}>
+            <View style={{ flexDirection, alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.avatarCircle, { backgroundColor: themeKey === 'dark' ? theme.background : '#E2E8F0' }]}>
+                <Ionicons name="person" size={10} color={theme.textSecondary} />
+              </View>
+              <Text style={[styles.donorText, { color: theme.textSecondary }]} numberOfLines={1}>
+                {item.donorName || (isRTL ? 'مساهم أكاديمي' : 'Academic Contributor')}
+              </Text>
             </View>
-            <Text style={[styles.donorText, { color: theme.textSecondary }]}>
-              {t('profile.history.donor')}: <Text style={[styles.donorName, { color: theme.primary }]}>{item.donorName || (isRTL ? 'مساهم أكاديمي' : 'Academic Contributor')}</Text>
-            </Text>
+            
+            {item.price && !isUnavailable && (
+              <View style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                borderRadius: 6,
+                borderWidth: 1,
+                borderColor: 'rgba(16, 185, 129, 0.3)',
+              }}>
+                <Text style={{ color: '#10B981', fontSize: 11, fontWeight: '800' }}>₪{item.price}</Text>
+              </View>
+            )}
           </View>
         </View>
       </Pressable>

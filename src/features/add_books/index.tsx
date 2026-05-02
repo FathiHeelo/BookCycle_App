@@ -6,7 +6,7 @@ import { UploadPhotoUI } from './components/UploadPhotoUI';
 import { useUploadPhoto } from './hooks/useUploadPhoto';
 
 export const AddBookDataScreen = (props: DataScreenProps) => {
-    const hookData = useAddBookData(props.initialData, props.onNext);
+    const hookData = useAddBookData(props.initialData, props.onNext, props.analysisResult);
     return <DataScreenUI {...hookData} onBack={props.onBack} />;
 };
 

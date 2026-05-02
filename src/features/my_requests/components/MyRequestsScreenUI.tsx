@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   StyleSheet, View, FlatList, Pressable, ActivityIndicator,
-  SafeAreaView, Image, TouchableOpacity, Text,
+  SafeAreaView, Image, TouchableOpacity, Text , Modal, ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
@@ -18,6 +18,7 @@ export const MyRequestsScreenUI = () => {
     ratingVisible, setRatingVisible, selectedDonor,
     handleUpdateStatus, handleCancelRequest, handleMarkReceived, handleRepublish,
     getStatusLabel, getStatusColor, t, isRTL,
+    detailsVisible, setDetailsVisible, selectedRequester, requesterHistory, fetchingDetails, openRequesterDetails
   } = useMyRequests();
 
   const { theme: themeKey } = useAppTheme();
@@ -51,15 +52,27 @@ export const MyRequestsScreenUI = () => {
         </View>
 
         {activeTab === 'received' && item.status === 'pending' && (
-          <View style={[styles.actionRow, { flexDirection }]}>
-            <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'accepted')}>
-              <Ionicons name="checkmark-circle" size={18} color="#FFF" />
-              <Text style={styles.acceptBtnText}>{t('requests.accept')}</Text>
+          <View style={{ marginTop: 12 }}>
+            <TouchableOpacity 
+              style={[styles.viewRequesterBtn, { backgroundColor: themeKey === 'dark' ? 'rgba(255,255,255,0.05)' : '#F1F5F9' }]}
+              onPress={() => openRequesterDetails(item.requesterUid, item.requesterName)}
+            >
+              <Ionicons name="person-circle-outline" size={20} color={theme.primary} />
+              <Text style={[styles.viewRequesterText, { color: theme.primary }]}>
+                {isRTL ? 'معاينة صاحب الطلب' : 'View Requester Profile'}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionBtn, styles.rejectBtn]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'rejected')}>
-              <Ionicons name="close-circle" size={18} color="#EF4444" />
-              <Text style={styles.rejectBtnText}>{t('requests.reject')}</Text>
-            </TouchableOpacity>
+
+            <View style={[styles.actionRow, { flexDirection, marginTop: 10 }]}>
+              <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'accepted')}>
+                <Ionicons name="checkmark-circle" size={18} color="#FFF" />
+                <Text style={styles.acceptBtnText}>{t('requests.accept')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.actionBtn, styles.rejectBtn]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'rejected')}>
+                <Ionicons name="close-circle" size={18} color="#EF4444" />
+                <Text style={styles.rejectBtnText}>{t('requests.reject')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -163,6 +176,78 @@ export const MyRequestsScreenUI = () => {
         targetUid={selectedDonor.id}
         targetName={selectedDonor.name}
       />
+
+      <Modal visible={detailsVisible} animationType="slide" transparent>
+        <Pressable style={styles.modalOverlay} onPress={() => setDetailsVisible(false)}>
+          <Pressable style={[styles.detailsContent, { backgroundColor: theme.card }]} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.detailsHeader}>
+              <TouchableOpacity style={styles.closeBtn} onPress={() => setDetailsVisible(false)}>
+                <Ionicons name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
+              <Text style={[styles.detailsTitle, { color: theme.text }]}>
+                {isRTL ? 'تفاصيل صاحب الطلب' : 'Requester Details'}
+              </Text>
+            </View>
+
+            {fetchingDetails ? (
+              <ActivityIndicator size="large" color={theme.primary} style={{ marginVertical: 40 }} />
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.profileSection}>
+                  <View style={[styles.largeAvatar, { backgroundColor: theme.background, borderColor: theme.primary, borderWidth: 2 }]}>
+                    {selectedRequester?.photoURL ? (
+                      <Image source={{ uri: selectedRequester.photoURL }} style={styles.largeAvatarImg} />
+                    ) : (
+                      <Ionicons name="person" size={40} color={theme.textSecondary} />
+                    )}
+                  </View>
+                  <Text style={[styles.reqName, { color: theme.text }]}>
+                    {selectedRequester?.fullName || selectedRequester?.displayName || (isRTL ? 'مستخدم غير معروف' : 'Unknown User')}
+                  </Text>
+                  <Text style={[styles.reqRole, { color: theme.primary }]}>
+                    {selectedRequester?.role === 'professor' ? (isRTL ? 'بروفيسور' : 'Professor') : (isRTL ? 'طالب' : 'Student')}
+                  </Text>
+                </View>
+
+                <View style={[styles.historySection, { borderTopColor: theme.border }]}>
+                  <Text style={[styles.sectionTitle, { color: theme.text, textAlign }]}>
+                    {isRTL ? 'تاريخ الطلبات' : 'Request History'}
+                  </Text>
+                  
+                  {requesterHistory.length === 0 ? (
+                    <Text style={[styles.emptyHistory, { color: theme.textSecondary }]}>
+                      {isRTL ? 'لا يوجد تاريخ طلبات سابق' : 'No previous request history'}
+                    </Text>
+                  ) : (
+                    requesterHistory.map((h, idx) => (
+                      <View key={h.id} style={[styles.historyItem, { borderBottomColor: idx === requesterHistory.length - 1 ? 'transparent' : theme.border }]}>
+                        <View style={{ flexDirection, alignItems: 'center', gap: 10 }}>
+                          <Image source={{ uri: h.bookImage }} style={styles.historyThumb} />
+                          <View style={{ flex: 1 }}>
+                            <Text style={[styles.historyTitle, { color: theme.text, textAlign }]} numberOfLines={1}>{h.bookTitle}</Text>
+                            <View style={{ flexDirection, alignItems: 'center', gap: 6 }}>
+                              <View style={[styles.statusDot, { backgroundColor: getStatusColor(h.status) }]} />
+                              <Text style={[styles.historyStatus, { color: getStatusColor(h.status) }]}>{t(`requests.status.${h.status}`)}</Text>
+                            </View>
+                          </View>
+                          <Text style={styles.historyDate}>{new Date(h.createdAt).toLocaleDateString(isRTL ? 'ar-EG' : 'en-US')}</Text>
+                        </View>
+                      </View>
+                    ))
+                  )}
+                </View>
+                
+                <TouchableOpacity 
+                  style={[styles.closeModalBtn, { backgroundColor: theme.primary }]}
+                  onPress={() => setDetailsVisible(false)}
+                >
+                  <Text style={styles.closeModalBtnText}>{isRTL ? 'فهمت' : 'Close'}</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -302,6 +387,138 @@ const styles = StyleSheet.create({
   },
   republishText: {
     fontSize: 13,
+    fontWeight: '800',
+  },
+  viewRequesterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
+    borderRadius: Radius.md,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  viewRequesterText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  detailsContent: {
+    width: '100%',
+    height: '80%',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    padding: 24,
+    position: 'absolute',
+    bottom: 0,
+  },
+  detailsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  closeBtn: {
+    padding: 4,
+  },
+  detailsTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '800',
+    marginRight: 32,
+  },
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  largeAvatar: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  largeAvatarImg: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+  },
+  reqName: {
+    fontSize: 22,
+    fontWeight: '900',
+    marginBottom: 4,
+  },
+  reqRole: {
+    fontSize: 14,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  historySection: {
+    borderTopWidth: 1,
+    paddingTop: 24,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 16,
+  },
+  historyItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  historyThumb: {
+    width: 40,
+    height: 54,
+    borderRadius: 4,
+  },
+  historyTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  historyStatus: {
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  historyDate: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '600',
+  },
+  emptyHistory: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  closeModalBtn: {
+    height: 54,
+    borderRadius: Radius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  closeModalBtnText: {
+    color: '#FFF',
+    fontSize: 16,
     fontWeight: '800',
   },
 });
