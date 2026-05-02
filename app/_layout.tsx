@@ -20,6 +20,8 @@ import { Colors } from '@/constants/theme';
 import '@/i18n/config';
 import { ThemeProvider as AppThemeProvider, useAppTheme } from '@/context/ThemeContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { useNotifications } from '@/hooks/use-notifications';
+import { NotificationToast } from '@/src/components/shared/NotificationToast';
 
 
 export const unstable_settings = {
@@ -65,6 +67,7 @@ function RootLayoutInner() {
   const colorScheme = useColorScheme();
   const theme = Colors[isDark ? 'dark' : 'light'];
   const [splashVisible, setSplashVisible] = useState(true);
+  const { toastVisible, currentToast, hideToast } = useNotifications();
 
   // Animation values
   const logoOpacity = useSharedValue(0);
@@ -132,6 +135,24 @@ function RootLayoutInner() {
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         <Stack.Screen name="change-password" options={{ title: 'Change Password', headerShown: false }} />
       </Stack>
+      <NotificationToast 
+        visible={toastVisible}
+        title={currentToast?.title || ''}
+        body={currentToast?.body || ''}
+        onPress={() => {
+          if (currentToast?.data?.actionTarget === 'chat') {
+             router.push({
+               pathname: '/chat/[id]',
+               params: { id: currentToast.data.chatId }
+             } as any);
+          } else if (currentToast?.data?.actionTarget === 'resource_requests') {
+             router.push('/(tabs)/my-requests');
+          } else {
+             router.push('/(tabs)/notifications');
+          }
+        }}
+        onClose={hideToast}
+      />
       <StatusBar style={isDark ? 'light' : 'dark'} />
     </ThemeProvider>
   );

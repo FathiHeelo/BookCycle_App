@@ -6,6 +6,7 @@ import { useSettings } from '../hooks/useSettings';
 import { SettingsProfileCardUI } from './SettingsProfileCardUI';
 import { ThemeToggleUI } from './ThemeToggleUI';
 import { LanguageSwitcherUI } from './LanguageSwitcherUI';
+import { NotificationToggleUI } from './NotificationToggleUI';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
 import { useRouter } from 'expo-router';
 
@@ -51,6 +52,12 @@ export const SettingsScreenUI = () => {
         <SectionLabel label={t('settings.appearance')} />
         <SettingsCard>
           <ThemeToggleUI />
+        </SettingsCard>
+
+        {/* Notifications Section */}
+        <SectionLabel label={isRTL ? 'التنبيهات' : 'Notifications'} />
+        <SettingsCard>
+          <NotificationToggleUI />
         </SettingsCard>
 
         {/* Language Section */}

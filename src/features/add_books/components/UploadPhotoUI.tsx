@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, Image, SafeAreaView,
   Modal, TextInput, ActivityIndicator, StyleSheet, ScrollView,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { UploadStyles as styles } from '../styles';
@@ -64,6 +65,14 @@ export const UploadPhotoUI = (props: UploadPhotoUIProps) => {
 
           {/* Header */}
           <View style={styles.header}>
+            <View style={[local.guideBox, { backgroundColor: themeKey === 'dark' ? '#0A1A2F' : '#F0F9FF', borderColor: themeColors.primary + '30' }]}>
+              <Ionicons name="information-circle" size={20} color={themeColors.primary} />
+              <Text style={[local.guideText, { color: themeColors.text, textAlign }]}>
+                {isRTL 
+                  ? 'هذه الخطوة مخصصة لإضافة صورة للمصدر. يمكنك التصوير، الاختيار من المعرض، أو استخدام الذكاء الاصطناعي لتسهيل العملية.' 
+                  : 'This step is for adding a photo of your resource. You can take a photo, pick from gallery, or use AI to simplify the process.'}
+              </Text>
+            </View>
             <Text style={[styles.title, { textAlign, color: themeColors.text }]}>
               {isRTL ? 'صورة المصدر' : 'Material Image'}
             </Text>
@@ -168,7 +177,11 @@ export const UploadPhotoUI = (props: UploadPhotoUIProps) => {
 
       {/* AI Generation Form Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={local.modalOverlay}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={local.modalOverlay}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+        >
           <View style={[local.modalContent, { backgroundColor: themeColors.card }]}>
 
             {/* Modal Header */}
@@ -184,7 +197,7 @@ export const UploadPhotoUI = (props: UploadPhotoUIProps) => {
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               {/* Resource Type */}
               <Text style={[local.label, { color: themeColors.textSecondary, textAlign }]}>
                 {isRTL ? 'نوع المصدر' : 'Resource Type'}
@@ -241,7 +254,7 @@ export const UploadPhotoUI = (props: UploadPhotoUIProps) => {
               </TouchableOpacity>
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
@@ -266,6 +279,21 @@ const local = StyleSheet.create({
   descBadge: {
     flexDirection: 'row', alignItems: 'center',
     borderWidth: 1, borderRadius: 10, padding: 10, marginBottom: 12,
+  },
+  guideBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 20,
+    gap: 10,
+  },
+  guideText: {
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
+    lineHeight: 18,
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,

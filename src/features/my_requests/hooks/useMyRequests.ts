@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { ref, onValue, update, remove } from 'firebase/database';
+import { ref, onValue, update, remove, get } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
+import { NotificationService } from '@/src/services/notification.service';
 
 export interface BookRequest {
   id: string;
@@ -26,6 +27,10 @@ export const useMyRequests = () => {
   const [loading, setLoading] = useState(true);
   const [ratingVisible, setRatingVisible] = useState(false);
   const [selectedDonor, setSelectedDonor] = useState({ id: '', name: '' });
+  const [detailsVisible, setDetailsVisible] = useState(false);
+  const [selectedRequester, setSelectedRequester] = useState<any>(null);
+  const [requesterHistory, setRequesterHistory] = useState<BookRequest[]>([]);
+  const [fetchingDetails, setFetchingDetails] = useState(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -53,6 +58,8 @@ export const useMyRequests = () => {
   }, [activeTab, currentUser]);
 
   const handleUpdateStatus = async (requestId: string, bookId: string, newStatus: string) => {
+    const user = currentUser;
+    if (!user) return;
     try {
       if (newStatus === 'accepted') {
         Alert.alert(
@@ -68,6 +75,32 @@ export const useMyRequests = () => {
                 await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: 'accepted' });
                 // We set the book status to 'requested' so it shows as unavailable to others
                 await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: 'requested' });
+
+                // Send Notification to Requester
+                try {
+                  const reqSnap = await get(ref(FIREBASE_DB, `Requests/${requestId}`));
+                  if (reqSnap.exists()) {
+                    const reqData = reqSnap.val();
+                    await NotificationService.createNotification({
+                      recipientId: reqData.requesterUid,
+                      senderId: currentUser.uid,
+                      senderName: currentUser.displayName || 'Donor',
+                      type: 'resource_request',
+                      title: isRTL ? 'تم قبول طلبك' : 'Request Accepted',
+                      body: isRTL 
+                        ? `تم قبول طلبك للمصدر: ${reqData.bookTitle}` 
+                        : `Your request for "${reqData.bookTitle}" has been accepted!`,
+                      resourceId: bookId,
+                      resourceTitle: reqData.bookTitle,
+                      actionTarget: 'resource_requests',
+                      read: false,
+                      createdAt: null
+                    });
+                  }
+                } catch (notifErr) {
+                  console.error('Failed to send acceptance notification:', notifErr);
+                }
+
                 Alert.alert(t('common.success'), t('requests.notifications.acceptSuccess'));
               }
             }
@@ -76,6 +109,33 @@ export const useMyRequests = () => {
       } else {
         await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: newStatus });
         await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: newStatus });
+
+        // Send Notification for Rejection
+        if (newStatus === 'rejected') {
+          try {
+            const reqSnap = await get(ref(FIREBASE_DB, `Requests/${requestId}`));
+            if (reqSnap.exists()) {
+              const reqData = reqSnap.val();
+              await NotificationService.createNotification({
+                recipientId: reqData.requesterUid,
+                senderId: currentUser.uid,
+                senderName: currentUser.displayName || 'Donor',
+                type: 'resource_request',
+                title: isRTL ? 'تم رفض الطلب' : 'Request Rejected',
+                body: isRTL 
+                  ? `للأسف، تم رفض طلبك للمصدر: ${reqData.bookTitle}` 
+                  : `Sorry, your request for "${reqData.bookTitle}" was not accepted.`,
+                resourceId: bookId,
+                resourceTitle: reqData.bookTitle,
+                actionTarget: 'resource_requests',
+                read: false,
+                createdAt: null
+              });
+            }
+          } catch (notifErr) {
+            console.error('Failed to send rejection notification:', notifErr);
+          }
+        }
       }
     } catch (e) {
       console.error('Update status error:', e);
@@ -134,8 +194,74 @@ export const useMyRequests = () => {
       await handleUpdateStatus(request.id, request.bookId, 'received');
       setSelectedDonor({ id: request.donorUid, name: request.donorName });
       setRatingVisible(true);
+
+      // Notify donor that requester received it
+      try {
+        await NotificationService.createNotification({
+          recipientId: request.donorUid,
+          senderId: currentUser!.uid,
+          senderName: currentUser!.displayName || 'User',
+          type: 'resource_request',
+          title: isRTL ? 'تم استلام المصدر' : 'Resource Received',
+          body: isRTL 
+            ? `تم تأكيد استلام "${request.bookTitle}" من قبل المستلم.` 
+            : `"${request.bookTitle}" has been confirmed as received.`,
+          resourceId: request.bookId,
+          resourceTitle: request.bookTitle,
+          actionTarget: 'resource_requests',
+          read: false,
+          createdAt: null
+        });
+      } catch (notifErr) {
+        console.error('Failed to send received notification:', notifErr);
+      }
     } catch (e) {
       console.error(e);
+    }
+  };
+  const openRequesterDetails = async (requesterUid: string, fallbackName?: string) => {
+    if (!requesterUid) return;
+    setFetchingDetails(true);
+    setDetailsVisible(true);
+    // Set initial fallback immediately
+    setSelectedRequester({ fullName: fallbackName || (isRTL ? 'مستخدم' : 'User') }); 
+    
+    try {
+      // 1. Fetch Profile using get() for one-time reliable fetch
+      const userRef = ref(FIREBASE_DB, `Users/${requesterUid}`);
+      const snapshot = await get(userRef);
+      
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        // Ensure we have a name even if fullName is missing
+        const name = val.fullName || val.displayName || val.name || fallbackName;
+        setSelectedRequester({ ...val, fullName: name });
+      } else {
+        // If Users/ doesn't exist, try lowercase users/ as a fallback
+        const altRef = ref(FIREBASE_DB, `users/${requesterUid}`);
+        const altSnap = await get(altRef);
+        if (altSnap.exists()) {
+          const val = altSnap.val();
+          const name = val.fullName || val.displayName || val.name || fallbackName;
+          setSelectedRequester({ ...val, fullName: name });
+        }
+      }
+
+      // 2. Fetch All Requests by this user to see history
+      const requestsRef = ref(FIREBASE_DB, 'Requests');
+      const reqSnap = await get(requestsRef);
+      if (reqSnap.exists()) {
+        const data = reqSnap.val();
+        const list = Object.keys(data)
+          .map(key => ({ id: key, ...data[key] }))
+          .filter(req => req.requesterUid === requesterUid)
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setRequesterHistory(list);
+      }
+    } catch (e) {
+      console.error('Error in openRequesterDetails:', e);
+    } finally {
+      setFetchingDetails(false);
     }
   };
 
@@ -158,5 +284,6 @@ export const useMyRequests = () => {
     ratingVisible, setRatingVisible, selectedDonor,
     handleUpdateStatus, handleCancelRequest, handleMarkReceived, handleRepublish,
     getStatusLabel, getStatusColor, t, isRTL,
+    detailsVisible, setDetailsVisible, selectedRequester, requesterHistory, fetchingDetails, openRequesterDetails
   };
 };

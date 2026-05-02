@@ -33,9 +33,9 @@ export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
           onPress={pickImage}
           disabled={uploadingImage}
         >
-          {user?.photoURL ? (
+          {userProfile?.photoURL || user?.photoURL ? (
             <Image
-              source={{ uri: user.photoURL }}
+              source={{ uri: userProfile?.photoURL || user?.photoURL } as any}
               style={[styles.profileImage, { width: imageSize, height: imageSize, borderRadius: imageSize / 2 }]}
             />
           ) : (
@@ -61,7 +61,7 @@ export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={[styles.userName, { textAlign, color: themeColors.text }]}>{user?.displayName || 'User'}</Text>
+          <Text style={[styles.userName, { textAlign, color: themeColors.text }]}>{userProfile?.fullName || user?.displayName || 'User'}</Text>
           
           <TouchableOpacity 
             style={[styles.blueEditBtn, { backgroundColor: themeColors.primary }]}

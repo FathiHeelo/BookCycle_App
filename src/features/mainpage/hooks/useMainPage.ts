@@ -97,9 +97,8 @@ export const useMainPage = (): MainPageHook & {
 
       // Faculty filter
       const itemFaculties = item.facultyIds || (item.facultyId ? [item.facultyId] : []);
-      const matchesFaculty = selectedFacultyIds.includes('all') 
-        ? itemFaculties.includes('all') 
-        : itemFaculties.some(fId => selectedFacultyIds.includes(fId));
+      const matchesFaculty = selectedFacultyIds.length === 0 || 
+        itemFaculties.some(fId => selectedFacultyIds.includes(fId));
 
       // Major filter
       const matchesMajor = selectedMajors.length === 0 || 
@@ -116,9 +115,8 @@ export const useMainPage = (): MainPageHook & {
     const availableTitles = resources
       .filter(item => {
         const itemFaculties = item.facultyIds || (item.facultyId ? [item.facultyId] : []);
-        const matchesFaculty = selectedFacultyIds.includes('all') 
-          ? itemFaculties.includes('all')
-          : itemFaculties.some(fId => selectedFacultyIds.includes(fId));
+        const matchesFaculty = selectedFacultyIds.length === 0 || 
+          itemFaculties.some(fId => selectedFacultyIds.includes(fId));
         return matchesFaculty;
       })
       .map(item => isRTL ? (item.titleAr || item.title) : (item.title || item.titleAr))

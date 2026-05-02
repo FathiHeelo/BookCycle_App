@@ -56,6 +56,7 @@ export const BookCard: React.FC<BookCardProps> = ({
             <Ionicons name="hand-right-outline" size={16} color={theme.primary} />
           </View>
         )}
+
       </View>
 
       <View style={[BookCardStyles.cardContent, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
@@ -71,15 +72,29 @@ export const BookCard: React.FC<BookCardProps> = ({
           {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مادة بدون عنوان' : 'Untitled Material')}
         </Text>
 
-        <View style={[BookCardStyles.donorContainer, { flexDirection }]}>
-          <View style={[BookCardStyles.avatarCircle, { backgroundColor: themeKey === 'dark' ? 'rgba(248, 250, 252, 0.1)' : '#E2E8F0' }]}>
-            <Ionicons name="person" size={10} color={theme.textSecondary} />
-          </View>
-          <Text style={[styles.donorText, { color: theme.textSecondary }]}>
-            {isRTL ? TITLES.GIFTED_BY_AR : TITLES.GIFTED_BY_EN} <Text style={[styles.donorName, { color: theme.text }]}>
+        {/* Price & Donor Info Row */}
+        <View style={[BookCardStyles.donorContainer, { flexDirection, justifyContent: 'space-between', width: '100%' }]}>
+          <View style={{ flexDirection, alignItems: 'center', gap: 6, flex: 1 }}>
+            <View style={[BookCardStyles.avatarCircle, { backgroundColor: themeKey === 'dark' ? 'rgba(248, 250, 252, 0.1)' : '#E2E8F0' }]}>
+              <Ionicons name="person" size={10} color={theme.textSecondary} />
+            </View>
+            <Text style={[styles.donorText, { color: theme.textSecondary }]} numberOfLines={1}>
               {item.donorName || (isRTL ? 'مساهم' : 'Contributor')}
             </Text>
-          </Text>
+          </View>
+          
+          {item.price && !isUnavailable && (
+            <View style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+              paddingHorizontal: 6,
+              paddingVertical: 2,
+              borderRadius: 6,
+              borderWidth: 1,
+              borderColor: 'rgba(16, 185, 129, 0.3)',
+            }}>
+              <Text style={{ color: '#10B981', fontSize: 11, fontWeight: '800' }}>₪{item.price}</Text>
+            </View>
+          )}
         </View>
       </View>
     </Pressable>

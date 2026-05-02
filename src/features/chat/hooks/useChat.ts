@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ref, onValue, push, set, serverTimestamp, get } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
+import { uploadImageToCloudinary } from '@/src/services/cloudinary.service';
 import { Message } from '../types';
 
 export const useChat = (chatId: string | undefined, otherId: string | undefined, bookTitle: string | undefined) => {
@@ -18,14 +19,28 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
     const fetchUsers = async () => {
       try {
         if (otherId) {
+          // Try 'Users' path first
           const otherRef = ref(FIREBASE_DB, `Users/${otherId}`);
           const otherSnap = await get(otherRef);
-          if (otherSnap.exists()) setOtherUser(otherSnap.val());
+          if (otherSnap.exists()) {
+            setOtherUser(otherSnap.val());
+          } else {
+            // Try lowercase 'users' path as fallback
+            const otherRefLower = ref(FIREBASE_DB, `users/${otherId}`);
+            const otherSnapLower = await get(otherRefLower);
+            if (otherSnapLower.exists()) setOtherUser(otherSnapLower.val());
+          }
         }
         if (currentUser) {
           const currentRef = ref(FIREBASE_DB, `Users/${currentUser.uid}`);
           const currentSnap = await get(currentRef);
-          if (currentSnap.exists()) setCurrentUserProfile(currentSnap.val());
+          if (currentSnap.exists()) {
+            setCurrentUserProfile(currentSnap.val());
+          } else {
+            const currentRefLower = ref(FIREBASE_DB, `users/${currentUser.uid}`);
+            const currentSnapLower = await get(currentRefLower);
+            if (currentSnapLower.exists()) setCurrentUserProfile(currentSnapLower.val());
+          }
         }
       } catch (e) {
         console.error('Error fetching users:', e);
@@ -78,20 +93,47 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
         participants: [currentUser.uid, otherId],
         bookTitle: bookTitle || '',
       });
+
+      // Send Notification to Recipient
+      try {
+        const { NotificationService } = require('@/src/services/notification.service');
+        await NotificationService.createNotification({
+          recipientId: otherId || '',
+          senderId: currentUser.uid,
+          senderName: currentUser.displayName || 'User',
+          type: 'message',
+          title: isRTL ? 'رسالة جديدة' : 'New message',
+          body: `${currentUser.displayName || 'User'}: ${messageText}`,
+          chatId: chatId,
+          actionTarget: 'chat',
+          read: false,
+          createdAt: null
+        });
+      } catch (notifErr) {
+        console.error('Failed to send notification:', notifErr);
+      }
     } catch (e) {
       console.error('Send message error:', e);
     }
   };
 
-  const handleSendImage = async (imageUrl: string) => {
+  const handleSendImage = async (localUri: string) => {
     if (!currentUser || !chatId) return;
 
     try {
+      // 1. Upload to Cloudinary
+      const downloadURL = await uploadImageToCloudinary({
+        uri: localUri,
+        folder: `bookcycle/chats/${chatId}`,
+        fileName: `${Date.now()}`,
+      });
+
+      // 2. Save to Firebase
       const messagesRef = ref(FIREBASE_DB, `Messages/${chatId}`);
       const newMessageRef = push(messagesRef);
       await set(newMessageRef, {
         senderId: currentUser.uid,
-        imageUrl,
+        imageUrl: downloadURL,
         text: '',
         timestamp: serverTimestamp(),
         isRead: false,
@@ -104,6 +146,25 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
         participants: [currentUser.uid, otherId],
         bookTitle: bookTitle || '',
       });
+
+      // Send Notification to Recipient
+      try {
+        const { NotificationService } = require('@/src/services/notification.service');
+        await NotificationService.createNotification({
+          recipientId: otherId || '',
+          senderId: currentUser.uid,
+          senderName: currentUser.displayName || 'User',
+          type: 'message',
+          title: isRTL ? 'رسالة جديدة' : 'New message',
+          body: `${currentUser.displayName || 'User'}: 📷 ${isRTL ? 'صورة' : 'Image'}`,
+          chatId: chatId,
+          actionTarget: 'chat',
+          read: false,
+          createdAt: null
+        });
+      } catch (notifErr) {
+        console.error('Failed to send notification:', notifErr);
+      }
     } catch (e) {
       console.error('Send image error:', e);
     }
@@ -130,6 +191,25 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
         participants: [currentUser.uid, otherId],
         bookTitle: bookTitle || '',
       });
+
+      // Send Notification to Recipient
+      try {
+        const { NotificationService } = require('@/src/services/notification.service');
+        await NotificationService.createNotification({
+          recipientId: otherId || '',
+          senderId: currentUser.uid,
+          senderName: currentUser.displayName || 'User',
+          type: 'message',
+          title: isRTL ? 'رسالة جديدة' : 'New message',
+          body: `${currentUser.displayName || 'User'}: 📍 ${isRTL ? 'موقع' : 'Location'}`,
+          chatId: chatId,
+          actionTarget: 'chat',
+          read: false,
+          createdAt: null
+        });
+      } catch (notifErr) {
+        console.error('Failed to send notification:', notifErr);
+      }
     } catch (e) {
       console.error('Send location error:', e);
     }

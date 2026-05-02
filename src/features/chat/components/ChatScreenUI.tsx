@@ -238,7 +238,7 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
 
           <View style={styles.headerInfo}>
             <ThemedText style={[styles.headerName, { textAlign: 'left', color: theme.text }]}>
-              {otherUser?.fullName || otherName || 'Academic Contributor'}
+              {otherUser?.fullName || otherUser?.displayName || otherUser?.name || otherName || 'Academic Contributor'}
             </ThemedText>
             <View style={[styles.headerSubRow, { flexDirection: 'row' }]}>
               <View style={[styles.statusDot, { backgroundColor: theme.success }]} />

@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Pressable, ActivityIndicator, SafeAreaView, Text, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Colors, Radius } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
-import { ref, onValue } from 'firebase/database';
-import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
-import { useRouter } from 'expo-router';
+import { FIREBASE_AUTH, FIREBASE_DB } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { onValue, ref } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 interface Chat {
   id: string;
@@ -55,15 +55,15 @@ export default function MessagesTab() {
     return () => unsubscribe();
   }, [currentUser]);
 
-  const filteredChats = chats.filter(chat => 
-    chat.bookTitle?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredChats = chats.filter(chat =>
+    chat.bookTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     chat.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderChatItem = ({ item }: { item: Chat }) => {
     const otherId = item.participants?.find(p => p !== currentUser?.uid);
     return (
-      <Pressable 
+      <Pressable
         style={[styles.chatCard, { backgroundColor: theme.card, flexDirection }]}
         onPress={() => router.push({
           pathname: `../chat/${item.id}`,
@@ -89,7 +89,7 @@ export default function MessagesTab() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <CustomHeader 
+      <CustomHeader
         title={isRTL ? 'الرسائل' : 'Messages'}
         leftMode="none"
         rightIcons={[isSearching ? 'menu' : 'search']}

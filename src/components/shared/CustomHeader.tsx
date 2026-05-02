@@ -15,6 +15,7 @@ export type CustomHeaderProps = {
   rightIcons?: ('search' | 'notification' | 'bookmark' | 'menu' | 'share')[];
   onRightIconPress?: (iconName: string) => void;
   hideSafeArea?: boolean;
+  notificationCount?: number;
 };
 
 export const CustomHeader = ({
@@ -25,6 +26,7 @@ export const CustomHeader = ({
   rightIcons = [],
   onRightIconPress,
   hideSafeArea = false,
+  notificationCount = 0,
 }: CustomHeaderProps) => {
   const router = useRouter();
   const { theme: themeKey } = useAppTheme();
@@ -56,7 +58,7 @@ export const CustomHeader = ({
         {leftMode === 'avatar' && (
           <TouchableOpacity 
             style={[styles.avatarContainer, { borderColor: theme.border }]}
-            onPress={() => router.push('../(tabs)/profile')}
+            onPress={() => router.push('/profile' as any)}
           >
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
@@ -99,6 +101,11 @@ export const CustomHeader = ({
               style={styles.iconBtn}
             >
               <Ionicons name={iconName as any} size={22} color={theme.text} />
+              {icon === 'notification' && notificationCount > 0 && (
+                <View style={[styles.badge, { backgroundColor: theme.primary }]}>
+                  <Text style={styles.badgeText}>{notificationCount > 9 ? '9+' : notificationCount}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           );
         })}
@@ -158,5 +165,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FFF',
+    paddingHorizontal: 2,
+  },
+  badgeText: {
+    color: '#FFF',
+    fontSize: 8,
+    fontWeight: '800',
   },
 });

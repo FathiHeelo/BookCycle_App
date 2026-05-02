@@ -35,7 +35,7 @@ export const useProfileCard = () => {
         const downloadURL = await uploadImageToCloudinary({
           uri: result.assets[0].uri,
           folder: `bookcycle/avatars/${user.uid}`,
-          fileName: 'avatar',
+          fileName: `avatar_${Date.now()}`,
         });
 
         await updateProfile(user, { photoURL: downloadURL });

@@ -11,6 +11,7 @@ const languageDetector: any = {
   async: true,
   detect: async (callback: (lang: string) => void) => {
     try {
+      if (typeof window === 'undefined') return callback('en');
       const savedLanguage = await AsyncStorage.getItem(LANGUAGE_KEY);
       if (savedLanguage) {
         return callback(savedLanguage);

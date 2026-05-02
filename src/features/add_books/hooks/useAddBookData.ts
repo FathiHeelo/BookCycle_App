@@ -27,6 +27,7 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
         majors: z.array(z.string()).min(1, t('auth.errors.selectMajor')),
         conditionId: z.string().min(1, 'Please select a condition'),
         description: z.string().min(5, 'Description is too short'),
+        price: z.number().optional(),
     });
 
     const {
@@ -34,19 +35,38 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
         handleSubmit,
         setValue,
         watch,
+        getValues,
+        reset,
         formState: { errors },
     } = useForm<AddBookFormData>({
         resolver: zodResolver(bookDataSchema),
         defaultValues: {
-            title: initialData?.title || '',
-            courseName: initialData?.courseName || '',
-            categoryId: initialData?.categoryId || '',
+            title: initialData?.title || analysisResult?.title || '',
+            courseName: initialData?.courseName || analysisResult?.course || '',
+            categoryId: initialData?.categoryId || analysisResult?.category || '',
             facultyIds: initialData?.facultyIds || [],
             majors: initialData?.majors || [],
             conditionId: initialData?.conditionId || '',
-            description: initialData?.description || '',
+            description: initialData?.description || analysisResult?.description || '',
+            price: initialData?.price,
         },
     });
+
+    // Handle initialData updates (especially for Edit mode where data is fetched async)
+    useEffect(() => {
+        if (initialData) {
+            reset({
+                title: initialData.title || '',
+                courseName: initialData.courseName || '',
+                categoryId: initialData.categoryId || '',
+                facultyIds: initialData.facultyIds || [],
+                majors: initialData.majors || [],
+                conditionId: initialData.conditionId || '',
+                description: initialData.description || '',
+                price: initialData.price,
+            });
+        }
+    }, [initialData, reset]);
 
     // Pre-fill from analysisResult (comes from upload step mock or real AI)
     useEffect(() => {
@@ -170,6 +190,7 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
         handleGenerateDescription,
         aiLoading,
         remainingRequests,
+        getValues,
         facultyModalVisible, setFacultyModalVisible,
         majorModalVisible, setMajorModalVisible,
         conditionModalVisible, setConditionModalVisible,

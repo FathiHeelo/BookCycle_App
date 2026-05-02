@@ -117,20 +117,30 @@ export default function Add_Books() {
                 await set(newBookRef, bookData);
             }
 
-            Alert.alert(
-                isRTL ? 'تم الحفظ بنجاح! 🎉' : 'Saved! 🎉',
-                isRTL ? 'تم إضافة المصدر بنجاح.' : 'Your resource has been added successfully.',
-                [{
-                    text: isRTL ? 'حسناً' : 'OK',
-                    onPress: () => {
-                        resetForm();
-                        router.replace('/(tabs)');
-                    },
-                }]
-            );
+            if (Platform.OS === 'web') {
+                alert(isRTL ? 'تم الحفظ بنجاح! 🎉' : 'Saved successfully! 🎉');
+                resetForm();
+                router.replace('/(tabs)');
+            } else {
+                Alert.alert(
+                    isRTL ? 'تم الحفظ بنجاح! 🎉' : 'Saved! 🎉',
+                    isRTL ? 'تم إضافة المصدر بنجاح.' : 'Your resource has been added successfully.',
+                    [{
+                        text: isRTL ? 'حسناً' : 'OK',
+                        onPress: () => {
+                            resetForm();
+                            router.replace('/(tabs)');
+                        },
+                    }]
+                );
+            }
         } catch (error) {
             console.error('Error saving book:', error);
-            Alert.alert(t('common.error'), isRTL ? 'فشل في حفظ البيانات.' : 'Failed to save data.');
+            if (Platform.OS === 'web') {
+                alert(isRTL ? 'فشل في حفظ البيانات.' : 'Failed to save data.');
+            } else {
+                Alert.alert(t('common.error'), isRTL ? 'فشل في حفظ البيانات.' : 'Failed to save data.');
+            }
         } finally {
             setSaving(false);
         }
@@ -182,7 +192,10 @@ export default function Add_Books() {
                             {step === 2 && (
                                 <AddBookDataScreen 
                                     onNext={handleSaveBook}
-                                    onBack={() => setStep(1)}
+                                    onBack={(currentData) => {
+                                        if (currentData) setInitialData(currentData);
+                                        setStep(1);
+                                    }}
                                     initialData={initialData}
                                     analysisResult={analysisResult}
                                 />

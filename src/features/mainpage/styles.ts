@@ -160,4 +160,21 @@ export const BookCardStyles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
+  priceBadge: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    backgroundColor: 'rgba(16, 185, 129, 0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: Radius.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  priceText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '900',
+  },
 });

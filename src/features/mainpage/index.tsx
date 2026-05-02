@@ -11,6 +11,8 @@ import { FACULTIES } from '@/src/constants/faculties';
 import { MainStyles } from './styles';
 import { TITLES, COLORS } from './constants';
 import { Spacing, Radius } from '@/constants/theme';
+import { useNotifications } from '@/hooks/use-notifications';
+import { useRouter } from 'expo-router';
 
 const MainPage: React.FC = () => {
   const { 
@@ -32,6 +34,8 @@ const MainPage: React.FC = () => {
   } = useMainPage();
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const { unreadCount } = useNotifications();
+  const router = useRouter();
 
   const allAvailableFaculties = useMemo(() => [
     { id: 'all', icon: 'school-outline', color: theme.primary },
@@ -149,7 +153,13 @@ const MainPage: React.FC = () => {
         title="BookCycle"
         leftMode="avatar"
         avatarUrl={currentUser?.photoURL || undefined}
-        rightIcons={['search']}
+        rightIcons={['search', 'notification']}
+        notificationCount={unreadCount}
+        onRightIconPress={(icon) => {
+          if (icon === 'notification') {
+            router.push('/notifications');
+          }
+        }}
         hideSafeArea
       />
 
