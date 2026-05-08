@@ -16,8 +16,7 @@ export const SettingsProfileCardUI = () => {
   const user = auth.currentUser;
   const { width } = useWindowDimensions();
   const { t, isRTL } = useI18n();
-  const { theme } = useAppTheme();
-  const themeColors = Colors[theme];
+  const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
 
   const imageSize = Math.min(width * 0.22, 88);
   const textAlign = isRTL ? 'right' : 'left';
@@ -40,7 +39,7 @@ export const SettingsProfileCardUI = () => {
               <Ionicons name="person" size={imageSize * 0.5} color="#94A3B8" />
             </View>
           )}
-          <View style={styles.onlineDot} />
+          <View style={[styles.onlineDot, { backgroundColor: themeColors.success, borderColor: themeColors.card, borderWidth: isAccessible ? 3 : 2 }]} />
         </View>
 
         <View style={[styles.profileInfoContainer, { marginLeft: isRTL ? 0 : 16, marginRight: isRTL ? 16 : 0 }]}>

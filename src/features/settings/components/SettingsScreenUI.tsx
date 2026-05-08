@@ -5,13 +5,14 @@ import { SettingsStyles as styles } from '../styles';
 import { useSettings } from '../hooks/useSettings';
 import { SettingsProfileCardUI } from './SettingsProfileCardUI';
 import { ThemeToggleUI } from './ThemeToggleUI';
+import { AccessibilityToggleUI } from './AccessibilityToggleUI';
 import { LanguageSwitcherUI } from './LanguageSwitcherUI';
 import { NotificationToggleUI } from './NotificationToggleUI';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
 import { useRouter } from 'expo-router';
 
 export const SettingsScreenUI = () => {
-  const { t, isRTL, isDark, themeColors, handleLogout } = useSettings();
+  const { t, isRTL, isDark, isAccessible, themeColors, handleLogout } = useSettings();
   const { width } = useWindowDimensions();
   const router = useRouter();
   const hPad = Math.min(width * 0.05, 20);
@@ -54,6 +55,12 @@ export const SettingsScreenUI = () => {
           <ThemeToggleUI />
         </SettingsCard>
 
+        {/* Accessibility Section */}
+        <SectionLabel label={t('settings.accessibility')} />
+        <SettingsCard>
+          <AccessibilityToggleUI />
+        </SettingsCard>
+
         {/* Notifications Section */}
         <SectionLabel label={isRTL ? 'التنبيهات' : 'Notifications'} />
         <SettingsCard>
@@ -92,17 +99,17 @@ export const SettingsScreenUI = () => {
             ]}
             onPress={handleLogout}
           >
-            <View style={styles.logoutIconBg}>
-              <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+            <View style={[styles.logoutIconBg, { backgroundColor: isAccessible ? themeColors.error + '20' : '#FEE2E2' }]}>
+              <Ionicons name="log-out-outline" size={20} color={themeColors.error} />
             </View>
             <View style={{ flex: 1, marginLeft: isRTL ? 0 : 12, marginRight: isRTL ? 12 : 0 }}>
-              <Text style={[styles.logoutLabel, { textAlign }]}>{t('settings.logout')}</Text>
-              <Text style={[styles.logoutSubtitle, { textAlign }]}>{t('settings.logoutSubtitle')}</Text>
+              <Text style={[styles.logoutLabel, { textAlign, color: themeColors.error, fontWeight: isAccessible ? '900' : '700' }]}>{t('settings.logout')}</Text>
+              <Text style={[styles.logoutSubtitle, { textAlign, color: isAccessible ? themeColors.textSecondary : '#F87171' }]}>{t('settings.logoutSubtitle')}</Text>
             </View>
             <Ionicons
               name={isRTL ? 'chevron-back' : 'chevron-forward'}
               size={18}
-              color="#EF4444"
+              color={themeColors.error}
             />
           </Pressable>
         </SettingsCard>

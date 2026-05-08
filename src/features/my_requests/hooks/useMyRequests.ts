@@ -4,6 +4,7 @@ import { ref, onValue, update, remove, get } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
 import { NotificationService } from '@/src/services/notification.service';
+import { useAppTheme } from '@/context/ThemeContext';
 
 export interface BookRequest {
   id: string;
@@ -20,6 +21,7 @@ export interface BookRequest {
 
 export const useMyRequests = () => {
   const { t, isRTL } = useI18n();
+  const { colors, isAccessible } = useAppTheme();
   const currentUser = FIREBASE_AUTH.currentUser;
 
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
@@ -73,10 +75,8 @@ export const useMyRequests = () => {
               text: isRTL ? 'موافق' : 'Confirm', 
               onPress: async () => {
                 await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: 'accepted' });
-                // We set the book status to 'requested' so it shows as unavailable to others
                 await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: 'requested' });
 
-                // Send Notification to Requester
                 try {
                   const reqSnap = await get(ref(FIREBASE_DB, `Requests/${requestId}`));
                   if (reqSnap.exists()) {
@@ -110,7 +110,6 @@ export const useMyRequests = () => {
         await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: newStatus });
         await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: newStatus });
 
-        // Send Notification for Rejection
         if (newStatus === 'rejected') {
           try {
             const reqSnap = await get(ref(FIREBASE_DB, `Requests/${requestId}`));
@@ -173,8 +172,7 @@ export const useMyRequests = () => {
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
-          text: t('common.save'), // Reuse 'Save' as 'Confirm' or similar, but better use a specific key if needed. Wait, 'Confirm' isn't in common.
-          // Let's use isRTL for now or just t('common.save')
+          text: t('common.save'), 
           onPress: async () => {
             try {
               await remove(ref(FIREBASE_DB, `Requests/${requestId}`));
@@ -195,7 +193,6 @@ export const useMyRequests = () => {
       setSelectedDonor({ id: request.donorUid, name: request.donorName });
       setRatingVisible(true);
 
-      // Notify donor that requester received it
       try {
         await NotificationService.createNotification({
           recipientId: request.donorUid,
@@ -219,25 +216,22 @@ export const useMyRequests = () => {
       console.error(e);
     }
   };
+
   const openRequesterDetails = async (requesterUid: string, fallbackName?: string) => {
     if (!requesterUid) return;
     setFetchingDetails(true);
     setDetailsVisible(true);
-    // Set initial fallback immediately
     setSelectedRequester({ fullName: fallbackName || (isRTL ? 'مستخدم' : 'User') }); 
     
     try {
-      // 1. Fetch Profile using get() for one-time reliable fetch
       const userRef = ref(FIREBASE_DB, `Users/${requesterUid}`);
       const snapshot = await get(userRef);
       
       if (snapshot.exists()) {
         const val = snapshot.val();
-        // Ensure we have a name even if fullName is missing
         const name = val.fullName || val.displayName || val.name || fallbackName;
         setSelectedRequester({ ...val, fullName: name });
       } else {
-        // If Users/ doesn't exist, try lowercase users/ as a fallback
         const altRef = ref(FIREBASE_DB, `users/${requesterUid}`);
         const altSnap = await get(altRef);
         if (altSnap.exists()) {
@@ -247,7 +241,6 @@ export const useMyRequests = () => {
         }
       }
 
-      // 2. Fetch All Requests by this user to see history
       const requestsRef = ref(FIREBASE_DB, 'Requests');
       const reqSnap = await get(requestsRef);
       if (reqSnap.exists()) {
@@ -270,6 +263,15 @@ export const useMyRequests = () => {
   };
 
   const getStatusColor = (status: string) => {
+    if (isAccessible) {
+      switch (status) {
+        case 'accepted':
+        case 'completed': return colors.success; // Blue
+        case 'rejected': return colors.text; // High contrast
+        case 'received': return colors.primary;
+        default: return colors.accent; // Yellow
+      }
+    }
     switch (status) {
       case 'accepted': return '#10B981';
       case 'rejected': return '#EF4444';

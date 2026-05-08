@@ -19,6 +19,7 @@ export interface SharedBookItem {
 
 export const useMySharedItems = () => {
   const { t, isRTL } = useI18n();
+  const { colors, isAccessible } = useAppTheme();
   const currentUser = FIREBASE_AUTH.currentUser;
 
   const [books, setBooks] = useState<SharedBookItem[]>([]);
@@ -73,6 +74,14 @@ export const useMySharedItems = () => {
   };
 
   const getStatusColor = (status: string) => {
+    if (isAccessible) {
+      switch (status) {
+        case 'requested': return colors.accent;
+        case 'received':
+        case 'completed': return colors.success;
+        default: return colors.primary;
+      }
+    }
     switch (status) {
       case 'requested': return '#F59E0B';
       case 'received':

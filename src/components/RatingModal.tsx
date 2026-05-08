@@ -12,6 +12,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useI18n } from '@/hooks/use-i18n';
 import { ref, get, update, set } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
+import { useAppTheme } from '@/context/ThemeContext';
 
 interface RatingModalProps {
   visible: boolean;
@@ -23,6 +24,7 @@ interface RatingModalProps {
 
 export default function RatingModal({ visible, onClose, targetUid, targetName, onSuccess }: RatingModalProps) {
   const { t, isRTL } = useI18n();
+  const { theme: themeKey, colors: themeColors, isAccessible } = useAppTheme();
   const currentUser = FIREBASE_AUTH.currentUser;
   const [selectedRating, setSelectedRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -75,8 +77,8 @@ export default function RatingModal({ visible, onClose, targetUid, targetName, o
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.header}>
-            <View style={styles.iconCircle}>
-              <Ionicons name="star" size={32} color="#F59E0B" />
+            <View style={[styles.iconCircle, { backgroundColor: isAccessible ? themeColors.accent + '20' : '#FEF3C7', borderWidth: isAccessible ? 1 : 0, borderColor: themeColors.accent }]}>
+              <Ionicons name="star" size={32} color={isAccessible ? themeColors.accent : "#F59E0B"} />
             </View>
             <ThemedText style={styles.modalTitle}>{isRTL ? 'قيم تجربتك' : 'Rate your experience'}</ThemedText>
             <ThemedText style={styles.modalSubtitle}>
@@ -90,7 +92,7 @@ export default function RatingModal({ visible, onClose, targetUid, targetName, o
                 <Ionicons 
                   name={star <= selectedRating ? "star" : "star-outline"} 
                   size={42} 
-                  color={star <= selectedRating ? "#F59E0B" : "#CBD5E1"} 
+                  color={star <= selectedRating ? (isAccessible ? themeColors.accent : "#F59E0B") : (isAccessible ? themeColors.textSecondary : "#CBD5E1")} 
                   style={{ marginHorizontal: 6 }}
                 />
               </TouchableOpacity>
@@ -102,11 +104,16 @@ export default function RatingModal({ visible, onClose, targetUid, targetName, o
               <ThemedText style={styles.cancelBtnText}>{t('common.cancel')}</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={[styles.submitBtn, { backgroundColor: '#001B39', opacity: selectedRating === 0 ? 0.6 : 1 }]} 
+              style={[styles.submitBtn, { 
+                backgroundColor: themeColors.primary, 
+                opacity: selectedRating === 0 ? 0.6 : 1,
+                borderWidth: isAccessible ? 2 : 0,
+                borderColor: '#FFF'
+              }]} 
               onPress={handleRating}
               disabled={submitting || selectedRating === 0}
             >
-              {submitting ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.submitBtnText}>{isRTL ? 'إرسال التقييم' : 'Submit Rating'}</ThemedText>}
+              {submitting ? <ActivityIndicator color="#fff" /> : <ThemedText style={[styles.submitBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#fff', fontWeight: isAccessible ? '900' : '800' }]}>{isRTL ? 'إرسال التقييم' : 'Submit Rating'}</ThemedText>}
             </TouchableOpacity>
           </View>
         </View>

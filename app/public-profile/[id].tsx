@@ -44,8 +44,8 @@ interface BookItem {
 export default function PublicProfileScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const { theme: themeKey } = useAppTheme();
-  const theme = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
+  const theme = themeColors;
   const { t, isRTL } = useI18n();
 
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -127,8 +127,8 @@ export default function PublicProfileScreen() {
             <View style={[styles.avatar, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.1)' : theme.primary + '10' }]}>
               <Ionicons name="person" size={50} color={theme.primary} />
             </View>
-            <View style={[styles.verifiedBadge, { backgroundColor: themeKey === 'dark' ? theme.card : '#FFF' }]}>
-              <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+            <View style={[styles.verifiedBadge, { backgroundColor: themeKey === 'dark' ? theme.card : '#FFF', borderWidth: isAccessible ? 1.5 : 0, borderColor: theme.success }]}>
+              <Ionicons name="checkmark-circle" size={20} color={isAccessible ? theme.success : "#10B981"} />
             </View>
           </View>
 
@@ -148,7 +148,7 @@ export default function PublicProfileScreen() {
           </View>
 
           <TouchableOpacity 
-            style={[styles.rateBtn, { backgroundColor: theme.primary }]}
+            style={[styles.rateBtn, { backgroundColor: theme.primary, borderWidth: isAccessible ? 2 : 0, borderColor: '#FFF' }]}
             onPress={() => {
               const currentUser = FIREBASE_AUTH.currentUser;
               if (!currentUser) {
@@ -163,7 +163,7 @@ export default function PublicProfileScreen() {
             }}
           >
             <Ionicons name="star" size={18} color={themeKey === 'dark' ? '#0B1020' : '#FFF'} />
-            <Text style={[styles.rateBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{isRTL ? 'تقييم المساهم' : 'Rate Contributor'}</Text>
+            <Text style={[styles.rateBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF', fontWeight: isAccessible ? '900' : '800' }]}>{isRTL ? 'تقييم المساهم' : 'Rate Contributor'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -194,16 +194,24 @@ export default function PublicProfileScreen() {
                       />
                       {isUnavailable && (
                         <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', zIndex: 10 }]}>
-                          <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, transform: [{ rotate: '-10deg' }] }}>
+                          <View style={{ 
+                            backgroundColor: book.status === 'requested' ? (isAccessible ? theme.accent : '#F59E0B') : (isAccessible ? theme.success : '#10B981'), 
+                            paddingHorizontal: 12, 
+                            paddingVertical: 6, 
+                            borderRadius: 12, 
+                            transform: [{ rotate: '-10deg' }],
+                            borderWidth: isAccessible ? 1.5 : 0,
+                            borderColor: '#FFF'
+                          }}>
                             <Text style={{ color: '#fff', fontWeight: '900', fontSize: 12 }}>{statusText}</Text>
                           </View>
                         </View>
                       )}
                     </View>
                     <View style={styles.bookInfo}>
-                      <Text style={[styles.bookTitle, { color: theme.text }]} numberOfLines={1}>{book.title}</Text>
-                      <View style={[styles.facultyBadge, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.15)' : '#FEF3C7' }]}>
-                        <Text style={[styles.facultyText, { color: theme.primary }]}>
+                      <Text style={[styles.bookTitle, { color: theme.text, fontWeight: isAccessible ? '900' : '800' }]} numberOfLines={1}>{book.title}</Text>
+                      <View style={[styles.facultyBadge, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.15)' : '#FEF3C7', borderWidth: isAccessible ? 1 : 0, borderColor: theme.primary }]}>
+                        <Text style={[styles.facultyText, { color: theme.primary, fontWeight: isAccessible ? '900' : '800' }]}>
                           {book.facultyIds ? t(`faculties.${book.facultyIds[0]}`).toUpperCase() : (book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : 'GENERAL')}
                         </Text>
                       </View>

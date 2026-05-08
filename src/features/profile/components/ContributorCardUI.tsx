@@ -12,8 +12,8 @@ interface Props { stats: UserStats; }
 export const ContributorCardUI = ({ stats }: Props) => {
   const { width } = useWindowDimensions();
   const { t, isRTL } = useI18n();
-  const { theme: themeKey } = useAppTheme();
-  const themeColors = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
+
   const cardPadding = Math.min(width * 0.06, 24);
   const textAlign = isRTL ? 'right' : 'left';
   const isDark = themeKey === 'dark';
@@ -47,12 +47,12 @@ export const ContributorCardUI = ({ stats }: Props) => {
         <View style={[styles.statHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           <View style={[styles.labelRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
             <Ionicons name="star-outline" size={24} color={themeColors.primary} />
-            <Text style={[styles.statLabel, { textAlign, color: themeColors.text }]}>{isRTL ? 'تقييم الطلاب لك' : 'Student Rating'}</Text>
+            <Text style={[styles.statLabel, { textAlign, color: themeColors.text, fontWeight: isAccessible ? '900' : '700' }]}>{isRTL ? 'تقييم الطلاب لك' : 'Student Rating'}</Text>
           </View>
-          <Text style={[styles.statValue, { color: themeColors.primary }]}>{safeRating.toFixed(1)}/5</Text>
+          <Text style={[styles.statValue, { color: themeColors.primary, fontWeight: isAccessible ? '900' : '700' }]}>{safeRating.toFixed(1)}/5</Text>
         </View>
-        <View style={[styles.progressBarBg, { backgroundColor: isDark ? themeColors.background : '#F3F4F6' }]}>
-          <View style={[styles.progressBarFill, { width: `${(safeRating / 5) * 100}%`, alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: themeColors.primary }]} />
+        <View style={[styles.progressBarBg, { backgroundColor: isDark ? themeColors.background : '#F3F4F6', borderWidth: isAccessible ? 1 : 0, borderColor: themeColors.border }]}>
+          <View style={[styles.progressBarFill, { width: `${(safeRating / 5) * 100}%`, alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: themeColors.primary, height: isAccessible ? 12 : 8 }]} />
         </View>
         <Text style={[styles.description, { textAlign, color: themeColors.textSecondary }]}>{getRatingStatement(safeRating)}</Text>
       </View>
@@ -66,20 +66,25 @@ export const ContributorCardUI = ({ stats }: Props) => {
           </View>
           <Text style={[styles.statValue, { color: themeColors.primary }]}>{safeReliability}%</Text>
         </View>
-        <View style={[styles.progressBarBg, { backgroundColor: isDark ? themeColors.background : '#F3F4F6' }]}>
-          <View style={[styles.progressBarFill, { width: `${safeReliability}%`, alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: themeColors.primary }]} />
+        <View style={[styles.progressBarBg, { backgroundColor: isDark ? themeColors.background : '#F3F4F6', borderWidth: isAccessible ? 1 : 0, borderColor: themeColors.border }]}>
+          <View style={[styles.progressBarFill, { width: `${safeReliability}%`, alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: themeColors.primary, height: isAccessible ? 12 : 8 }]} />
         </View>
         <Text style={[styles.description, { textAlign, color: themeColors.textSecondary }]}>{getReliabilityStatement(safeReliability)}</Text>
       </View>
 
       {/* Impact */}
-      <View style={[styles.impactCard, { flexDirection: isRTL ? 'row-reverse' : 'row', backgroundColor: themeColors.primary }]}>
+      <View style={[styles.impactCard, { 
+        flexDirection: isRTL ? 'row-reverse' : 'row', 
+        backgroundColor: themeColors.primary,
+        borderWidth: isAccessible ? 2 : 0,
+        borderColor: '#FFF'
+      }]}>
         <View style={[styles.impactIconContainer, { backgroundColor: isDark ? 'rgba(11,16,32,0.2)' : 'rgba(255,255,255,0.2)' }]}>
           <Ionicons name="people" size={28} color={isDark ? '#0B1020' : '#fff'} />
         </View>
         <View style={[styles.impactInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-          <Text style={[styles.impactTitle, { color: isDark ? 'rgba(11,16,32,0.7)' : 'rgba(255,255,255,0.7)' }]}>{isRTL ? 'الأثر المجتمعي' : 'Community Impact'}</Text>
-          <Text style={[styles.impactValue, { color: isDark ? '#0B1020' : '#fff' }]}>
+          <Text style={[styles.impactTitle, { color: isDark ? 'rgba(11,16,32,0.7)' : 'rgba(255,255,255,0.7)', fontWeight: isAccessible ? '900' : '600' }]}>{isRTL ? 'الأثر المجتمعي' : 'Community Impact'}</Text>
+          <Text style={[styles.impactValue, { color: isDark ? '#0B1020' : '#fff', fontWeight: isAccessible ? '900' : '800' }]}>
             {isRTL ? `لقد ساعدت ${safeImpact} زملاء` : `You helped ${safeImpact} colleagues`}
           </Text>
         </View>

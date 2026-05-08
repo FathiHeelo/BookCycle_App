@@ -12,8 +12,7 @@ export const BooksReceivedUI = () => {
   const { requests, loading, handleCancelRequest, getStatusLabel, getStatusColor, t, isRTL } = useBooksReceived();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { theme: themeKey } = useAppTheme();
-  const themeColors = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
   const cardPadding = Math.min(width * 0.04, 16);
   const textAlign = isRTL ? 'right' : 'left';
   const flexDirection = isRTL ? 'row-reverse' : 'row';
@@ -47,9 +46,14 @@ export const BooksReceivedUI = () => {
               </View>
 
               <View style={[styles.bookContentContainer, isRTL ? { marginRight: 16 } : { marginLeft: 16 }]}>
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(req.status) + '15', alignSelf: isRTL ? 'flex-end' : 'flex-start' }]}>
+                <View style={[styles.statusBadge, { 
+                  backgroundColor: getStatusColor(req.status) + (isAccessible ? '25' : '15'), 
+                  alignSelf: isRTL ? 'flex-end' : 'flex-start',
+                  borderWidth: isAccessible ? 1.5 : 0,
+                  borderColor: getStatusColor(req.status)
+                }]}>
                   <View style={[styles.statusDot, { backgroundColor: getStatusColor(req.status) }]} />
-                  <Text style={[styles.statusText, { color: getStatusColor(req.status) }]}>
+                  <Text style={[styles.statusText, { color: getStatusColor(req.status), fontWeight: isAccessible ? '800' : '600' }]}>
                     {getStatusLabel(req.status)}
                   </Text>
                 </View>

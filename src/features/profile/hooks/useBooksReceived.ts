@@ -3,10 +3,12 @@ import { Alert } from 'react-native';
 import { ref, onValue, query, orderByChild, equalTo, remove, update } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
+import { useAppTheme } from '@/context/ThemeContext';
 import { HistoryBookItem } from '../types';
 
 export const useBooksReceived = () => {
   const { t, isRTL } = useI18n();
+  const { colors, isAccessible } = useAppTheme();
   const currentUser = FIREBASE_AUTH.currentUser;
 
   const [requests, setRequests] = useState<HistoryBookItem[]>([]);
@@ -69,6 +71,10 @@ export const useBooksReceived = () => {
   };
 
   const getStatusColor = (status: string) => {
+    if (isAccessible) {
+      if (status === 'received' || status === 'completed' || status === 'accepted') return colors.success;
+      return colors.accent;
+    }
     if (status === 'received' || status === 'completed' || status === 'accepted') return '#10B981';
     return '#F59E0B';
   };

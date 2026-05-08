@@ -18,8 +18,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
   } = props;
 
   const router = useRouter();
-  const { theme: themeKey } = useAppTheme();
-  const theme = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: theme } = useAppTheme();
 
   const bookImageUri = book?.imageUrl || book?.image;
   const textAlign = isRTL ? 'right' : 'left';
@@ -93,23 +92,23 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
 
           {book.price && (
             <View style={[styles.infoCardWide, { 
-              backgroundColor: 'rgba(16, 185, 129, 0.05)', 
-              borderColor: '#10B981', 
-              borderWidth: 1,
+              backgroundColor: isAccessible ? theme.success + '10' : 'rgba(16, 185, 129, 0.05)', 
+              borderColor: isAccessible ? theme.success : '#10B981', 
+              borderWidth: isAccessible ? 2 : 1,
               marginBottom: 12,
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center'
             }]}>
               <View>
-                <Text style={[styles.infoLabel, { textAlign, color: '#10B981', marginBottom: 0 }]}>
+                <Text style={[styles.infoLabel, { textAlign, color: isAccessible ? theme.success : '#10B981', marginBottom: 0 }]}>
                   {(isRTL ? 'السعر المطلوب' : 'REQUESTED PRICE').toUpperCase()}
                 </Text>
                 <Text style={{ color: theme.textSecondary, fontSize: 11, textAlign }}>
                   {isRTL ? 'هذا المصدر متاح للبيع' : 'This resource is available for sale'}
                 </Text>
               </View>
-              <Text style={{ color: '#10B981', fontSize: 24, fontWeight: '900' }}>₪{book.price}</Text>
+              <Text style={{ color: isAccessible ? theme.success : '#10B981', fontSize: 24, fontWeight: '900' }}>₪{book.price}</Text>
             </View>
           )}
 
@@ -201,7 +200,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
           <Pressable 
             style={[
               styles.requestBtn, 
-              { backgroundColor: requestStatus === 'success' ? '#10B981' : theme.primary },
+              { backgroundColor: requestStatus === 'success' ? (isAccessible ? theme.success : '#10B981') : theme.primary },
               (requesting || book.status === 'requested' || book.status === 'received' || book.status === 'completed') && { opacity: 0.7 }
             ]}
             onPress={() => {

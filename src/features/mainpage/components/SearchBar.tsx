@@ -11,14 +11,20 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   onPredictionSelect, 
   isRTL, 
   theme,
-  placeholder
+  placeholder,
+  isAccessible
 }) => {
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
 
   return (
     <View style={styles.container}>
-      <View style={[styles.searchBox, { flexDirection, backgroundColor: theme.surface }]}>
+      <View style={[styles.searchBox, { 
+        flexDirection, 
+        backgroundColor: theme.surface,
+        borderWidth: isAccessible ? 2 : 0,
+        borderColor: theme.primary
+      }]}>
         <Ionicons name="search" size={20} color={theme.textSecondary} />
         <TextInput
           style={[styles.input, { textAlign, color: theme.text }]}

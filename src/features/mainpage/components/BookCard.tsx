@@ -11,7 +11,8 @@ export const BookCard: React.FC<BookCardProps> = ({
   theme, 
   themeKey, 
   isRTL, 
-  t 
+  t,
+  isAccessible
 }) => {
   const isNew = item.createdAt 
     ? (new Date().getTime() - new Date(item.createdAt).getTime() < 1000 * 60 * 60 * 24 * STATIC_VALUES.NEW_THRESHOLD_DAYS)
@@ -23,6 +24,10 @@ export const BookCard: React.FC<BookCardProps> = ({
   
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
+
+  // Define colors based on accessibility mode
+  const requestedColor = isAccessible ? theme.accent : '#F59E0B';
+  const givenColor = isAccessible ? theme.success : '#10B981';
 
   return (
     <Pressable 
@@ -36,9 +41,13 @@ export const BookCard: React.FC<BookCardProps> = ({
         />
         {isUnavailable && (
           <View style={[StyleSheet.absoluteFill, BookCardStyles.overlay]}>
-            <View style={[BookCardStyles.statusBadge, { backgroundColor: item.status === 'requested' ? '#F59E0B' : '#10B981' }]}>
-              <Ionicons name={item.status === 'requested' ? "timer-outline" : "checkmark-done"} size={12} color="#FFF" />
-              <Text style={BookCardStyles.statusText}>{statusText}</Text>
+            <View style={[BookCardStyles.statusBadge, { 
+              backgroundColor: item.status === 'requested' ? requestedColor : givenColor,
+              borderWidth: isAccessible ? 2 : 0,
+              borderColor: '#FFF'
+            }]}>
+              <Ionicons name={item.status === 'requested' ? "timer-outline" : "checkmark-done"} size={14} color="#FFF" />
+              <Text style={[BookCardStyles.statusText, { fontWeight: isAccessible ? '900' : '700' }]}>{statusText}</Text>
             </View>
           </View>
         )}
@@ -85,14 +94,14 @@ export const BookCard: React.FC<BookCardProps> = ({
           
           {item.price && !isUnavailable && (
             <View style={{
-              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+              backgroundColor: isAccessible ? theme.success + '20' : 'rgba(16, 185, 129, 0.15)',
               paddingHorizontal: 6,
               paddingVertical: 2,
               borderRadius: 6,
-              borderWidth: 1,
-              borderColor: 'rgba(16, 185, 129, 0.3)',
+              borderWidth: isAccessible ? 1.5 : 1,
+              borderColor: isAccessible ? theme.success : 'rgba(16, 185, 129, 0.3)',
             }}>
-              <Text style={{ color: '#10B981', fontSize: 11, fontWeight: '800' }}>₪{item.price}</Text>
+              <Text style={{ color: isAccessible ? theme.success : '#10B981', fontSize: 11, fontWeight: isAccessible ? '900' : '800' }}>₪{item.price}</Text>
             </View>
           )}
         </View>

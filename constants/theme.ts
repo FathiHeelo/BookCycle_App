@@ -33,6 +33,40 @@ export const Colors = {
     tabIconDefault: '#94A3B8',
     tabIconSelected: '#F59E0B', // Updated to match primary
   },
+  accessible: {
+    light: {
+      primary: '#000000',
+      background: '#FFFFFF',
+      surface: '#F8FAFC',
+      text: '#000000',
+      textSecondary: '#475569',
+      border: '#000000',
+      error: '#000000',      // High contrast
+      success: '#0055FF',    // Strong Blue
+      tint: '#000000',
+      card: '#FFFFFF',
+      icon: '#000000',
+      tabIconDefault: '#475569',
+      tabIconSelected: '#000000',
+      accent: '#EAB308',     // Vibrant Yellow
+    },
+    dark: {
+      primary: '#FFFFFF',
+      background: '#000000',
+      surface: '#0F172A',
+      text: '#FFFFFF',
+      textSecondary: '#CBD5E1',
+      border: '#FFFFFF',
+      error: '#FFFFFF',      // High contrast
+      success: '#38BDF8',    // Sky Blue
+      tint: '#FFFFFF',
+      card: '#111827',
+      icon: '#FFFFFF',
+      tabIconDefault: '#94A3B8',
+      tabIconSelected: '#FFFFFF',
+      accent: '#FDE047',     // Bright Yellow
+    },
+  },
 };
 
 export const Spacing = {
