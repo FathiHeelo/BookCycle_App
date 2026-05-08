@@ -4,9 +4,11 @@ import { ref, onValue, query, orderByChild, equalTo, remove } from 'firebase/dat
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
 import { HistoryBookItem } from '../types';
+import { useAppTheme } from '@/context/ThemeContext';
 
 export const useBooksGiven = () => {
   const { t, isRTL } = useI18n();
+  const { colors, isAccessible } = useAppTheme();
   const currentUser = FIREBASE_AUTH.currentUser;
 
   const [books, setBooks] = useState<HistoryBookItem[]>([]);
@@ -66,6 +68,14 @@ export const useBooksGiven = () => {
   };
 
   const getStatusColor = (status: string) => {
+    if (isAccessible) {
+      switch (status) {
+        case 'requested': return colors.accent; // Yellow
+        case 'received':
+        case 'completed': return colors.success; // Blue
+        default: return colors.primary;
+      }
+    }
     switch (status) {
       case 'requested': return '#F59E0B';
       case 'received':

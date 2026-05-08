@@ -31,8 +31,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
   onPress,
   onClose,
 }) => {
-  const { theme } = useAppTheme();
-  const themeColors = Colors[theme];
+  const { theme: themeKey, colors: themeColors, isAccessible } = useAppTheme();
   const insets = useSafeAreaInsets();
   const { isRTL } = useI18n();
   const translateY = useRef(new Animated.Value(-200)).current;
@@ -81,13 +80,15 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
         {
           transform: [{ translateY }],
           paddingTop: insets.top + 10,
-          backgroundColor: theme === 'dark' ? '#1E293B' : '#FFFFFF',
+          backgroundColor: themeKey === 'dark' ? '#1E293B' : '#FFFFFF',
           shadowColor: themeColors.primary,
+          borderBottomWidth: isAccessible ? 4 : 0,
+          borderBottomColor: themeColors.primary,
         },
       ]}
     >
       <TouchableOpacity
-        style={[styles.content, { flexDirection, borderColor: themeColors.primary + '33' }]}
+        style={[styles.content, { flexDirection, borderColor: isAccessible ? themeColors.primary : themeColors.primary + '33', borderWidth: isAccessible ? 2 : 1 }]}
         onPress={() => {
           onPress();
           hide();
@@ -103,7 +104,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
         </View>
         
         <View style={styles.textContainer}>
-          <Text style={[styles.title, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>
+          <Text style={[styles.title, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '900' : '800' }]} numberOfLines={1}>
             {title}
           </Text>
           <Text style={[styles.body, { color: themeColors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={2}>

@@ -17,9 +17,9 @@ const DEFAULT_FACULTIES = ['all', 'eng', 'med', 'bus'];
 export const useMainPage = (): MainPageHook & { 
   customizedFacultyIds: string[]; 
   updateCustomizedFaculties: (ids: string[]) => Promise<void>;
+  isAccessible: boolean;
 } => {
-  const { theme: themeKey } = useAppTheme();
-  const theme = Colors[themeKey];
+  const { theme: themeKey, colors: theme, isAccessible } = useAppTheme();
   const router = useRouter();
   const { t, isRTL } = useI18n();
 
@@ -159,6 +159,7 @@ export const useMainPage = (): MainPageHook & {
     handleLogout,
     currentUser: FIREBASE_AUTH.currentUser,
     customizedFacultyIds,
-    updateCustomizedFaculties
+    updateCustomizedFaculties,
+    isAccessible,
   };
 };

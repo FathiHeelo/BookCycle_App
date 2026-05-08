@@ -11,8 +11,7 @@ export const BooksGivenUI = () => {
   const { books, loading, handleDelete, getStatusLabel, getStatusColor, t, isRTL } = useBooksGiven();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { theme: themeKey } = useAppTheme();
-  const themeColors = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
   const cardPadding = Math.min(width * 0.04, 16);
   const textAlign = isRTL ? 'right' : 'left';
   const flexDirection = isRTL ? 'row-reverse' : 'row';
@@ -49,7 +48,15 @@ export const BooksGivenUI = () => {
                   />
                   {isUnavailable && (
                     <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', zIndex: 10, borderRadius: 12 }]}>
-                      <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 6, paddingVertical: 4, borderRadius: 8, transform: [{ rotate: '-10deg' }] }}>
+                      <View style={{ 
+                        backgroundColor: book.status === 'requested' ? (isAccessible ? themeColors.accent : '#F59E0B') : (isAccessible ? themeColors.success : '#10B981'), 
+                        paddingHorizontal: 8, 
+                        paddingVertical: 4, 
+                        borderRadius: 8, 
+                        transform: [{ rotate: '-10deg' }],
+                        borderWidth: isAccessible ? 1.5 : 0,
+                        borderColor: '#FFF'
+                      }}>
                         <Text style={{ color: '#fff', fontWeight: '900', fontSize: 10, textAlign: 'center' }}>
                           {book.status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given')}
                         </Text>
@@ -59,9 +66,14 @@ export const BooksGivenUI = () => {
                 </View>
 
                 <View style={[styles.bookContentContainer, isRTL ? { marginRight: 16 } : { marginLeft: 16 }]}>
-                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(book.status) + '15', alignSelf: isRTL ? 'flex-end' : 'flex-start' }]}>
+                  <View style={[styles.statusBadge, { 
+                    backgroundColor: getStatusColor(book.status) + (isAccessible ? '25' : '15'), 
+                    alignSelf: isRTL ? 'flex-end' : 'flex-start',
+                    borderWidth: isAccessible ? 1.5 : 0,
+                    borderColor: getStatusColor(book.status)
+                  }]}>
                     <View style={[styles.statusDot, { backgroundColor: getStatusColor(book.status) }]} />
-                    <Text style={[styles.statusText, { color: getStatusColor(book.status) }]}>
+                    <Text style={[styles.statusText, { color: getStatusColor(book.status), fontWeight: isAccessible ? '800' : '600' }]}>
                       {getStatusLabel(book.status)}
                     </Text>
                   </View>

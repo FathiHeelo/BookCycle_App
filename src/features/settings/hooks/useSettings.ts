@@ -10,8 +10,7 @@ import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 
 export const useSettings = () => {
   const { t, isRTL } = useI18n();
-  const { theme, isDark } = useAppTheme();
-  const themeColors = Colors[theme];
+  const { theme, isDark, isAccessible, setIsAccessible, colors: themeColors } = useAppTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const currentUser = FIREBASE_AUTH.currentUser;
 
@@ -57,5 +56,16 @@ export const useSettings = () => {
     );
   };
 
-  return { t, isRTL, theme, isDark, themeColors, handleLogout, notificationsEnabled, toggleNotifications };
+  return { 
+    t, 
+    isRTL, 
+    theme, 
+    isDark, 
+    isAccessible, 
+    setIsAccessible, 
+    themeColors, 
+    handleLogout, 
+    notificationsEnabled, 
+    toggleNotifications 
+  };
 };

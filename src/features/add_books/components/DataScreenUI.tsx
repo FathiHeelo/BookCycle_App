@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { Controller, useWatch } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
 import { DataStyles as styles } from '../styles';
 import { RESOURCE_CATEGORIES, BOOK_CONDITIONS, VIBRANT_GOLD } from '../constants';
 import { useAddBookData } from '../hooks/useAddBookData';
@@ -40,8 +39,7 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
     const categoryId = useWatch({ control, name: 'categoryId' });
     const handleBack = () => onBack(getValues());
 
-    const { theme: themeKey } = useAppTheme();
-    const themeColors = Colors[themeKey];
+    const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
     const textAlign = isRTL ? 'right' : 'left';
     const flexDirection = isRTL ? 'row-reverse' : 'row';
 
@@ -428,7 +426,7 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
                                                 <Text style={[styles.hintText, { textAlign, color: themeColors.textSecondary }]}>{isRTL ? '(إذا كانت المادة متطلب جامعة)' : '(If university requirement)'}</Text>
                                             )}
                                         </View>
-                                        {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
+                                        {isSelected && <Ionicons name="checkmark-circle" size={24} color={isAccessible ? themeColors.success : "#10B981"} />}
                                     </TouchableOpacity>
                                 );
                             }}
@@ -469,7 +467,7 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
                                         <Text style={[styles.modalItemText, { textAlign, fontWeight: isSelected ? '800' : '500', color: themeColors.text }]}>
                                           {item === 'all' ? (isRTL ? 'الجميع' : 'All') : item}
                                         </Text>
-                                        {isSelected && <Ionicons name="checkmark-circle" size={24} color="#10B981" />}
+                                        {isSelected && <Ionicons name="checkmark-circle" size={24} color={isAccessible ? themeColors.success : "#10B981"} />}
                                     </TouchableOpacity>
                                 );
                             }}

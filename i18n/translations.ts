@@ -206,7 +206,10 @@ export const translations = {
       english: "English",
       arabic: "Arabic",
       appearance: "Appearance",
-      account: "Account"
+      account: "Account",
+      accessibility: "Accessibility",
+      colorBlindMode: "Color Blind Friendly Mode",
+      colorBlindSubtitle: "Adjusts colors, contrast, icons, and labels to make the app easier to use for people with color vision difficulties."
     },
     requests: {
       title: "My Requests",
@@ -464,7 +467,10 @@ export const translations = {
       english: "الإنجليزية",
       arabic: "العربية",
       appearance: "المظهر",
-      account: "الحساب"
+      account: "الحساب",
+      accessibility: "سهولة الوصول",
+      colorBlindMode: "وضع عمى الألوان",
+      colorBlindSubtitle: "يضبط الألوان والتباين والأيقونات والملصقات لجعل التطبيق أسهل في الاستخدام للأشخاص الذين يعانون من صعوبات في رؤية الألوان."
     },
     requests: {
       title: "طلباتي",

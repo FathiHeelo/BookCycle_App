@@ -29,8 +29,7 @@ export const UploadPhotoUI = (props: UploadPhotoUIProps) => {
     isRTL,
   } = props;
 
-  const { theme: themeKey } = useAppTheme();
-  const themeColors = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
   const textAlign = isRTL ? 'right' : 'left';
   const rowDir: 'row' | 'row-reverse' = isRTL ? 'row-reverse' : 'row';
 
@@ -116,9 +115,13 @@ export const UploadPhotoUI = (props: UploadPhotoUIProps) => {
 
           {/* Auto-description badge */}
           {pendingAnalysis?.description && (
-            <View style={[local.descBadge, { backgroundColor: themeKey === 'dark' ? '#0A2218' : '#ECFDF5', borderColor: '#10B981' }]}>
-              <Ionicons name="checkmark-circle" size={15} color="#10B981" />
-              <Text style={{ fontSize: 12, color: '#10B981', fontWeight: '700', flex: 1, marginLeft: 6, textAlign }}>
+            <View style={[local.descBadge, { 
+              backgroundColor: isAccessible ? themeColors.success + '10' : (themeKey === 'dark' ? '#0A2218' : '#ECFDF5'), 
+              borderColor: isAccessible ? themeColors.success : '#10B981',
+              borderWidth: isAccessible ? 1.5 : 1
+            }]}>
+              <Ionicons name="checkmark-circle" size={15} color={isAccessible ? themeColors.success : "#10B981"} />
+              <Text style={{ fontSize: 12, color: isAccessible ? themeColors.success : '#10B981', fontWeight: '700', flex: 1, marginLeft: 6, textAlign }}>
                 {isRTL ? 'وصف تلقائي جاهز ✓' : 'Description auto-generated ✓'}
               </Text>
             </View>

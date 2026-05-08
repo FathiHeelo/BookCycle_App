@@ -30,7 +30,8 @@ const MainPage: React.FC = () => {
     predictions,
     currentUser,
     customizedFacultyIds,
-    updateCustomizedFaculties
+    updateCustomizedFaculties,
+    isAccessible
   } = useMainPage();
 
   const [isModalVisible, setModalVisible] = useState(false);
@@ -81,10 +82,10 @@ const MainPage: React.FC = () => {
     <View style={styles.headerContent}>
       <View style={styles.topSection}>
         <View style={styles.titleSection}>
-          <Text style={[styles.mainTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.mainTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '900' : '900' }]}>
             {isRTL ? TITLES.GIVING_HUB_AR : TITLES.GIVING_HUB_EN}
           </Text>
-          <Text style={[styles.subtitle, { color: theme.primary, textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.subtitle, { color: theme.primary, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '900' : '800' }]}>
             {isRTL ? TITLES.SUBTITLE_AR : TITLES.SUBTITLE_EN}
           </Text>
         </View>
@@ -98,6 +99,7 @@ const MainPage: React.FC = () => {
             isRTL={isRTL}
             theme={theme}
             placeholder={isRTL ? TITLES.SEARCH_PLACEHOLDER_AR : TITLES.SEARCH_PLACEHOLDER_EN}
+            isAccessible={isAccessible}
           />
         </View>
       </View>
@@ -105,18 +107,18 @@ const MainPage: React.FC = () => {
       <View style={[styles.facultySection, { backgroundColor: themeKey === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }]}>
         <View style={styles.sectionHeader}>
           <View style={{ flex: 1 }}>
-            <Text style={[styles.sectionTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '900' : '800' }]}>
               {isRTL ? TITLES.BROWSE_FACULTY_AR : TITLES.BROWSE_FACULTY_EN}
             </Text>
-            <Text style={[styles.sectionSubtitle, { color: theme.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+            <Text style={[styles.sectionSubtitle, { color: theme.textSecondary, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '700' : '600' }]}>
               {isRTL ? TITLES.BROWSE_FACULTY_SUBTITLE_AR : TITLES.BROWSE_FACULTY_SUBTITLE_EN}
             </Text>
           </View>
           <TouchableOpacity 
             onPress={() => setModalVisible(true)}
-            style={[styles.customizeBtn, { borderColor: theme.primary }]}
+            style={[styles.customizeBtn, { borderColor: theme.primary, borderWidth: isAccessible ? 2 : 1.5 }]}
           >
-            <Text style={[styles.viewAll, { color: theme.primary }]}>
+            <Text style={[styles.viewAll, { color: theme.primary, fontWeight: isAccessible ? '900' : '800' }]}>
               {isRTL ? TITLES.VIEW_ALL_AR : TITLES.VIEW_ALL_EN}
             </Text>
           </TouchableOpacity>
@@ -129,14 +131,15 @@ const MainPage: React.FC = () => {
           isRTL={isRTL}
           theme={theme}
           t={t}
+          isAccessible={isAccessible}
         />
       </View>
 
       <View style={styles.featuredHeader}>
         <View style={[styles.line, { backgroundColor: theme.border }]} />
-        <View style={[styles.featuredBadge, { backgroundColor: theme.card, borderColor: theme.border }]}>
+        <View style={[styles.featuredBadge, { backgroundColor: theme.card, borderColor: theme.primary, borderWidth: isAccessible ? 2 : 1 }]}>
           <Ionicons name="sparkles" size={14} color={theme.primary} />
-          <Text style={[styles.featuredTitle, { color: theme.text }]}>
+          <Text style={[styles.featuredTitle, { color: theme.text, fontWeight: isAccessible ? '900' : '800' }]}>
             {isRTL ? TITLES.FEATURED_GIFTS_AR : TITLES.FEATURED_GIFTS_EN}
           </Text>
         </View>
@@ -178,6 +181,7 @@ const MainPage: React.FC = () => {
               themeKey={themeKey} 
               isRTL={isRTL} 
               t={t} 
+              isAccessible={isAccessible}
             />
           )}
           keyExtractor={(item) => item.id}
@@ -197,7 +201,7 @@ const MainPage: React.FC = () => {
         />
       )}
 
-      <GiveBookFAB isRTL={isRTL} theme={theme} />
+      <GiveBookFAB isRTL={isRTL} theme={theme} isAccessible={isAccessible} />
 
       {/* Faculty Customization Modal */}
       <Modal

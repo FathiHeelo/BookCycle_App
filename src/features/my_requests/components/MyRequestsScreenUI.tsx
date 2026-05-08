@@ -21,8 +21,7 @@ export const MyRequestsScreenUI = () => {
     detailsVisible, setDetailsVisible, selectedRequester, requesterHistory, fetchingDetails, openRequesterDetails
   } = useMyRequests();
 
-  const { theme: themeKey } = useAppTheme();
-  const theme = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: theme } = useAppTheme();
   const router = useRouter();
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
@@ -44,8 +43,12 @@ export const MyRequestsScreenUI = () => {
         </Text>
 
         <View style={[styles.statusBadgeRow, { flexDirection }]}>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '15' }]}>
-            <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
+          <View style={[styles.statusBadge, { 
+            backgroundColor: getStatusColor(item.status) + (isAccessible ? '25' : '15'),
+            borderWidth: isAccessible ? 1.5 : 0,
+            borderColor: getStatusColor(item.status)
+          }]}>
+            <Text style={[styles.statusText, { color: getStatusColor(item.status), fontWeight: isAccessible ? '900' : '800' }]}>
               {t(`requests.status.${item.status}`)}
             </Text>
           </View>
@@ -64,13 +67,13 @@ export const MyRequestsScreenUI = () => {
             </TouchableOpacity>
 
             <View style={[styles.actionRow, { flexDirection, marginTop: 10 }]}>
-              <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'accepted')}>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: isAccessible ? theme.success : '#10B981', borderWidth: isAccessible ? 2 : 0, borderColor: '#FFF' }]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'accepted')}>
                 <Ionicons name="checkmark-circle" size={18} color="#FFF" />
                 <Text style={styles.acceptBtnText}>{t('requests.accept')}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.actionBtn, styles.rejectBtn]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'rejected')}>
-                <Ionicons name="close-circle" size={18} color="#EF4444" />
-                <Text style={styles.rejectBtnText}>{t('requests.reject')}</Text>
+              <TouchableOpacity style={[styles.actionBtn, { backgroundColor: isAccessible ? theme.error + '20' : 'rgba(239, 68, 68, 0.1)', borderWidth: isAccessible ? 2 : 0, borderColor: theme.error }]} onPress={() => handleUpdateStatus(item.id, item.bookId, 'rejected')}>
+                <Ionicons name="close-circle" size={18} color={isAccessible ? theme.error : '#EF4444'} />
+                <Text style={[styles.rejectBtnText, { color: isAccessible ? theme.error : '#EF4444' }]}>{t('requests.reject')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -100,8 +103,8 @@ export const MyRequestsScreenUI = () => {
               style={[styles.cancelBtn, item.status === 'pending' ? { flex: 1 } : { width: 50 }]}
               onPress={() => handleCancelRequest(item.id, item.bookId)}
             >
-              <Ionicons name="close-circle" size={item.status === 'pending' ? 18 : 24} color="#EF4444" />
-              {item.status === 'pending' && <ThemedText style={styles.cancelBtnText}>{isRTL ? 'إلغاء الطلب' : 'Cancel'}</ThemedText>}
+              <Ionicons name="close-circle" size={item.status === 'pending' ? 18 : 24} color={isAccessible ? theme.error : '#EF4444'} />
+              {item.status === 'pending' && <ThemedText style={[styles.cancelBtnText, { color: isAccessible ? theme.error : '#EF4444' }]}>{isRTL ? 'إلغاء الطلب' : 'Cancel'}</ThemedText>}
             </TouchableOpacity>
           </View>
         )}

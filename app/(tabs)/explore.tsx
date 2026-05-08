@@ -40,8 +40,8 @@ interface Resource {
 }
 
 export default function ExploreScreen() {
-  const { theme: themeKey } = useAppTheme();
-  const theme = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
+  const theme = themeColors;
   const router = useRouter();
   const { t, isRTL } = useI18n();
 
@@ -190,6 +190,7 @@ export default function ExploreScreen() {
     const facultyId = item.facultyIds?.[0] || item.facultyId;
     const isUnavailable = item.status === 'requested' || item.status === 'received' || item.status === 'completed';
     const statusText = item.status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
+    const statusColor = item.status === 'requested' ? (isAccessible ? theme.accent : '#F59E0B') : (isAccessible ? theme.success : '#10B981');
 
     return (
       <Pressable 
@@ -203,7 +204,7 @@ export default function ExploreScreen() {
           />
           {isUnavailable && (
             <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', zIndex: 10 }]}>
-              <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, transform: [{ rotate: '-10deg' }] }}>
+              <View style={{ backgroundColor: statusColor, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, transform: [{ rotate: '-10deg' }], borderWidth: isAccessible ? 1.5 : 0, borderColor: '#FFF' }}>
                 <Text style={{ color: '#fff', fontWeight: '900', fontSize: 12 }}>{statusText}</Text>
               </View>
             </View>
@@ -241,14 +242,14 @@ export default function ExploreScreen() {
             
             {item.price && !isUnavailable && (
               <View style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                backgroundColor: (isAccessible ? theme.success : '#10B981') + '25',
                 paddingHorizontal: 6,
                 paddingVertical: 2,
                 borderRadius: 6,
-                borderWidth: 1,
-                borderColor: 'rgba(16, 185, 129, 0.3)',
+                borderWidth: isAccessible ? 1.5 : 1,
+                borderColor: isAccessible ? theme.success : 'rgba(16, 185, 129, 0.3)',
               }}>
-                <Text style={{ color: '#10B981', fontSize: 11, fontWeight: '800' }}>₪{item.price}</Text>
+                <Text style={{ color: isAccessible ? theme.success : '#10B981', fontSize: 11, fontWeight: isAccessible ? '900' : '800' }}>₪{item.price}</Text>
               </View>
             )}
           </View>
@@ -275,16 +276,16 @@ export default function ExploreScreen() {
               <Ionicons name="search-outline" size={20} color={theme.primary} />
             </Pressable>
             <Pressable 
-              style={[styles.headerIconBtn, { backgroundColor: theme.card }]}
+              style={[styles.headerIconBtn, { backgroundColor: theme.card, borderWidth: isAccessible ? 1.5 : 0, borderColor: theme.primary }]}
               onPress={() => setIsFilterModalVisible(true)}
             >
               <Ionicons name="options-outline" size={20} color={theme.primary} />
-              {selectedFaculties.length > 0 && <View style={styles.filterBadge} />}
+              {selectedFaculties.length > 0 && <View style={[styles.filterBadge, { backgroundColor: isAccessible ? theme.error : '#EF4444' }]} />}
             </Pressable>
           </View>
         </View>
 
-        <View style={[styles.searchContainer, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9', flexDirection }]}>
+        <View style={[styles.searchContainer, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9', flexDirection, borderWidth: isAccessible ? 2 : 0, borderColor: theme.primary }]}>
           <Ionicons name="search" size={18} color={theme.textSecondary} />
           <TextInput 
             ref={searchInputRef}
@@ -302,10 +303,10 @@ export default function ExploreScreen() {
               {selectedFaculties.map(fid => (
                 <Pressable 
                   key={fid} 
-                  style={[styles.filterChip, { backgroundColor: theme.primary + '15' }]}
+                  style={[styles.filterChip, { backgroundColor: theme.primary + '15', borderWidth: isAccessible ? 1.5 : 0, borderColor: theme.primary }]}
                   onPress={() => toggleFaculty(fid)}
                 >
-                  <Text style={[styles.filterChipText, { color: theme.primary }]}>{t(`faculties.${fid}`)}</Text>
+                  <Text style={[styles.filterChipText, { color: theme.primary, fontWeight: isAccessible ? '900' : '700' }]}>{t(`faculties.${fid}`)}</Text>
                   <Ionicons name="close-circle" size={14} color={theme.primary} />
                 </Pressable>
               ))}
@@ -368,7 +369,7 @@ export default function ExploreScreen() {
                   onPress={() => handleSortChange('all')}
                   style={[styles.filterOption, sortBy === 'all' && { backgroundColor: theme.primary }]}
                 >
-                  <Text style={[styles.filterOptionText, sortBy === 'all' && { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>
+                  <Text style={[styles.filterOptionText, sortBy === 'all' && { color: themeKey === 'dark' ? '#0B1020' : '#FFF', fontWeight: isAccessible ? '900' : '600' }]}>
                     {isRTL ? 'مش مهم' : 'Anytime'}
                   </Text>
                 </Pressable>
@@ -383,7 +384,7 @@ export default function ExploreScreen() {
                     onPress={() => toggleFaculty(f.id)}
                     style={[
                       styles.facultyItem, 
-                      selectedFaculties.includes(f.id) && { backgroundColor: theme.primary + '20', borderColor: theme.primary }
+                      selectedFaculties.includes(f.id) && { backgroundColor: theme.primary + '20', borderColor: theme.primary, borderWidth: isAccessible ? 2 : 1.5 }
                     ]}
                   >
                     <Ionicons 

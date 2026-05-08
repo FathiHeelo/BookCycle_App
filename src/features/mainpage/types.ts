@@ -42,6 +42,7 @@ export interface BookCardProps {
   themeKey: string;
   isRTL: boolean;
   t: (key: string) => string;
+  isAccessible?: boolean;
 }
 
 export interface HeaderProps {
@@ -60,6 +61,7 @@ export interface SearchBarProps {
   isRTL: boolean;
   theme: any;
   placeholder: string;
+  isAccessible?: boolean;
 }
 
 export interface FacultyScrollerProps {
@@ -69,4 +71,11 @@ export interface FacultyScrollerProps {
   isRTL: boolean;
   theme: any;
   t: (key: string) => string;
+  isAccessible?: boolean;
+}
+
+export interface GiveBookFABProps {
+  isRTL: boolean;
+  theme: any;
+  isAccessible?: boolean;
 }

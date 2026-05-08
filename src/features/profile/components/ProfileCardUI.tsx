@@ -13,8 +13,8 @@ export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
     uploadingImage, pickImage, handleUpdateName, t, isRTL
   } = useProfileCard();
 
-  const { theme: themeKey } = useAppTheme();
-  const themeColors = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
+
 
   const imageSize = 110;
   const textAlign = isRTL ? 'right' : 'left';
@@ -55,20 +55,30 @@ export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
           )}
         </TouchableOpacity>
 
-        <View style={[styles.roleBadge, { flexDirection, marginTop: 4, backgroundColor: themeKey === 'dark' ? themeColors.background : '#F1F4F7', borderColor: themeColors.border }]}>
+        <View style={[styles.roleBadge, { 
+          flexDirection, 
+          marginTop: 4, 
+          backgroundColor: themeKey === 'dark' ? themeColors.background : '#F1F4F7', 
+          borderColor: themeColors.primary,
+          borderWidth: isAccessible ? 1.5 : 1
+        }]}>
           <Ionicons name={userProfile?.role === 'professor' ? 'school' : 'person'} size={12} color={themeColors.primary} />
-          <Text style={[styles.roleText, { color: themeColors.text }]}>{getRoleLabel()}</Text>
+          <Text style={[styles.roleText, { color: themeColors.text, fontWeight: isAccessible ? '900' : '700' }]}>{getRoleLabel()}</Text>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={[styles.userName, { textAlign, color: themeColors.text }]}>{userProfile?.fullName || user?.displayName || 'User'}</Text>
           
           <TouchableOpacity 
-            style={[styles.blueEditBtn, { backgroundColor: themeColors.primary }]}
+            style={[styles.blueEditBtn, { 
+              backgroundColor: themeColors.primary,
+              borderWidth: isAccessible ? 2 : 0,
+              borderColor: '#FFF'
+            }]}
             onPress={() => setModalVisible(true)}
           >
             <Ionicons name="pencil" size={14} color={themeKey === 'dark' ? '#0B1020' : '#fff'} />
-            <Text style={[styles.blueEditBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#fff' }]}>{t('profile.card.edit')}</Text>
+            <Text style={[styles.blueEditBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#fff', fontWeight: isAccessible ? '900' : '700' }]}>{t('profile.card.edit')}</Text>
           </TouchableOpacity>
 
           <View style={[styles.universityRow, { flexDirection }]}>

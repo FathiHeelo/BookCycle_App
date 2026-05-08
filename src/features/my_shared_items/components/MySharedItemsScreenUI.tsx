@@ -13,8 +13,7 @@ import { useMySharedItems, SharedBookItem } from '../hooks/useMySharedItems';
 export const MySharedItemsScreenUI = () => {
   const { books, loading, handleDelete, getStatusLabel, getStatusColor, t, isRTL } = useMySharedItems();
   const router = useRouter();
-  const { theme: themeKey } = useAppTheme();
-  const theme = Colors[themeKey];
+  const { theme: themeKey, isAccessible, colors: theme } = useAppTheme();
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
 
@@ -29,16 +28,29 @@ export const MySharedItemsScreenUI = () => {
             <Image source={{ uri: item.imageUrl || item.image || 'https://via.placeholder.com/150' }} style={styles.bookImage} />
             {isUnavailable && (
               <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', zIndex: 10, borderRadius: 12 }]}>
-                <View style={{ backgroundColor: '#EF4444', paddingHorizontal: 6, paddingVertical: 4, borderRadius: 8, transform: [{ rotate: '-10deg' }] }}>
+                <View style={{ 
+                  backgroundColor: item.status === 'requested' ? (isAccessible ? theme.accent : '#F59E0B') : (isAccessible ? theme.success : '#10B981'), 
+                  paddingHorizontal: 8, 
+                  paddingVertical: 4, 
+                  borderRadius: 8, 
+                  transform: [{ rotate: '-10deg' }],
+                  borderWidth: isAccessible ? 1.5 : 0,
+                  borderColor: '#FFF'
+                }}>
                   <Text style={{ color: '#fff', fontWeight: '900', fontSize: 10, textAlign: 'center' }}>{overlayText}</Text>
                 </View>
               </View>
             )}
           </View>
           <View style={[styles.contentContainer, isRTL ? { marginRight: 16 } : { marginLeft: 16 }]}>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '15', alignSelf: isRTL ? 'flex-end' : 'flex-start' }]}>
+            <View style={[styles.statusBadge, { 
+              backgroundColor: getStatusColor(item.status) + (isAccessible ? '25' : '15'), 
+              alignSelf: isRTL ? 'flex-end' : 'flex-start',
+              borderWidth: isAccessible ? 1.5 : 0,
+              borderColor: getStatusColor(item.status)
+            }]}>
               <View style={[styles.statusDot, { backgroundColor: getStatusColor(item.status) }]} />
-              <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>{t(`requests.status.${item.status}`)}</Text>
+              <Text style={[styles.statusText, { color: getStatusColor(item.status), fontWeight: isAccessible ? '800' : '600' }]}>{t(`requests.status.${item.status}`)}</Text>
             </View>
             <Text style={[styles.bookTitle, { textAlign, color: theme.text }]} numberOfLines={2}>{item.title}</Text>
             <Text style={[styles.dateText, { textAlign, color: theme.textSecondary }]}>
@@ -53,8 +65,8 @@ export const MySharedItemsScreenUI = () => {
             <Text style={[styles.editButtonText, { color: theme.textSecondary }]}>{t('common.edit')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={() => handleDelete(item.id)}>
-            <Ionicons name="trash-outline" size={18} color="#EF4444" />
-            <Text style={styles.deleteButtonText}>{t('common.delete')}</Text>
+            <Ionicons name="trash-outline" size={18} color={isAccessible ? theme.error : '#EF4444'} />
+            <Text style={[styles.deleteButtonText, { color: isAccessible ? theme.error : '#EF4444' }]}>{t('common.delete')}</Text>
           </TouchableOpacity>
         </View>
       </View>

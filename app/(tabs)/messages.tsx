@@ -22,8 +22,8 @@ interface Chat {
 }
 
 export default function MessagesTab() {
-  const { theme: themeKey } = useAppTheme();
-  const theme = Colors[themeKey];
+  const { theme: themeKey, colors: themeColors, isAccessible } = useAppTheme();
+  const theme = themeColors;
   const router = useRouter();
   const { t, isRTL } = useI18n();
   const currentUser = FIREBASE_AUTH.currentUser;
@@ -64,7 +64,12 @@ export default function MessagesTab() {
     const otherId = item.participants?.find(p => p !== currentUser?.uid);
     return (
       <Pressable
-        style={[styles.chatCard, { backgroundColor: theme.card, flexDirection }]}
+        style={[styles.chatCard, { 
+          backgroundColor: theme.card, 
+          flexDirection,
+          borderWidth: isAccessible ? 1.5 : 0,
+          borderColor: theme.border
+        }]}
         onPress={() => router.push({
           pathname: `../chat/${item.id}`,
           params: { otherId: otherId, bookTitle: item.bookTitle }
@@ -74,8 +79,8 @@ export default function MessagesTab() {
           <Ionicons name="person" size={24} color={theme.primary} />
         </View>
         <View style={[styles.chatInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-          <Text style={[styles.bookTitle, { color: theme.text }]} numberOfLines={1}>{item.bookTitle || (isRTL ? 'استفسار عام' : 'General Inquiry')}</Text>
-          <Text style={[styles.lastMessage, { color: theme.textSecondary }]} numberOfLines={1}>{item.lastMessage}</Text>
+          <Text style={[styles.bookTitle, { color: theme.text, fontWeight: isAccessible ? '900' : '800' }]} numberOfLines={1}>{item.bookTitle || (isRTL ? 'استفسار عام' : 'General Inquiry')}</Text>
+          <Text style={[styles.lastMessage, { color: theme.textSecondary, fontWeight: isAccessible ? '700' : '500' }]} numberOfLines={1}>{item.lastMessage}</Text>
         </View>
         <View style={styles.metaInfo}>
           <Text style={[styles.timeText, { color: theme.textSecondary }]}>
@@ -105,7 +110,12 @@ export default function MessagesTab() {
 
       {isSearching && (
         <View style={[styles.searchBarContainer, { backgroundColor: theme.background, borderBottomColor: theme.border }]}>
-          <View style={[styles.searchBar, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9', flexDirection }]}>
+          <View style={[styles.searchBar, { 
+            backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9', 
+            flexDirection,
+            borderWidth: isAccessible ? 1.5 : 0,
+            borderColor: theme.primary
+          }]}>
             <Ionicons name="search" size={18} color={theme.textSecondary} />
             <TextInput
               style={[styles.searchInput, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}

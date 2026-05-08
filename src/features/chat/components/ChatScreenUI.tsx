@@ -5,8 +5,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAppTheme } from '@/context/ThemeContext';
 import { ThemedText } from '@/components/themed-text';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -28,8 +27,7 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
   } = useChat(chatId, otherId, bookTitle);
 
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const { theme: themeKey, isAccessible, colors: theme } = useAppTheme();
   const flatListRef = useRef<FlatList>(null);
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -162,8 +160,8 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
               styles.bubble, 
               isMine ? styles.myBubble : styles.theirBubble,
               isMine 
-                ? { backgroundColor: colorScheme === 'dark' ? theme.primary : '#001B39' } 
-                : { backgroundColor: colorScheme === 'dark' ? theme.card : '#F1F5F9' }
+                ? { backgroundColor: themeKey === 'dark' ? theme.primary : '#001B39' } 
+                : { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9' }
             ]}>
               {item.imageUrl && (
                 <Pressable onPress={() => setSelectedImage(item.imageUrl!)}>
@@ -175,15 +173,15 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
                   onPress={() => openMap(item.location!.latitude, item.location!.longitude)}
                   style={[styles.locationContainer, { backgroundColor: isMine ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}
                 >
-                  <Ionicons name="location" size={24} color={isMine ? (colorScheme === 'dark' ? '#000' : '#FFF') : theme.primary} />
+                  <Ionicons name="location" size={24} color={isMine ? (themeKey === 'dark' ? '#000' : '#FFF') : theme.primary} />
                   <ThemedText style={[
                     styles.locationText, 
-                    { color: isMine ? (colorScheme === 'dark' ? '#000' : '#FFF') : theme.text }
+                    { color: isMine ? (themeKey === 'dark' ? '#000' : '#FFF') : theme.text }
                   ]}>
                     {isRTL ? 'تمت مشاركة الموقع' : 'Location Shared'}
                   </ThemedText>
                   <View style={[styles.viewMapBtn, { backgroundColor: theme.primary }]}>
-                    <ThemedText style={[styles.viewMapText, { color: colorScheme === 'dark' ? '#000' : '#FFF' }]}>
+                    <ThemedText style={[styles.viewMapText, { color: themeKey === 'dark' ? '#000' : '#FFF' }]}>
                       {isRTL ? 'عرض على الخريطة' : 'View on Map'}
                     </ThemedText>
                   </View>
@@ -193,7 +191,7 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
                 <ThemedText style={[
                   styles.messageText, 
                   { 
-                    color: isMine ? (colorScheme === 'dark' ? '#000' : '#FFF') : theme.text, 
+                    color: isMine ? (themeKey === 'dark' ? '#000' : '#FFF') : theme.text, 
                     textAlign 
                   }
                 ]}>
@@ -208,7 +206,7 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
                 <Ionicons 
                   name="checkmark-done" 
                   size={14} 
-                  color={item.isRead ? (colorScheme === 'dark' ? theme.primary : theme.primary) : '#94A3B8'} 
+                  color={item.isRead ? (themeKey === 'dark' ? theme.primary : theme.primary) : '#94A3B8'} 
                   style={styles.readReceipt}
                 />
               )}
@@ -241,7 +239,11 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
               {otherUser?.fullName || otherUser?.displayName || otherUser?.name || otherName || 'Academic Contributor'}
             </ThemedText>
             <View style={[styles.headerSubRow, { flexDirection: 'row' }]}>
-              <View style={[styles.statusDot, { backgroundColor: theme.success }]} />
+              <View style={[styles.statusDot, { 
+                backgroundColor: theme.success,
+                borderWidth: isAccessible ? 1 : 0,
+                borderColor: '#FFF'
+              }]} />
               <ThemedText style={[styles.headerSub, { textAlign: 'left', color: theme.textSecondary }]}>
                 {isRTL ? 'نشط الآن' : 'Active now'}
               </ThemedText>
@@ -282,7 +284,7 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
         )}
 
         <View style={[styles.inputBarContainer, { borderTopColor: theme.border, backgroundColor: theme.background }]}>
-          <View style={[styles.inputBar, { backgroundColor: colorScheme === 'dark' ? theme.card : '#F1F5F9', flexDirection: 'row' }]}>
+          <View style={[styles.inputBar, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F5F9', flexDirection: 'row' }]}>
             <Pressable style={styles.attachBtn} onPress={handleAttachPress}>
               <Ionicons name="add-circle-outline" size={24} color={theme.primary} />
             </Pressable>
@@ -310,7 +312,7 @@ export const ChatScreenUI = ({ chatId, otherName, otherId, bookTitle }: ChatScre
               <Ionicons 
                 name="send" 
                 size={20} 
-                color={inputText.trim() ? (colorScheme === 'dark' ? '#000' : '#FFF') : theme.textSecondary} 
+                color={inputText.trim() ? (themeKey === 'dark' ? '#000' : '#FFF') : theme.textSecondary} 
               />
             </Pressable>
           </View>

@@ -6,7 +6,7 @@ import { GiveBookFABProps } from '../types';
 import { TITLES } from '../constants';
 import { useRouter } from 'expo-router';
 
-export const GiveBookFAB: React.FC<GiveBookFABProps> = ({ isRTL, theme }) => {
+export const GiveBookFAB: React.FC<GiveBookFABProps> = ({ isRTL, theme, isAccessible }) => {
   const router = useRouter();
   
   return (
@@ -18,6 +18,8 @@ export const GiveBookFAB: React.FC<GiveBookFABProps> = ({ isRTL, theme }) => {
           flexDirection: isRTL ? 'row-reverse' : 'row',
           right: isRTL ? undefined : 24,
           left: isRTL ? 24 : undefined,
+          borderWidth: isAccessible ? 3 : 0,
+          borderColor: '#FFF'
         }
       ]}
       onPress={() => router.push('/Add_Books')}

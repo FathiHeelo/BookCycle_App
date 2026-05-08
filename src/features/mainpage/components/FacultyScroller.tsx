@@ -11,7 +11,8 @@ export const FacultyScroller: React.FC<FacultyScrollerProps> = ({
   onToggle, 
   isRTL, 
   theme,
-  t
+  t,
+  isAccessible
 }) => {
   return (
     <View style={[styles.container, { direction: 'ltr' }]}>
@@ -33,8 +34,9 @@ export const FacultyScroller: React.FC<FacultyScrollerProps> = ({
                 styles.chip, 
                 { 
                   backgroundColor: isSelected ? theme.primary : theme.card,
-                  borderColor: isSelected ? theme.primary : theme.border,
-                  flexDirection: 'row'
+                  borderColor: isSelected ? (isAccessible ? '#FFF' : theme.primary) : theme.border,
+                  flexDirection: 'row',
+                  borderWidth: isAccessible ? 2 : (isSelected ? 0 : 0)
                 }
               ]}
               onPress={() => onToggle(faculty.id)}
@@ -45,7 +47,7 @@ export const FacultyScroller: React.FC<FacultyScrollerProps> = ({
                 size={16} 
                 color={isSelected ? theme.background : theme.primary} 
               />
-              <Text style={[styles.chipText, { color: isSelected ? theme.background : theme.text }]}>
+              <Text style={[styles.chipText, { color: isSelected ? theme.background : theme.text, fontWeight: isAccessible ? '900' : '800' }]}>
                 {label}
               </Text>
             </TouchableOpacity>
