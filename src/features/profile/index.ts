@@ -4,5 +4,6 @@ export { ContributorCardUI } from './components/ContributorCardUI';
 export { BooksGivenUI } from './components/BooksGivenUI';
 export { BooksReceivedUI } from './components/BooksReceivedUI';
 export { RewardsStatusCard } from './components/RewardsStatusCard';
+export { QuickLinksCard } from './components/QuickLinksCard';
 export { useProfileData } from './hooks/useProfileData';
 export * from './types';

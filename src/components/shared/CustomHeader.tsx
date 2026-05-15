@@ -12,7 +12,7 @@ export type CustomHeaderProps = {
   subtitle?: string;
   leftMode?: 'back' | 'avatar' | 'none';
   avatarUrl?: string;
-  rightIcons?: ('search' | 'notification' | 'bookmark' | 'menu' | 'share')[];
+  rightIcons?: ('search' | 'notification' | 'bookmark' | 'menu' | 'share' | 'requests')[];
   onRightIconPress?: (iconName: string) => void;
   hideSafeArea?: boolean;
   notificationCount?: number;
@@ -92,6 +92,7 @@ export const CustomHeader = ({
             case 'bookmark': iconName = 'bookmark-outline'; break;
             case 'menu': iconName = 'ellipsis-vertical'; break;
             case 'share': iconName = 'share-social-outline'; break;
+            case 'requests': iconName = 'git-pull-request-outline'; break;
           }
 
           return (
@@ -101,7 +102,7 @@ export const CustomHeader = ({
               style={styles.iconBtn}
             >
               <Ionicons name={iconName as any} size={22} color={theme.text} />
-              {icon === 'notification' && notificationCount > 0 && (
+              {(icon === 'notification' || icon === 'requests') && notificationCount > 0 && (
                 <View style={[styles.badge, { backgroundColor: theme.primary }]}>
                   <Text style={styles.badgeText}>{notificationCount > 9 ? '9+' : notificationCount}</Text>
                 </View>

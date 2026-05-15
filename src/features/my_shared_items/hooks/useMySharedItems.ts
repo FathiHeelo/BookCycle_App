@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { ref, onValue, query, orderByChild, equalTo, remove } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
+import { useAppTheme } from '@/context/ThemeContext';
 
 export interface SharedBookItem {
   id: string;

@@ -15,6 +15,7 @@ import {
   BooksReceivedUI,
   useProfileData,
   RewardsStatusCard,
+  QuickLinksCard,
 } from '@/src/features/profile';
 
 export default function Profile() {
@@ -49,6 +50,7 @@ export default function Profile() {
       >
         <View style={styles.cardWrapper}>
           <ProfileCardUI stats={stats} userProfile={userProfile ?? undefined} />
+          <QuickLinksCard />
           <RewardsStatusCard />
           <TotalBookCardUI stats={stats} />
           <ContributorCardUI stats={stats} />

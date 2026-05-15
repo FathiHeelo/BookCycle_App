@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, FlatList, ActivityIndicator, StatusBar, Text, StyleSheet, Modal, TouchableOpacity, Pressable } from 'react-native';
+import { View, FlatList, ActivityIndicator, StatusBar, Text, StyleSheet, Modal, TouchableOpacity, Pressable, Dimensions } from 'react-native';
+import { PanGestureHandler, State, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { useMainPage } from './hooks/useMainPage';
 import { BookCard } from './components/BookCard';
@@ -12,6 +13,7 @@ import { MainStyles } from './styles';
 import { TITLES, COLORS } from './constants';
 import { Spacing, Radius } from '@/constants/theme';
 import { useNotifications } from '@/hooks/use-notifications';
+import { usePendingRequests } from '@/src/hooks/use-pending-requests';
 import { useRouter } from 'expo-router';
 
 const MainPage: React.FC = () => {
@@ -36,6 +38,7 @@ const MainPage: React.FC = () => {
 
   const [isModalVisible, setModalVisible] = useState(false);
   const { unreadCount } = useNotifications();
+  const pendingRequestsCount = usePendingRequests();
   const router = useRouter();
 
   const allAvailableFaculties = useMemo(() => [
@@ -148,19 +151,42 @@ const MainPage: React.FC = () => {
     </View>
   ), [theme, isRTL, searchQuery, predictions, visibleFaculties, selectedFacultyIds, themeKey]);
 
+  const onGestureEvent = (event: any) => {
+    const { translationX } = event.nativeEvent;
+    // If user swipes significantly from right to left (in RTL) or left to right (in LTR)
+    const threshold = 150;
+    if (isRTL) {
+      if (translationX > threshold) {
+        router.push('/my-requests' as any);
+      }
+    } else {
+      if (translationX < -threshold) {
+        router.push('/my-requests' as any);
+      }
+    }
+  };
+
   return (
-    <View style={[MainStyles.container, { backgroundColor: theme.background }]}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PanGestureHandler
+        onGestureEvent={onGestureEvent}
+        activeOffsetX={[-20, 20]} // Sensitivity
+        failOffsetY={[-20, 20]} // Allow vertical scrolling
+      >
+        <View style={[MainStyles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={themeKey === 'dark' ? 'light-content' : 'dark-content'} />
       
       <CustomHeader 
         title="BookCycle"
         leftMode="avatar"
         avatarUrl={currentUser?.photoURL || undefined}
-        rightIcons={['search', 'notification']}
-        notificationCount={unreadCount}
+        rightIcons={['requests', 'notification']}
+        notificationCount={pendingRequestsCount || unreadCount}
         onRightIconPress={(icon) => {
           if (icon === 'notification') {
             router.push('/notifications');
+          } else if (icon === 'requests') {
+            router.push('/my-requests');
           }
         }}
         hideSafeArea
@@ -255,7 +281,9 @@ const MainPage: React.FC = () => {
           </View>
         </Pressable>
       </Modal>
-    </View>
+        </View>
+      </PanGestureHandler>
+    </GestureHandlerRootView>
   );
 };
 
