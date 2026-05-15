@@ -23,6 +23,7 @@ import { useAppTheme } from '@/context/ThemeContext';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
 import { uploadImageToCloudinary } from '@/src/services/cloudinary.service';
 import { SQLiteService } from '@/src/services/database/sqlite.service';
+import { RewardService } from '@/src/services/reward.service';
 
 export default function Add_Books() {   
     const [step, setStep] = useState(1);
@@ -148,6 +149,9 @@ export default function Add_Books() {
                 const booksRef = ref(FIREBASE_DB, 'Books');
                 const newBookRef = push(booksRef);
                 await set(newBookRef, bookData);
+                
+                // Award points for sharing a new resource
+                await RewardService.awardPoints(user.uid, 'SHARE_RESOURCE');
             }
 
             if (Platform.OS === 'web') {

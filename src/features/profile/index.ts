@@ -3,5 +3,6 @@ export { TotalBookCardUI } from './components/TotalBookCardUI';
 export { ContributorCardUI } from './components/ContributorCardUI';
 export { BooksGivenUI } from './components/BooksGivenUI';
 export { BooksReceivedUI } from './components/BooksReceivedUI';
+export { RewardsStatusCard } from './components/RewardsStatusCard';
 export { useProfileData } from './hooks/useProfileData';
 export * from './types';
