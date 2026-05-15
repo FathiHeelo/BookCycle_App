@@ -27,6 +27,7 @@ const languageDetector: any = {
   init: () => {},
   cacheUserLanguage: async (language: string) => {
     try {
+      if (typeof window === 'undefined') return;
       await AsyncStorage.setItem(LANGUAGE_KEY, language);
     } catch (error) {
       console.log('Error saving language', error);

@@ -7,6 +7,7 @@ export interface AddBookFormData {
   conditionId: string;
   description: string;
   price?: number;
+  quantity: number;
 }
 
 export interface DataScreenProps {

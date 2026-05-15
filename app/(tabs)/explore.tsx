@@ -36,6 +36,7 @@ interface Resource {
   facultyIds?: string[];
   createdAt?: string;
   status?: string;
+  quantity?: number;
   [key: string]: any;
 }
 
@@ -188,9 +189,20 @@ export default function ExploreScreen() {
       ? (new Date().getTime() - new Date(item.createdAt).getTime() < 1000 * 60 * 60 * 24 * 3)
       : false;
     const facultyId = item.facultyIds?.[0] || item.facultyId;
-    const isUnavailable = item.status === 'requested' || item.status === 'received' || item.status === 'completed';
-    const statusText = item.status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
-    const statusColor = item.status === 'requested' ? (isAccessible ? theme.accent : '#F59E0B') : (isAccessible ? theme.success : '#10B981');
+    
+    // A resource is unavailable if quantity is 0, or if it's explicitly completed/received
+    // For legacy items without quantity, we still check the 'requested' status
+    const isUnavailable = (item.quantity !== undefined ? item.quantity <= 0 : item.status === 'requested') || 
+                         item.status === 'received' || 
+                         item.status === 'completed';
+                         
+    const statusText = (item.quantity !== undefined && item.quantity <= 0) || item.status === 'requested' 
+      ? (isRTL ? 'قيد الطلب' : 'Requested') 
+      : (isRTL ? 'تم التسليم' : 'Given');
+      
+    const statusColor = (item.quantity !== undefined && item.quantity <= 0) || item.status === 'requested' 
+      ? (isAccessible ? theme.accent : '#F59E0B') 
+      : (isAccessible ? theme.success : '#10B981');
 
     return (
       <Pressable 
@@ -228,6 +240,15 @@ export default function ExploreScreen() {
           <Text style={[styles.resourceTitle, { color: theme.text, textAlign }]} numberOfLines={2}>
             {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مصدر بدون عنوان' : 'Untitled Resource')}
           </Text>
+
+          {item.quantity !== undefined && !isUnavailable && (
+            <View style={{ flexDirection, alignItems: 'center', marginBottom: 4, gap: 4 }}>
+              <Ionicons name="copy-outline" size={12} color={theme.primary} />
+              <Text style={{ fontSize: 11, fontWeight: '700', color: theme.primary }}>
+                {item.quantity} {isRTL ? 'متوفر' : 'Available'}
+              </Text>
+            </View>
+          )}
 
           {/* Price & Donor Info Row */}
           <View style={[styles.donorContainer, { flexDirection, justifyContent: 'space-between', width: '100%', marginTop: 8 }]}>

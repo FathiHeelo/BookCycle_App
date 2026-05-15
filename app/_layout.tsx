@@ -130,8 +130,6 @@ function RootLayoutInner() {
         <Stack.Screen name="book-details/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="public-profile/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="all-messages" options={{ headerShown: false }} />
-        <Stack.Screen name="my-requests" options={{ headerShown: false }} />
-        <Stack.Screen name="my-shared-items" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         <Stack.Screen name="change-password" options={{ title: 'Change Password', headerShown: false }} />
       </Stack>

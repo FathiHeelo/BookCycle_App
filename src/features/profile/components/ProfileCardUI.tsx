@@ -10,7 +10,7 @@ import { Colors } from '@/constants/theme';
 export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
   const {
     user, modalVisible, setModalVisible, newName, setNewName,
-    uploadingImage, pickImage, handleUpdateName, t, isRTL
+    uploadingImage, pickImage, handleRemoveImage, handleUpdateName, t, isRTL
   } = useProfileCard();
 
   const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
@@ -100,9 +100,25 @@ export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
               style={[styles.nameInput, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F5F9', color: themeColors.text }]}
               value={newName}
               onChangeText={setNewName}
-              placeholder={t('auth.signup.fullNamePlaceholder')}
               placeholderTextColor={themeColors.textSecondary}
             />
+            
+            {/* Remove Photo Option */}
+            {(userProfile?.photoURL || user?.photoURL) && (
+              <TouchableOpacity 
+                style={[styles.removePhotoBtn, { flexDirection, alignItems: 'center', justifyContent: 'center', marginVertical: 12 }]} 
+                onPress={() => {
+                  setModalVisible(false);
+                  handleRemoveImage();
+                }}
+              >
+                <Ionicons name="trash-outline" size={18} color="#EF4444" />
+                <Text style={{ color: '#EF4444', fontWeight: '700', marginLeft: isRTL ? 0 : 8, marginRight: isRTL ? 8 : 0 }}>
+                  {isRTL ? 'إزالة الصورة' : 'Remove Photo'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
             <View style={styles.modalButtons}>
               <TouchableOpacity style={[styles.btn, styles.cancelBtn, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F5F9' }]} onPress={() => setModalVisible(false)}>
                 <Text style={[styles.cancelBtnText, { color: themeColors.text }]}>{t('common.cancel')}</Text>

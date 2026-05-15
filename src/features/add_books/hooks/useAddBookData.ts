@@ -8,6 +8,7 @@ import { AddBookFormData } from '../types';
 import { VIBRANT_GOLD } from '../constants';
 import { aiService } from '@/src/services/ai/ai.service';
 import { Alert } from 'react-native';
+import { SQLiteService } from '@/src/services/database/sqlite.service';
 
 export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: (data: AddBookFormData) => void, analysisResult?: any) => {
     const { t, isRTL } = useI18n();
@@ -28,6 +29,7 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
         conditionId: z.string().min(1, 'Please select a condition'),
         description: z.string().min(5, 'Description is too short'),
         price: z.number().optional(),
+        quantity: z.number().min(1, 'Quantity must be at least 1'),
     });
 
     const {
@@ -49,8 +51,33 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
             conditionId: initialData?.conditionId || '',
             description: initialData?.description || analysisResult?.description || '',
             price: initialData?.price,
+            quantity: initialData?.quantity || 1,
         },
     });
+
+    // Handle Draft Loading
+    useEffect(() => {
+        if (!initialData && !analysisResult) {
+            const loadDraft = async () => {
+                const draft = await SQLiteService.getDraft<AddBookFormData>('new_book_draft');
+                if (draft) {
+                    reset(draft);
+                }
+            };
+            loadDraft();
+        }
+    }, []);
+
+    // Handle Draft Saving
+    const formData = watch();
+    useEffect(() => {
+        if (!initialData) {
+            const saveDraft = async () => {
+                await SQLiteService.saveDraft('new_book_draft', 'add_book', formData);
+            };
+            saveDraft();
+        }
+    }, [formData, initialData]);
 
     // Handle initialData updates (especially for Edit mode where data is fetched async)
     useEffect(() => {
@@ -64,6 +91,7 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
                 conditionId: initialData.conditionId || '',
                 description: initialData.description || '',
                 price: initialData.price,
+                quantity: initialData.quantity || 1,
             });
         }
     }, [initialData, reset]);
@@ -77,7 +105,9 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
         }
         // category selected on upload step
         if (analysisResult.category) {
-            setValue('categoryId', analysisResult.category);
+            const cat = analysisResult.category.toLowerCase();
+            const normalizedCategory = (cat === 'slides' || cat === 'slide' || cat === 'presentation') ? 'notes' : analysisResult.category;
+            setValue('categoryId', normalizedCategory);
         }
         // Legacy real-AI fields (title, course, faculty) — keep for future
         if (analysisResult.title) setValue('title', analysisResult.title);
@@ -171,7 +201,10 @@ export const useAddBookData = (initialData?: Partial<AddBookFormData>, onNext?: 
         }
     };
 
-    const onSubmit = (data: AddBookFormData) => {
+    const onSubmit = async (data: AddBookFormData) => {
+        if (!initialData) {
+            await SQLiteService.deleteDraft('new_book_draft');
+        }
         if (onNext) onNext(data);
     };
 

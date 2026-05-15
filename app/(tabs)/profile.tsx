@@ -1,5 +1,6 @@
 import React from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, useWindowDimensions, View, ActivityIndicator } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, useWindowDimensions, View, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';

@@ -19,8 +19,13 @@ export const BookCard: React.FC<BookCardProps> = ({
     : false;
   
   const facultyId = item.facultyIds?.[0] || item.facultyId;
-  const isUnavailable = item.status === 'requested' || item.status === 'received' || item.status === 'completed';
-  const statusText = item.status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
+  const isUnavailable = (item.quantity !== undefined ? item.quantity <= 0 : item.status === 'requested') || 
+                       item.status === 'received' || 
+                       item.status === 'completed';
+                       
+  const statusText = (item.quantity !== undefined && item.quantity <= 0) || item.status === 'requested' 
+    ? (isRTL ? 'قيد الطلب' : 'Requested') 
+    : (isRTL ? 'تم التسليم' : 'Given');
   
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
@@ -80,6 +85,15 @@ export const BookCard: React.FC<BookCardProps> = ({
         <Text style={[BookCardStyles.resourceTitle, { color: theme.text, textAlign }]} numberOfLines={2}>
           {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مادة بدون عنوان' : 'Untitled Material')}
         </Text>
+
+        {item.quantity !== undefined && !isUnavailable && (
+          <View style={{ flexDirection, alignItems: 'center', marginBottom: 6, gap: 4 }}>
+            <Ionicons name="copy-outline" size={12} color={theme.primary} />
+            <Text style={{ fontSize: 11, fontWeight: '800', color: theme.primary }}>
+              {item.quantity} {isRTL ? 'متوفر' : 'Available'}
+            </Text>
+          </View>
+        )}
 
         {/* Price & Donor Info Row */}
         <View style={[BookCardStyles.donorContainer, { flexDirection, justifyContent: 'space-between', width: '100%' }]}>
