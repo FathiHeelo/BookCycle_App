@@ -142,7 +142,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          href: null,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} name="settings" label={isRTL ? 'الإعدادات' : 'Settings'} themeColors={themeColors} />
           ),
@@ -166,6 +165,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="my-requests"
         options={{
+          href: null,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} name="git-pull-request" label={isRTL ? 'الطلبات' : 'Requests'} themeColors={themeColors} hasNotification={hasNewRequests} />
           ),
