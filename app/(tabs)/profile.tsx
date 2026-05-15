@@ -14,6 +14,7 @@ import {
   BooksGivenUI,
   BooksReceivedUI,
   useProfileData,
+  RewardsStatusCard,
 } from '@/src/features/profile';
 
 export default function Profile() {
@@ -48,6 +49,7 @@ export default function Profile() {
       >
         <View style={styles.cardWrapper}>
           <ProfileCardUI stats={stats} userProfile={userProfile ?? undefined} />
+          <RewardsStatusCard />
           <TotalBookCardUI stats={stats} />
           <ContributorCardUI stats={stats} />
           <BooksGivenUI />

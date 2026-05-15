@@ -6,12 +6,14 @@ import { useProfileCard } from '../hooks/useProfileCard';
 import { ProfileCardProps } from '../types';
 import { useAppTheme } from '@/context/ThemeContext';
 import { Colors } from '@/constants/theme';
+import { useRouter } from 'expo-router';
 
 export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
   const {
     user, modalVisible, setModalVisible, newName, setNewName,
     uploadingImage, pickImage, handleRemoveImage, handleUpdateName, t, isRTL
   } = useProfileCard();
+  const router = useRouter();
 
   const { theme: themeKey, isAccessible, colors: themeColors } = useAppTheme();
 
@@ -27,6 +29,12 @@ export const ProfileCardUI = ({ stats, userProfile }: ProfileCardProps) => {
 
   return (
     <View style={[styles.profileCardContainer, { backgroundColor: themeColors.card, shadowColor: themeKey === 'dark' ? '#000' : '#000', elevation: themeKey === 'dark' ? 0 : 5 }]}>
+      <TouchableOpacity 
+        style={[styles.settingsBtn, { position: 'absolute', top: 16, right: isRTL ? undefined : 16, left: isRTL ? 16 : undefined, zIndex: 10 }]}
+        onPress={() => router.push('/settings')}
+      >
+        <Ionicons name="settings-outline" size={24} color={themeColors.textSecondary} />
+      </TouchableOpacity>
       <View style={styles.profileHeader}>
         <TouchableOpacity 
           style={[styles.imageContainer, { width: imageSize + 8, height: imageSize + 8, borderRadius: (imageSize + 8) / 2 }]} 

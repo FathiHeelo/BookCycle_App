@@ -114,6 +114,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="rewards"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} name="gift" label={isRTL ? 'الجوائز' : 'Rewards'} themeColors={themeColors} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="messages"
         options={{
           tabBarIcon: ({ focused }) => (
@@ -130,9 +138,11 @@ export default function TabLayout() {
           ),
         }}
       />
+      
       <Tabs.Screen
         name="settings"
         options={{
+          href: null,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} name="settings" label={isRTL ? 'الإعدادات' : 'Settings'} themeColors={themeColors} />
           ),

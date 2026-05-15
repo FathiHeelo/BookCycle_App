@@ -5,6 +5,7 @@ import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
 import { NotificationService } from '@/src/services/notification.service';
 import { useAppTheme } from '@/context/ThemeContext';
+import { RewardService } from '@/src/services/reward.service';
 
 export interface BookRequest {
   id: string;
@@ -87,12 +88,15 @@ export const useMyRequests = () => {
                   await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: 'accepted' });
                   
                   // 3. Update Book Quantity and Status
-                  const bookUpdates: any = { quantity: newQty };
-                  if (newQty === 0) {
-                    bookUpdates.status = 'requested';
-                  }
-                  await update(bookRef, bookUpdates);
-                }
+                   const bookUpdates: any = { quantity: newQty };
+                   if (newQty === 0) {
+                     bookUpdates.status = 'requested';
+                   }
+                   await update(bookRef, bookUpdates);
+
+                   // Award points for helping a student (accepting a request)
+                   await RewardService.awardPoints(currentUser.uid, 'HELP_STUDENT');
+                 }
 
                 try {
                   const reqSnap = await get(ref(FIREBASE_DB, `Requests/${requestId}`));
@@ -225,6 +229,10 @@ export const useMyRequests = () => {
   const handleMarkReceived = async (request: BookRequest) => {
     try {
       await handleUpdateStatus(request.id, request.bookId, 'received');
+      
+      // Award points for a successful exchange completion
+      await RewardService.awardPoints(request.donorUid, 'COMPLETE_EXCHANGE');
+      
       setSelectedDonor({ id: request.donorUid, name: request.donorName });
       setRatingVisible(true);
 

@@ -12,6 +12,13 @@ export const ProfileStyles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: 32, padding: 24, marginBottom: 20,
     shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 5,
   },
+  settingsBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   profileHeader: { alignItems: 'center', gap: 16 },
   imageContainer: {
     backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center',
