@@ -191,6 +191,63 @@ export const DataScreenUI = (props: DataScreenUIProps) => {
                             />
                         </View>
 
+                        {/* Quantity */}
+                        <View style={styles.inputGroup}>
+                            <Text style={[styles.label, { textAlign, color: themeColors.text, marginBottom: 4 }]}>{isRTL ? 'الكمية المتوفرة' : 'Available Quantity'}</Text>
+                            <Text style={[local.hintText, { textAlign, color: themeColors.textSecondary, marginBottom: 8 }]}>
+                                {isRTL ? 'كم عدد النسخ المتوفرة لديك؟' : 'How many copies do you have?'}
+                            </Text>
+                            <Controller
+                                control={control}
+                                name="quantity"
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <View style={[
+                                        styles.input, 
+                                        { 
+                                            flexDirection, 
+                                            alignItems: 'center',
+                                            backgroundColor: themeKey === 'dark' ? themeColors.card : '#F8FAFC', 
+                                            borderColor: errors.quantity ? '#EF4444' : (focusedInput === 'quantity' ? VIBRANT_GOLD : themeColors.border),
+                                            borderWidth: focusedInput === 'quantity' ? 2 : 1
+                                        }
+                                    ]}>
+                                        <TouchableOpacity 
+                                            onPress={() => onChange(Math.max(1, (value || 1) - 1))}
+                                            style={{ paddingHorizontal: 15, height: '100%', justifyContent: 'center' }}
+                                        >
+                                            <Ionicons name="remove-circle-outline" size={24} color={themeColors.primary} />
+                                        </TouchableOpacity>
+                                        
+                                        <TextInput
+                                            style={{ 
+                                                flex: 1,
+                                                height: '100%',
+                                                textAlign: 'center', 
+                                                color: themeColors.text, 
+                                                fontSize: 18,
+                                                fontWeight: '700'
+                                            }}
+                                            keyboardType="numeric"
+                                            onBlur={() => { onBlur(); setFocusedInput(null); }}
+                                            onFocus={() => setFocusedInput('quantity')}
+                                            onChangeText={(val) => {
+                                                const cleaned = val.replace(/[^0-9]/g, '');
+                                                onChange(cleaned ? parseInt(cleaned) : 1);
+                                            }}
+                                            value={value?.toString() || '1'}
+                                        />
+
+                                        <TouchableOpacity 
+                                            onPress={() => onChange((value || 1) + 1)}
+                                            style={{ paddingHorizontal: 15, height: '100%', justifyContent: 'center' }}
+                                        >
+                                            <Ionicons name="add-circle-outline" size={24} color={themeColors.primary} />
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                            />
+                        </View>
+
                         {/* Course */}
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { textAlign, color: themeColors.text }]}>{isRTL ? 'اسم المساق المرتبط' : 'Related Course'}</Text>

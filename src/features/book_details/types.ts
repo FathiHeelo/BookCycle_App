@@ -14,5 +14,6 @@ export interface BookDetail {
   donorUid?: string;
   author?: string;
   edition?: string;
+  quantity?: number;
   [key: string]: any;
 }

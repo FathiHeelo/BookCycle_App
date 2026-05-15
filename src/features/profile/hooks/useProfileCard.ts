@@ -51,6 +51,36 @@ export const useProfileCard = () => {
     }
   };
 
+  const handleRemoveImage = async () => {
+    if (!user) return;
+    
+    Alert.alert(
+      isRTL ? 'إزالة الصورة' : 'Remove Photo',
+      isRTL ? 'هل أنت متأكد من رغبتك في إزالة صورة البروفايل؟' : 'Are you sure you want to remove your profile picture?',
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { 
+          text: isRTL ? 'إزالة' : 'Remove', 
+          style: 'destructive',
+          onPress: async () => {
+            setUploadingImage(true);
+            try {
+              await updateProfile(user, { photoURL: '' });
+              const userRef = ref(FIREBASE_DB, `Users/${user.uid}`);
+              await update(userRef, { photoURL: null });
+              
+              Alert.alert(t('common.success'), isRTL ? 'تم إزالة الصورة بنجاح' : 'Profile picture removed');
+            } catch (e) {
+              Alert.alert(t('common.error'), isRTL ? 'فشل إزالة الصورة' : 'Failed to remove image');
+            } finally {
+              setUploadingImage(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const handleUpdateName = async () => {
     if (!user || !newName.trim()) return;
     try {
@@ -111,6 +141,7 @@ export const useProfileCard = () => {
     setNewName,
     uploadingImage,
     pickImage,
+    handleRemoveImage,
     handleUpdateName,
     t,
     isRTL,

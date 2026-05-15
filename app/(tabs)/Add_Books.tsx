@@ -1,7 +1,6 @@
 import { AddBookUploadScreen, AddBookDataScreen } from '@/src/features/add_books';
 import React, { useEffect, useState } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -13,6 +12,7 @@ import {
     Platform,
     Text,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ref, push, set, get, update } from 'firebase/database';
 import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -22,6 +22,7 @@ import { Colors } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
 import { uploadImageToCloudinary } from '@/src/services/cloudinary.service';
+import { SQLiteService } from '@/src/services/database/sqlite.service';
 
 export default function Add_Books() {   
     const [step, setStep] = useState(1);
@@ -32,12 +33,13 @@ export default function Add_Books() {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
 
-    const resetForm = () => {
+    const resetForm = async () => {
         setStep(1);
         setBookId(undefined);
         setTempImageUri(undefined);
         setInitialData(undefined);
         setAnalysisResult(undefined);
+        await SQLiteService.deleteDraft('add_book_flow');
     };
     
     const { width } = useWindowDimensions();
@@ -67,8 +69,33 @@ export default function Add_Books() {
                 console.error(err);
                 setLoading(false);
             });
+        } else {
+            // Check for existing flow draft
+            const loadDraft = async () => {
+                const draft = await SQLiteService.getDraft<any>('add_book_flow');
+                if (draft) {
+                    setStep(draft.step || 1);
+                    setTempImageUri(draft.tempImageUri);
+                    setAnalysisResult(draft.analysisResult);
+                }
+            };
+            loadDraft();
         }
     }, [editId]);
+
+    // Save flow draft whenever progress changes
+    useEffect(() => {
+        if (!editId) {
+            const saveDraft = async () => {
+                await SQLiteService.saveDraft('add_book_flow', 'flow', {
+                    step,
+                    tempImageUri,
+                    analysisResult
+                });
+            };
+            saveDraft();
+        }
+    }, [step, tempImageUri, analysisResult, editId]);
 
     const handleSaveBook = async (formData: any) => {
         const user = FIREBASE_AUTH.currentUser;
@@ -96,8 +123,14 @@ export default function Add_Books() {
                 });
             }
 
+            // Sanitize formData to remove undefined values (Firebase doesn't allow undefined)
+            const sanitizedData = { ...formData };
+            if (sanitizedData.price === undefined) {
+                delete sanitizedData.price;
+            }
+
             const bookData = {
-                ...formData,
+                ...sanitizedData,
                 imageUrl: finalImageUrl,
                 donorUid: user.uid,
                 donorName: user.displayName || 'Contributor',

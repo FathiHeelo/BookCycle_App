@@ -74,8 +74,25 @@ export const useMyRequests = () => {
             { 
               text: isRTL ? 'موافق' : 'Confirm', 
               onPress: async () => {
-                await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: 'accepted' });
-                await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: 'requested' });
+                // 1. Get current book data
+                const bookRef = ref(FIREBASE_DB, `Books/${bookId}`);
+                const bookSnap = await get(bookRef);
+                
+                if (bookSnap.exists()) {
+                  const bookData = bookSnap.val();
+                  const currentQty = bookData.quantity !== undefined ? bookData.quantity : 1;
+                  const newQty = Math.max(0, currentQty - 1);
+                  
+                  // 2. Update Request Status
+                  await update(ref(FIREBASE_DB, `Requests/${requestId}`), { status: 'accepted' });
+                  
+                  // 3. Update Book Quantity and Status
+                  const bookUpdates: any = { quantity: newQty };
+                  if (newQty === 0) {
+                    bookUpdates.status = 'requested';
+                  }
+                  await update(bookRef, bookUpdates);
+                }
 
                 try {
                   const reqSnap = await get(ref(FIREBASE_DB, `Requests/${requestId}`));
@@ -153,8 +170,17 @@ export const useMyRequests = () => {
           text: isRTL ? 'إعادة نشر' : 'Republish', 
           onPress: async () => {
             try {
+              const bookRef = ref(FIREBASE_DB, `Books/${bookId}`);
+              const bookSnap = await get(bookRef);
+              if (bookSnap.exists()) {
+                const bookData = bookSnap.val();
+                const currentQty = bookData.quantity !== undefined ? bookData.quantity : 0;
+                await update(bookRef, { 
+                  status: 'active', 
+                  quantity: currentQty + 1 
+                });
+              }
               await remove(ref(FIREBASE_DB, `Requests/${requestId}`));
-              await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: 'active' });
               Alert.alert(t('common.success'), isRTL ? 'تم إعادة نشر المصدر بنجاح' : 'Resource republished successfully');
             } catch (e) {
               console.error(e);
@@ -175,8 +201,17 @@ export const useMyRequests = () => {
           text: t('common.save'), 
           onPress: async () => {
             try {
+              const bookRef = ref(FIREBASE_DB, `Books/${bookId}`);
+              const bookSnap = await get(bookRef);
+              if (bookSnap.exists()) {
+                const bookData = bookSnap.val();
+                const currentQty = bookData.quantity !== undefined ? bookData.quantity : 0;
+                await update(bookRef, { 
+                  status: 'active', 
+                  quantity: currentQty + 1 
+                });
+              }
               await remove(ref(FIREBASE_DB, `Requests/${requestId}`));
-              await update(ref(FIREBASE_DB, `Books/${bookId}`), { status: 'active' });
               Alert.alert(t('common.success'), t('requests.notifications.cancelSuccess'));
             } catch {
               Alert.alert(t('common.error'), t('requests.notifications.cancelError'));

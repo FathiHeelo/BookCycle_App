@@ -4,6 +4,7 @@ import { FIREBASE_DB, FIREBASE_AUTH } from '@/firebaseConfig';
 import { useI18n } from '@/hooks/use-i18n';
 import { uploadImageToCloudinary } from '@/src/services/cloudinary.service';
 import { Message } from '../types';
+import { SQLiteService, SQLiteMessage } from '@/src/services/database/sqlite.service';
 
 export const useChat = (chatId: string | undefined, otherId: string | undefined, bookTitle: string | undefined) => {
   const { t, isRTL } = useI18n();
@@ -52,6 +53,20 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
   useEffect(() => {
     if (!chatId || !currentUser) return;
 
+    // 1. Load from SQLite first (Offline-first approach)
+    const loadLocalMessages = async () => {
+      const localMsgs = await SQLiteService.getMessages(chatId);
+      if (localMsgs.length > 0) {
+        setMessages(localMsgs.map(m => ({
+          ...m,
+          timestamp: parseInt(m.timestamp)
+        } as Message)).sort((a, b) => b.timestamp - a.timestamp));
+        setLoading(false);
+      }
+    };
+    loadLocalMessages();
+
+    // 2. Sync with Firebase
     const messagesRef = ref(FIREBASE_DB, `Messages/${chatId}`);
     const unsubscribe = onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
@@ -60,7 +75,21 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
           id: key,
           ...data[key]
         })).sort((a, b) => b.timestamp - a.timestamp);
+        
         setMessages(list);
+        
+        // 3. Save to SQLite for offline use
+        list.forEach(msg => {
+          SQLiteService.saveMessage({
+            id: msg.id,
+            chatId: chatId,
+            senderId: msg.senderId,
+            senderName: msg.senderId === currentUser.uid ? (currentUser.displayName || '') : (otherUser?.fullName || ''),
+            text: msg.text || (msg.imageUrl ? '📷 Image' : (msg.location ? '📍 Location' : '')),
+            timestamp: msg.timestamp.toString(),
+            status: 'sent'
+          });
+        });
       } else {
         setMessages([]);
       }
@@ -68,7 +97,7 @@ export const useChat = (chatId: string | undefined, otherId: string | undefined,
     });
 
     return () => unsubscribe();
-  }, [chatId]);
+  }, [chatId, currentUser, otherUser]);
 
   const handleSend = async () => {
     if (!inputText.trim() || !currentUser || !chatId) return;

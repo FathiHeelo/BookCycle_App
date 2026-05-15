@@ -145,12 +145,25 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             </View>
           )}
 
-          <View style={[styles.infoCardWide, { backgroundColor: theme.card, borderColor: theme.border }]}>
+          {/* Condition Section */}
+          <View style={[styles.infoCardWide, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: 12 }]}>
             <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الحالة' : 'CONDITION').toUpperCase()}</Text>
             <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
               {book.conditionId ? t(`conditions.${book.conditionId}`) : (isRTL ? 'مثل الجديد ✨' : 'Like New ✨')}
             </Text>
           </View>
+
+          {book.quantity !== undefined && (
+            <View style={[styles.infoCardWide, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: 16 }]}>
+              <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الكمية المتوفرة' : 'AVAILABLE QUANTITY').toUpperCase()}</Text>
+              <View style={{ flexDirection, alignItems: 'center', gap: 8, marginTop: 4 }}>
+                <Ionicons name="copy-outline" size={20} color={theme.primary} />
+                <Text style={[styles.infoValue, { color: theme.primary, textAlign, fontSize: 18 }]}>
+                  {book.quantity} {isRTL ? 'نسخ متاحة' : 'copies available'}
+                </Text>
+              </View>
+            </View>
+          )}
 
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.text, textAlign }]}>{t('bookDetails.description')}</Text>
@@ -204,20 +217,21 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
               (requesting || book.status === 'requested' || book.status === 'received' || book.status === 'completed') && { opacity: 0.7 }
             ]}
             onPress={() => {
-              if (book.status === 'requested' || book.status === 'received' || book.status === 'completed') {
-                Alert.alert(isRTL ? 'غير متوفر' : 'Not Available', isRTL ? 'هذا المصدر تم حجزه أو استلامه بالفعل.' : 'This resource has already been requested or received.');
+              const isUnavailable = (book.quantity !== undefined ? book.quantity <= 0 : book.status === 'requested') || book.status === 'received' || book.status === 'completed';
+              if (isUnavailable) {
+                Alert.alert(isRTL ? 'غير متوفر' : 'Not Available', isRTL ? 'هذا المصدر غير متوفر حالياً.' : 'This resource is currently not available.');
                 return;
               }
               requestStatus === 'none' && setModalVisible(true);
             }}
-            disabled={requesting || requestStatus === 'success' || book.status === 'requested' || book.status === 'received' || book.status === 'completed'}
+            disabled={requesting || requestStatus === 'success' || ((book.quantity !== undefined ? book.quantity <= 0 : book.status === 'requested') || book.status === 'received' || book.status === 'completed')}
           >
             {requesting ? (
               <ActivityIndicator color={themeKey === 'dark' ? '#0B1020' : '#FFF'} />
             ) : (
               <View style={{ flexDirection, alignItems: 'center' }}>
                 <Ionicons 
-                  name={requestStatus === 'success' ? "checkmark-circle" : (book.status === 'requested' || book.status === 'received' || book.status === 'completed' ? "lock-closed" : "heart-outline")} 
+                  name={requestStatus === 'success' ? "checkmark-circle" : (((book.quantity !== undefined ? book.quantity <= 0 : book.status === 'requested') || book.status === 'received' || book.status === 'completed') ? "lock-closed" : "heart-outline")} 
                   size={20} 
                   color={themeKey === 'dark' ? '#0B1020' : '#FFF'} 
                   style={isRTL ? { marginLeft: 8 } : { marginRight: 8 }} 
@@ -225,7 +239,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
                 <Text style={[styles.requestBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>
                   {requestStatus === 'success' 
                     ? (isRTL ? 'تم إرسال الطلب' : 'Request Sent') 
-                    : (book.status === 'requested' || book.status === 'received' || book.status === 'completed' 
+                    : (((book.quantity !== undefined ? book.quantity <= 0 : book.status === 'requested') || book.status === 'received' || book.status === 'completed')
                         ? (isRTL ? 'غير متوفر' : 'Not Available') 
                         : (isRTL ? 'اطلب هذا المصدر' : 'Request this Resource'))}
                 </Text>

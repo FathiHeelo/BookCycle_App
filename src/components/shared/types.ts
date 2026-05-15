@@ -22,4 +22,5 @@ export interface BookCardProps {
   onPress: (id: string) => void;
   showNewBadge?: boolean;
   createdAt?: string;
+  quantity?: number;
 }

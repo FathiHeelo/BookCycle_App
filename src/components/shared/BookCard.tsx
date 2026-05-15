@@ -16,12 +16,13 @@ export const BookCard = ({
   isRTL = false,
   onPress,
   showNewBadge = false,
-  createdAt
+  createdAt,
+  quantity
 }: BookCardProps) => {
   const { t } = useI18n();
 
-  const isUnavailable = status === 'requested' || status === 'completed' || status === 'received';
-  const overlayText = status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
+  const isUnavailable = (quantity !== undefined ? quantity <= 0 : status === 'requested') || status === 'completed' || status === 'received';
+  const overlayText = (quantity !== undefined && quantity <= 0) || status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
   const isNew = createdAt ? (new Date().getTime() - new Date(createdAt).getTime() < 1000 * 60 * 60 * 24 * 3) : false;
 
   const displayFaculty = facultyIds ? t(`faculties.${facultyIds[0]}`) : (facultyId ? t(`faculties.${facultyId}`) : 'General');
@@ -64,6 +65,14 @@ export const BookCard = ({
           <View style={styles.facultyBadge}>
             <Text style={styles.facultyText}>{displayFaculty.toUpperCase()}</Text>
           </View>
+
+          {quantity !== undefined && !isUnavailable && (
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', marginTop: 4, gap: 4 }}>
+              <Text style={{ fontSize: 10, fontWeight: '800', color: '#3B82F6' }}>
+                {quantity} {isRTL ? 'متوفر' : 'Available'}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
     </Pressable>
