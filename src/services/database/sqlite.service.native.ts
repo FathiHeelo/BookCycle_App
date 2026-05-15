@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { SQLiteMessage, SQLiteDraft } from './types';
 export * from './types';
 
 const DB_NAME = 'bookcycle.db';
