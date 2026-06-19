@@ -79,7 +79,7 @@ export default function MessagesTab() {
           <Ionicons name="person" size={24} color={theme.primary} />
         </View>
         <View style={[styles.chatInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-          <Text style={[styles.bookTitle, { color: theme.text, fontWeight: isAccessible ? '900' : '800' }]} numberOfLines={1}>{item.bookTitle || (isRTL ? 'استفسار عام' : 'General Inquiry')}</Text>
+          <Text style={[styles.bookTitle, { color: theme.text, fontWeight: isAccessible ? '900' : '800' }]} numberOfLines={1}>{item.bookTitle || t('chat.generalInquiry')}</Text>
           <Text style={[styles.lastMessage, { color: theme.textSecondary, fontWeight: isAccessible ? '700' : '500' }]} numberOfLines={1}>{item.lastMessage}</Text>
         </View>
         <View style={styles.metaInfo}>
@@ -95,7 +95,7 @@ export default function MessagesTab() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <CustomHeader
-        title={isRTL ? 'الرسائل' : 'Messages'}
+        title={t('chat.title')}
         leftMode="none"
         rightIcons={[isSearching ? 'menu' : 'search']}
         onRightIconPress={(icon) => {
@@ -119,7 +119,7 @@ export default function MessagesTab() {
             <Ionicons name="search" size={18} color={theme.textSecondary} />
             <TextInput
               style={[styles.searchInput, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}
-              placeholder={isRTL ? 'بحث عن محادثة...' : 'Search chats...'}
+              placeholder={t('chat.searchPlaceholder')}
               placeholderTextColor={theme.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -147,7 +147,7 @@ export default function MessagesTab() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="chatbubbles-outline" size={64} color={theme.border} />
-              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{isRTL ? 'لا توجد محادثات بعد' : 'No messages yet'}</Text>
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('chat.emptyState')}</Text>
             </View>
           }
         />

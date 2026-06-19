@@ -17,7 +17,7 @@ import 'react-native-reanimated';
 import { FIREBASE_AUTH } from '@/firebaseConfig';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
-import '@/i18n/config';
+import { initI18n } from '@/src/i18n';
 import { ThemeProvider as AppThemeProvider, useAppTheme } from '@/context/ThemeContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/hooks/use-notifications';
@@ -67,6 +67,7 @@ function RootLayoutInner() {
   const colorScheme = useColorScheme();
   const theme = Colors[isDark ? 'dark' : 'light'];
   const [splashVisible, setSplashVisible] = useState(true);
+  const [i18nReady, setI18nReady] = useState(false);
   const { toastVisible, currentToast, hideToast } = useNotifications();
 
   // Animation values
@@ -75,6 +76,9 @@ function RootLayoutInner() {
   const textOpacity = useSharedValue(0);
 
   useEffect(() => {
+    // Initialize i18n
+    initI18n().finally(() => setI18nReady(true));
+
     // Branded splash delay (2 seconds)
     const splashTimer = setTimeout(() => {
       setSplashVisible(false);
@@ -99,8 +103,8 @@ function RootLayoutInner() {
     opacity: textOpacity.value,
   }));
 
-  // Show a splash-like loader while splashVisible is true or auth is still initializing
-  if (splashVisible || authLoading) {
+  // Show a splash-like loader while splashVisible is true, auth is still initializing, or i18n is not ready
+  if (splashVisible || authLoading || !i18nReady) {
     return (
       <View style={[styles.splashContainer, { backgroundColor: theme.background }]}>
         <Animated.View style={[styles.logoContainer, animatedLogoStyle]}>

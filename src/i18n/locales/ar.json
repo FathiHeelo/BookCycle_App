@@ -1,0 +1,383 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "back": "رجوع",
+    "next": "التالي",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "or": "أو",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "ok": "موافق",
+    "error": "خطأ",
+    "search": "بحث",
+    "sorry": "عذراً"
+  },
+  "tabs": {
+    "home": "الرئيسية",
+    "chat": "المحادثات",
+    "add": "إضافة",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات"
+  },
+  "auth": {
+    "loginTitle": "أهلاً بك في BookCycle",
+    "loginSubtitle": "تبادل المصادر الأكاديمية مع طلاب جامعة النجاح.",
+    "emailPlaceholder": "البريد الجامعي",
+    "passwordPlaceholder": "كلمة المرور",
+    "loginButton": "تسجيل الدخول",
+    "login": {
+      "title": "أهلاً بك مجدداً",
+      "subtitle": "يرجى إدخال بياناتك الجامعية للمتابعة.",
+      "emailLabel": "البريد الإلكتروني الجامعي",
+      "emailPlaceholder": "username@stu.najah.edu",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "نسيت؟",
+      "loginButton": "تسجيل الدخول",
+      "signupButton": "إنشاء حساب",
+      "footer": "انضم إلى مجتمعك الجامعي وابدأ في الإهداء والتبادل."
+    },
+    "signup": {
+      "title": "انضم إلى دائرة المعرفة",
+      "subtitle": "قم بإنشاء ملفك الأكاديمي لبدء إهداء وطلب المواد الدراسية داخل مجتمع النجاح.",
+      "fullNameLabel": "الاسم الكامل",
+      "fullNamePlaceholder": "أدخل اسمك الكامل",
+      "emailLabel": "البريد الإلكتروني للطالب",
+      "emailPlaceholder": "username@stu.najah.edu",
+      "passwordLabel": "كلمة المرور",
+      "confirmPasswordLabel": "تأكيد",
+      "passwordPlaceholder": "••••••••",
+      "facultyLabel": "الكلية",
+      "facultyPlaceholder": "اختر كليتك",
+      "majorLabel": "التخصص",
+      "majorPlaceholder": "اختر تخصصك",
+      "universityIdLabel": "الرقم الجامعي",
+      "universityIdPlaceholder": "مثال: 11920345",
+      "legalText": "بالنقر فوق إنشاء حساب، فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بنا فيما يتعلق بالبيانات الأكاديمية.",
+      "signupButton": "إنشاء حساب",
+      "roleLabel": "المسمى الأكاديمي",
+      "rolePlaceholder": "اختر مسمّاك الأكاديمي",
+      "student": "طالب",
+      "professor": "دكتور جامعي",
+      "alreadyAccount": "هل لديك حساب بالفعل؟ ",
+      "loginLink": "تسجيل الدخول"
+    },
+    "forgotPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "subtitle": "أدخل بريدك الإلكتروني الجامعي وسنرسل لك رابط إعادة التعيين.",
+      "emailLabel": "البريد الإلكتروني الجامعي",
+      "emailPlaceholder": "username@stu.najah.edu",
+      "sendButton": "إرسال رابط إعادة التعيين",
+      "backToLogin": "العودة لتسجيل الدخول"
+    },
+    "changePassword": {
+      "title": "تغيير كلمة المرور",
+      "description": "قم بتأمين حسابك عن طريق تحديث كلمة المرور بشكل دوري.",
+      "currentPassword": "كلمة المرور الحالية",
+      "enterCurrentPassword": "أدخل كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة",
+      "min6Characters": "6 أحرف على الأقل",
+      "updatePassword": "تحديث كلمة المرور"
+    },
+    "success": {
+      "passwordChanged": "تم تغيير كلمة المرور بنجاح!",
+      "resetLinkSent": "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني."
+    },
+    "errors": {
+      "invalidEmail": "يرجى إدخال بريد إلكتروني جامعي صالح",
+      "userNotFound": "لم يتم العثور على حساب بهذا البريد الإلكتروني",
+      "wrongPassword": "كلمة المرور غير صحيحة",
+      "failedToSignIn": "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.",
+      "tooManyRequests": "محاولات فاشلة كثيرة جداً، يرجى المحاولة لاحقاً.",
+      "emailAlreadyInUse": "البريد الإلكتروني مستخدم بالفعل.",
+      "failedToSignup": "فشل إنشاء الحساب.",
+      "currentPasswordRequired": "يرجى إدخال كلمة المرور الحالية.",
+      "newPasswordTooWidth": "يجب أن تكون كلمة المرور الجديدة 6 أحرف على الأقل.",
+      "newPasswordTooWeak": "كلمة المرور الجديدة ضعيفة.",
+      "failedToUpdatePassword": "فشل تحديث كلمة المرور.",
+      "currentPasswordIncorrect": "كلمة المرور الحالية غير صحيحة.",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "passwordMinLength": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+      "useUniversityEmail": "استخدم بريدك الجامعي @stu.najah.edu",
+      "fullNameMinLength": "يجب أن يكون الاسم الكامل حرفين على الأقل",
+      "selectFaculty": "يرجى اختيار الكلية",
+      "selectMajor": "يرجى اختيار التخصص",
+      "universityIdLength": "أدخل رقماً جامعياً صالحاً (8-10 أرقام)",
+      "passwordsDoNotMatch": "passwordsDoNotMatch"
+    }
+  },
+  "home": {
+    "title": "BookCycle",
+    "subtitle": "ابحث، تبادل، وشارك المصادر الأكاديمية.",
+    "emptyState": "لا توجد مصادر بعد.",
+    "givingHub": "المنصة الأكاديمية",
+    "hubSubtitle": "شارك المصادر، انشر المعرفة",
+    "searchPlaceholder": "ابحث عن مصادر أكاديمية...",
+    "browseFaculty": "كلياتي المفضلة",
+    "browseFacultySubtitle": "وصول سريع للأقسام التي تهمك",
+    "uniRequirements": "إجباري جامعة",
+    "featuredGifts": "مصادر مميزة",
+    "customizeDescription": "اختر الكليات التي تود متابعتها. ستظهر هذه الكليات في شاشتك الرئيسية لتسهيل الوصول إليها.",
+    "availableMaterials": "المصادر المتاحة",
+    "giftedBy": "مشاركة من قبل",
+    "giveBook": "شارك مصدراً",
+    "viewAll": "تخصيص",
+    "emptySearch": "لا توجد هدايا متاحة تطابق بحثك",
+    "customizeTitle": "تخصيص الكليات المعروضة",
+    "selectUpTo": "اختر حتى"
+  },
+  "explore": {
+    "status": {
+      "requested": "قيد الطلب",
+      "given": "تم التسليم"
+    },
+    "new": "جديد",
+    "untitled": "مصدر بدون عنوان",
+    "available": "متوفر",
+    "contributor": "مساهم أكاديمي",
+    "hubTitle": "منصة المصادر",
+    "hubSubtitle": "الأكاديمية المفتوحة",
+    "searchPlaceholder": "عن أي مصدر أكاديمي تبحث؟",
+    "empty": "لم نجد أي مصادر تطابق بحثك",
+    "filter": {
+      "title": "تصفية النتائج",
+      "clear": "مسح الكل",
+      "time": "الوقت",
+      "latest": "الأحدث",
+      "anytime": "مش مهم",
+      "faculties": "الكليات المفضلة",
+      "apply": "تطبيق"
+    }
+  },
+  "listing": {
+    "addTitle": "إضافة مصدر",
+    "titlePlaceholder": "عنوان المصدر",
+    "descriptionPlaceholder": "اكتب وصفاً للمصدر",
+    "category": "التصنيف",
+    "contactOwner": "تواصل مع صاحب المصدر"
+  },
+  "chat": {
+    "title": "الرسائل",
+    "placeholder": "اكتب رسالة...",
+    "send": "إرسال",
+    "generalInquiry": "استفسار عام",
+    "searchPlaceholder": "بحث عن محادثة...",
+    "emptyState": "لا توجد محادثات بعد"
+  },
+  "faculties": {
+    "med": "كلية الطب البشري والعلوم الطبية المساندة",
+    "eng": "كلية الهندسة",
+    "bus": "كلية الأعمال والاتصال",
+    "grad": "كلية الدراسات العليا",
+    "hon": "كلية الشرف",
+    "sha": "كلية الشريعة",
+    "vet": "كلية الطب البيطري والهندسة الزراعية",
+    "sci": "كلية العلوم",
+    "hum": "كلية العلوم الإنسانية والتربوية",
+    "art": "كلية الفنون الجميلة",
+    "law": "كلية القانون والعلوم السياسية",
+    "it": "كلية تكنولوجيا المعلومات والذكاء الاصطناعي",
+    "den": "كلية طب وجراحة الفم والأسنان",
+    "pha": "كلية الصيدلة",
+    "nur": "كلية التمريض"
+  },
+  "majors": {
+    "med": ["الطب البشري", "التحاليل الطبية", "العلاج الطبيعي"],
+    "eng": ["الهندسة المدنية", "الهندسة الميكانيكية", "الميكاترونيكس", "الهندسة الكهربائية"],
+    "it": ["علم الحاسوب", "هندسة البرمجيات", "الذكاء الاصطناعي", "الأمن السيبراني"],
+    "bus": ["المحاسبة", "إدارة الأعمال", "التسويق", "العلوم المالية"],
+    "sci": ["الأحياء", "الكيمياء", "الفيزياء", "الرياضيات"],
+    "hum": ["اللغة العربية", "اللغة الإنجليزية", "التاريخ", "علم النفس"],
+    "law": ["القانون العام", "القانون الخاص", "العلوم السياسية"],
+    "art": ["الموسيقى", "الرسم", "التصميم الداخلي"],
+    "pha": ["الصيدلة", "الصيدلة السريرية"],
+    "den": ["طب الأسنان"],
+    "nur": ["التمريض"],
+    "vet": ["الطب البيطري", "الهندسة الزراعية"],
+    "sha": ["الشريعة الإسلامية", "الدراسات الإسلامية"],
+    "hon": ["برنامج الشرف"],
+    "grad": ["ماجستير إدارة أعمال", "ماجستير تكنولوجيا المعلومات", "ماجستير لغات"]
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "rating": "التقييم",
+    "resourcesShared": "المصادر التي تمت مشاركتها",
+    "contributorProfile": "ملف المساهم",
+    "resources": "مصادر",
+    "cannotRateSelf": "لا يمكنك تقييم نفسك",
+    "rateContributor": "تقييم المساهم",
+    "availableResources": "المصادر المتوفرة",
+    "noResources": "لا توجد مصادر معروضة حالياً",
+    "card": {
+      "verified": "مساهم موثّق",
+      "edit": "تعديل الملف الشخصي",
+      "share": "مشاركة الأثر",
+      "university": "جامعة النجاح الوطنية"
+    },
+    "stats": {
+      "communityImpact": "أثر المجتمع",
+      "totalBooks": "إجمالي المصادر الدراسية",
+      "given": "تمت المشاركة",
+      "thankYou": "شكراً لمساهمتك!"
+    },
+    "reliability": {
+      "title": "موثوقية المساهم",
+      "punctuality": "الالتزام بالمواعيد",
+      "bookCondition": "حالة المواد",
+      "punctualityStatements": {
+        "always": "يلتزم دائماً بالمواعيد في مركز الطلاب.",
+        "veryReliable": "موثوق جداً، يلتزم بالمواعيد دائماً تقريباً.",
+        "generally": "ملتزم بالمواعيد وموثوق بشكل عام.",
+        "improving": "يعمل على تحسين الالتزام بالمواعيد وسرعة الاستجابة."
+      },
+      "conditionStatements": {
+        "excellent": "يحافظ باستمرار على جودة عالية للمواد.",
+        "good": "المواد عادةً في حالة جيدة جداً.",
+        "fair": "المواد في حالة مقبولة وقابلة للاستخدام.",
+        "improving": "يعمل على تحسين جودة المواد."
+      }
+    },
+    "history": {
+      "booksGiven": "المصادر الدراسية التي شاركتها",
+      "booksReceived": "المصادر الدراسية التي استلمتها",
+      "viewAll": "عرض الكل",
+      "viewHistory": "عرض السجل",
+      "givenTo": "تمت المشاركة مع",
+      "donor": "المساهم",
+      "received": "تم الاستلام"
+    }
+  },
+  "rewards": {
+    "loyalty": "نظام الولاء",
+    "currentLevel": "المستوى الحالي",
+    "pointsUnit": "نقطة",
+    "ptsToReach": "{{pts}} نقطة تفصلك عن {{levelTitle}}",
+    "shared": "مشاركة",
+    "exchanges": "تبادل",
+    "badges": "أوسمة",
+    "activeCoupons": "كوبوناتي النشطة",
+    "expires": "تنتهي في: ",
+    "availableRewards": "المكافآت المتاحة",
+    "redeem": "استبدال",
+    "infoDesc": "اكسب النقاط من خلال مشاركة الكتب، مساعدة زملائك، والحصول على تقييمات إيجابية."
+  },
+  "bookDetails": {
+    "title": "تفاصيل المصدر",
+    "description": "الوصف",
+    "donor": "المساهم",
+    "price": "السعر",
+    "free": "مجاني",
+    "noDescription": "لا يوجد وصف متوفر.",
+    "general": "عام",
+    "hardcover": "غلاف مقوى",
+    "by": "بواسطة",
+    "academicFaculty": "عضو هيئة تدريس",
+    "requestedPrice": "السعر المطلوب",
+    "availableForSale": "هذا المصدر متاح للبيع",
+    "studyResource": "مصدر دراسي",
+    "editionModel": "الطبعة/الموديل",
+    "latest": "أحدث طبعة",
+    "conditionLabel": "الحالة",
+    "availableQuantity": "الكمية المتوفرة",
+    "copiesAvailable": "نسخ متاحة",
+    "giftingBy": "بواسطة",
+    "contributions": "مساهمة",
+    "viewProfile": "عرض الملف الشخصي",
+    "notAvailable": "غير متوفر",
+    "notAvailableDesc": "هذا المصدر غير متوفر حالياً.",
+    "requestSent": "تم إرسال الطلب",
+    "requestResource": "اطلب هذا المصدر",
+    "confirmRequestTitle": "تأكيد الطلب",
+    "confirmRequestDesc": "أنت على وشك طلب هذا الكتاب. سيتم إخطار المساهم للموافقة على طلبك.",
+    "confirmRequestBtn": "تأكيد الطلب"
+  },
+  "conditions": {
+    "new": "جديد",
+    "like_new": "شبه جديد",
+    "good": "جيد",
+    "fair": "مقبول",
+    "poor": "سيئ"
+  },
+  "categories": {
+    "title": "التصنيف",
+    "placeholder": "اختر التصنيف",
+    "books": "كتب دراسية",
+    "notes": "ملخصات ونوتات",
+    "hardware": "أدوات ومستلزمات",
+    "others": "أخرى"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "preferences": "التفضيلات",
+    "language": "اللغة",
+    "languageSubtitle": "اختر لغتك المفضلة",
+    "chooseLanguage": "اختر اللغة",
+    "darkMode": "الوضع المظلم",
+    "darkModeSubtitle": "التبديل بين المظهر الفاتح والمظلم",
+    "studentId": "الرقم الجامعي",
+    "logout": "تسجيل الخروج",
+    "logoutSubtitle": "الخروج من حسابك",
+    "english": "الإنجليزية",
+    "arabic": "العربية",
+    "appearance": "المظهر",
+    "account": "الحساب",
+    "accessibility": "إمكانية الوصول",
+    "colorBlindMode": "وضع صديق لعمى الألوان",
+    "colorBlindSubtitle": "يضبط الألوان والتباين والأيقونات والتسميات لجعل التطبيق أسهل في الاستخدام للأشخاص الذين يعانون من صعوبات في رؤية الألوان.",
+    "notifications": "التنبيهات"
+  },
+  "requests": {
+    "title": "طلباتي",
+    "empty": "لا توجد طلبات حالياً.",
+    "incoming": "طلبات واردة",
+    "outgoing": "طلبات صادرة",
+    "status": {
+      "pending": "بانتظار الموافقة",
+      "accepted": "تم القبول",
+      "rejected": "مرفوض",
+      "received": "تم الاستلام",
+      "completed": "مكتمل",
+      "active": "نشط"
+    },
+    "accept": "قبول",
+    "reject": "رفض",
+    "markAsReceived": "تم الاستلام",
+    "notifications": {
+      "acceptSuccess": "تم قبول الطلب، تواصل مع الزميل لتحديد موعد",
+      "cancelTitle": "إلغاء الطلب",
+      "cancelConfirm": "هل أنت متأكد من إلغاء هذا الطلب؟",
+      "cancelSuccess": "تم إلغاء الطلب بنجاح",
+      "cancelError": "فشل إلغاء الطلب"
+    }
+  },
+  "shared": {
+    "title": "موادي المشتركة",
+    "empty": "لم تشارك أي مواد بعد.",
+    "deleteConfirmTitle": "حذف المصدر",
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذا المصدر نهائياً؟",
+    "deleteSuccess": "تم الحذف بنجاح",
+    "deleteError": "فشل الحذف",
+    "overlay": {
+      "requested": "قيد الطلب",
+      "given": "تم التسليم"
+    }
+  },
+  "welcome": {
+    "title": "أهلاً بك في BookCycle",
+    "subtitle": "الطريقة الأفضل لمشاركة المعرفة.",
+    "features": {
+      "exchangeTitle": "تبادل الكتب",
+      "exchangeDesc": "امنح كتبك حياة ثانية عن طريق تبادلها مع زملائك.",
+      "ecoTitle": "صديق للبيئة",
+      "ecoDesc": "قلل من استهلاك الورق وساهم في الاستدامة."
+    },
+    "footer": "من طالب إلى طالب"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب.",
+    "invalidUniversityEmail": "يرجى استخدام البريد الجامعي."
+  }
+}

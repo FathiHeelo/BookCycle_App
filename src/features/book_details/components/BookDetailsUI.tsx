@@ -74,12 +74,12 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             ) : (
               <View style={[styles.badge, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.15)' : '#FEF3C7' }]}>
                 <Text style={[styles.badgeText, { color: theme.primary }]}>
-                  {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : (isRTL ? 'عام' : 'GENERAL')}
+                  {book.facultyId ? t(`faculties.${book.facultyId}`).toUpperCase() : t('bookDetails.general')}
                 </Text>
               </View>
             )}
             <View style={[styles.badge, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}>
-              <Text style={[styles.badgeText, { color: theme.textSecondary }]}>{isRTL ? 'غلاف مقوى' : 'HARDCOVER'}</Text>
+              <Text style={[styles.badgeText, { color: theme.textSecondary }]}>{t('bookDetails.hardcover')}</Text>
             </View>
           </View>
 
@@ -87,7 +87,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             {isRTL ? (book.titleAr || book.title) : book.title}
           </Text>
           <Text style={[styles.author, { color: theme.textSecondary, textAlign }]}>
-            {t('bookDetails.by', { defaultValue: isRTL ? 'بواسطة' : 'by' })} {book.author || (isRTL ? 'عضو هيئة تدريس' : 'Academic Faculty')}
+            {t('bookDetails.by')} {book.author || t('bookDetails.academicFaculty')}
           </Text>
 
           {book.price && (
@@ -102,10 +102,10 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             }]}>
               <View>
                 <Text style={[styles.infoLabel, { textAlign, color: isAccessible ? theme.success : '#10B981', marginBottom: 0 }]}>
-                  {(isRTL ? 'السعر المطلوب' : 'REQUESTED PRICE').toUpperCase()}
+                  {t('bookDetails.requestedPrice')}
                 </Text>
                 <Text style={{ color: theme.textSecondary, fontSize: 11, textAlign }}>
-                  {isRTL ? 'هذا المصدر متاح للبيع' : 'This resource is available for sale'}
+                  {t('bookDetails.availableForSale')}
                 </Text>
               </View>
               <Text style={{ color: isAccessible ? theme.success : '#10B981', fontSize: 24, fontWeight: '900' }}>₪{book.price}</Text>
@@ -116,13 +116,13 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             <View style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
               <Text style={[styles.infoLabel, { textAlign }]}>{t('categories.title').toUpperCase()}</Text>
               <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
-                {book.categoryId ? t(`categories.${book.categoryId}`) : (isRTL ? 'مصدر دراسي' : 'Study Resource')}
+                {book.categoryId ? t(`categories.${book.categoryId}`) : t('bookDetails.studyResource')}
               </Text>
             </View>
             <View style={[styles.infoCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الطبعة/الموديل' : 'EDITION/MODEL').toUpperCase()}</Text>
+              <Text style={[styles.infoLabel, { textAlign }]}>{t('bookDetails.editionModel')}</Text>
               <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
-                {book.edition || (isRTL ? 'أحدث طبعة' : 'Latest')}
+                {book.edition || t('bookDetails.latest')}
               </Text>
             </View>
           </View>
@@ -147,19 +147,19 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
 
           {/* Condition Section */}
           <View style={[styles.infoCardWide, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: 12 }]}>
-            <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الحالة' : 'CONDITION').toUpperCase()}</Text>
+            <Text style={[styles.infoLabel, { textAlign }]}>{t('bookDetails.conditionLabel')}</Text>
             <Text style={[styles.infoValue, { color: theme.primary, textAlign }]}>
-              {book.conditionId ? t(`conditions.${book.conditionId}`) : (isRTL ? 'مثل الجديد ✨' : 'Like New ✨')}
+              {book.conditionId ? t(`conditions.${book.conditionId}`) : t('conditions.like_new')}
             </Text>
           </View>
 
           {book.quantity !== undefined && (
             <View style={[styles.infoCardWide, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: 16 }]}>
-              <Text style={[styles.infoLabel, { textAlign }]}>{(isRTL ? 'الكمية المتوفرة' : 'AVAILABLE QUANTITY').toUpperCase()}</Text>
+              <Text style={[styles.infoLabel, { textAlign }]}>{t('bookDetails.availableQuantity')}</Text>
               <View style={{ flexDirection, alignItems: 'center', gap: 8, marginTop: 4 }}>
                 <Ionicons name="copy-outline" size={20} color={theme.primary} />
                 <Text style={[styles.infoValue, { color: theme.primary, textAlign, fontSize: 18 }]}>
-                  {book.quantity} {isRTL ? 'نسخ متاحة' : 'copies available'}
+                  {book.quantity} {t('bookDetails.copiesAvailable')}
                 </Text>
               </View>
             </View>
@@ -173,7 +173,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
           </View>
 
           <View style={[styles.donorSection, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.05)' : '#F8FAFC', borderColor: theme.border, borderWidth: 1 }]}>
-            <Text style={[styles.donorLabel, { textAlign }]}>{isRTL ? 'بواسطة' : 'GIFTING BY'}</Text>
+            <Text style={[styles.donorLabel, { textAlign }]}>{t('bookDetails.giftingBy')}</Text>
             
             <View style={[styles.donorHeader, { flexDirection }]}>
               <View style={[styles.donorAvatar, { backgroundColor: themeKey === 'dark' ? theme.background : '#F1F5F9' }]}>
@@ -191,7 +191,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
                 <Text style={[styles.donorSubtext, { textAlign, color: theme.textSecondary }]}>
                   {donorProfile?.role === 'professor' ? t('auth.signup.professor') : t('auth.signup.student')}
                   {' • '}
-                  {isRTL ? `${donorStats?.impact || 0} مساهمة` : `${donorStats?.impact || 0} Contributions`}
+                  {`${donorStats?.impact || 0} ${t('bookDetails.contributions')}`}
                 </Text>
               </View>
             </View>
@@ -200,7 +200,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
               style={[styles.viewProfileBtn, { borderColor: theme.border, backgroundColor: theme.card }]}
               onPress={() => router.push(`../public-profile/${book.donorUid}`)}
             >
-              <Text style={[styles.viewProfileText, { color: theme.primary }]}>{isRTL ? 'عرض الملف الشخصي' : 'View Profile'}</Text>
+              <Text style={[styles.viewProfileText, { color: theme.primary }]}>{t('bookDetails.viewProfile')}</Text>
             </TouchableOpacity>
           </View>
           <View style={{ height: 100 }} />
@@ -219,7 +219,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
             onPress={() => {
               const isUnavailable = (book.quantity !== undefined ? book.quantity <= 0 : book.status === 'requested') || book.status === 'received' || book.status === 'completed';
               if (isUnavailable) {
-                Alert.alert(isRTL ? 'غير متوفر' : 'Not Available', isRTL ? 'هذا المصدر غير متوفر حالياً.' : 'This resource is currently not available.');
+                Alert.alert(t('bookDetails.notAvailable'), t('bookDetails.notAvailableDesc'));
                 return;
               }
               requestStatus === 'none' && setModalVisible(true);
@@ -238,10 +238,10 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
                 />
                 <Text style={[styles.requestBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>
                   {requestStatus === 'success' 
-                    ? (isRTL ? 'تم إرسال الطلب' : 'Request Sent') 
+                    ? t('bookDetails.requestSent')
                     : (((book.quantity !== undefined ? book.quantity <= 0 : book.status === 'requested') || book.status === 'received' || book.status === 'completed')
-                        ? (isRTL ? 'غير متوفر' : 'Not Available') 
-                        : (isRTL ? 'اطلب هذا المصدر' : 'Request this Resource'))}
+                        ? t('bookDetails.notAvailable')
+                        : t('bookDetails.requestResource'))}
                 </Text>
               </View>
             )}
@@ -277,9 +277,9 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
               <View style={[styles.iconCircle, { backgroundColor: theme.primary + '10' }]}>
                 <Ionicons name="gift" size={32} color={theme.primary} />
               </View>
-              <Text style={[styles.modalTitle, { color: theme.primary }]}>{isRTL ? 'تأكيد الطلب' : 'Confirm Request'}</Text>
+              <Text style={[styles.modalTitle, { color: theme.primary }]}>{t('bookDetails.confirmRequestTitle')}</Text>
               <Text style={[styles.modalSubtitle, { color: theme.textSecondary }]}>
-                {isRTL ? 'أنت على وشك طلب هذا الكتاب. سيتم إخطار المساهم للموافقة على طلبك.' : 'You are about to request this book. The contributor will be notified to approve your request.'}
+                {t('bookDetails.confirmRequestDesc')}
               </Text>
             </View>
             <View style={[styles.modalDivider, { backgroundColor: theme.border }]} />
@@ -288,7 +288,7 @@ export const BookDetailsUI = (props: BookDetailsUIProps) => {
                 <Text style={[styles.cancelBtnText, { color: theme.textSecondary }]}>{t('common.cancel')}</Text>
               </Pressable>
               <Pressable style={[styles.confirmBtn, { backgroundColor: theme.primary }]} onPress={handleRequest}>
-                <Text style={[styles.confirmBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{isRTL ? 'تأكيد الطلب' : 'Confirm Request'}</Text>
+                <Text style={[styles.confirmBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{t('bookDetails.confirmRequestBtn')}</Text>
               </Pressable>
             </View>
           </View>

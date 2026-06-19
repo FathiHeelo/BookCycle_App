@@ -44,7 +44,7 @@ export default function RewardsScreenUI() {
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <CustomHeader 
-        title={isRTL ? 'نظام الولاء' : 'Student Loyalty'} 
+        title={t('rewards.loyalty')} 
         leftMode="none"
         rightIcons={['search']}
         hideSafeArea={true}
@@ -55,12 +55,12 @@ export default function RewardsScreenUI() {
         <View style={[styles.headerCard, { backgroundColor: themeColors.primary }]}>
           <View style={styles.headerTop}>
             <View>
-              <ThemedText style={styles.levelLabel}>{isRTL ? 'المستوى الحالي' : 'Current Level'}</ThemedText>
+              <ThemedText style={styles.levelLabel}>{t('rewards.currentLevel')}</ThemedText>
               <ThemedText style={styles.levelTitle}>{currentLevelInfo.title}</ThemedText>
             </View>
             <View style={styles.pointsBadge}>
               <Text style={styles.pointsValue}>{rewards?.totalPoints || 0}</Text>
-              <Text style={styles.pointsLabel}>{isRTL ? 'نقطة' : 'PTS'}</Text>
+              <Text style={styles.pointsLabel}>{t('rewards.pointsUnit')}</Text>
             </View>
           </View>
 
@@ -70,9 +70,7 @@ export default function RewardsScreenUI() {
             </View>
             {nextLevelInfo && (
               <ThemedText style={styles.progressText}>
-                {isRTL 
-                  ? `${nextLevelInfo.minPoints - (rewards?.totalPoints || 0)} نقطة تفصلك عن ${nextLevelInfo.title}`
-                  : `${nextLevelInfo.minPoints - (rewards?.totalPoints || 0)} pts to reach ${nextLevelInfo.title}`}
+                {t('rewards.ptsToReach', { pts: nextLevelInfo.minPoints - (rewards?.totalPoints || 0), levelTitle: nextLevelInfo.title })}
               </ThemedText>
             )}
           </View>
@@ -81,17 +79,17 @@ export default function RewardsScreenUI() {
             <View style={styles.statItem}>
               <Ionicons name="share-social" size={20} color="#FFF" />
               <ThemedText style={styles.statNum}>{rewards?.resourcesShared || 0}</ThemedText>
-              <ThemedText style={styles.statLabelSmall}>{isRTL ? 'مشاركة' : 'Shared'}</ThemedText>
+              <ThemedText style={styles.statLabelSmall}>{t('rewards.shared')}</ThemedText>
             </View>
             <View style={styles.statItem}>
               <Ionicons name="checkmark-circle" size={20} color="#FFF" />
               <ThemedText style={styles.statNum}>{rewards?.successfulExchanges || 0}</ThemedText>
-              <ThemedText style={styles.statLabelSmall}>{isRTL ? 'تبادل' : 'Exchanges'}</ThemedText>
+              <ThemedText style={styles.statLabelSmall}>{t('rewards.exchanges')}</ThemedText>
             </View>
             <View style={styles.statItem}>
               <Ionicons name="ribbon" size={20} color="#FFF" />
               <ThemedText style={styles.statNum}>{rewards?.badges?.length || 0}</ThemedText>
-              <ThemedText style={styles.statLabelSmall}>{isRTL ? 'أوسمة' : 'Badges'}</ThemedText>
+              <ThemedText style={styles.statLabelSmall}>{t('rewards.badges')}</ThemedText>
             </View>
           </View>
         </View>
@@ -99,7 +97,7 @@ export default function RewardsScreenUI() {
         {/* My Active Coupons */}
         {coupons.length > 0 && (
           <View style={styles.section}>
-            <ThemedText style={styles.sectionTitle}>{isRTL ? 'كوبوناتي النشطة' : 'My Active Coupons'}</ThemedText>
+            <ThemedText style={styles.sectionTitle}>{t('rewards.activeCoupons')}</ThemedText>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.couponScroll}>
               {coupons.map((coupon) => (
                 <View key={coupon.id} style={[styles.couponCard, { backgroundColor: themeColors.card, borderColor: themeColors.primary }]}>
@@ -109,7 +107,7 @@ export default function RewardsScreenUI() {
                   <View>
                     <ThemedText style={styles.couponCode}>{coupon.couponCode}</ThemedText>
                     <ThemedText style={styles.couponExpiry}>
-                      {isRTL ? 'تنتهي في: ' : 'Expires: '}{new Date(coupon.expiryDate).toLocaleDateString()}
+                      {t('rewards.expires')}{new Date(coupon.expiryDate).toLocaleDateString()}
                     </ThemedText>
                   </View>
                 </View>
@@ -120,7 +118,7 @@ export default function RewardsScreenUI() {
 
         {/* Reward Sponsors */}
         <View style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>{isRTL ? 'المكافآت المتاحة' : 'Available Rewards'}</ThemedText>
+          <ThemedText style={styles.sectionTitle}>{t('rewards.availableRewards')}</ThemedText>
           <View style={styles.sponsorsGrid}>
             {sponsors.map((sponsor) => (
               <View key={sponsor.id} style={[styles.sponsorCard, { backgroundColor: themeColors.card }]}>
@@ -147,7 +145,7 @@ export default function RewardsScreenUI() {
                       {redeeming === sponsor.id ? (
                         <ActivityIndicator size="small" color="#FFF" />
                       ) : (
-                        <ThemedText style={styles.redeemBtnText}>{isRTL ? 'استبدال' : 'Redeem'}</ThemedText>
+                        <ThemedText style={styles.redeemBtnText}>{t('rewards.redeem')}</ThemedText>
                       )}
                     </TouchableOpacity>
                   </View>
@@ -160,9 +158,7 @@ export default function RewardsScreenUI() {
         <View style={styles.infoBox}>
           <Ionicons name="information-circle-outline" size={20} color={themeColors.textSecondary} />
           <ThemedText style={styles.infoText}>
-            {isRTL 
-              ? 'اكسب النقاط من خلال مشاركة الكتب، مساعدة زملائك، والحصول على تقييمات إيجابية.'
-              : 'Earn points by sharing resources, helping peers, and receiving positive ratings.'}
+            {t('rewards.infoDesc')}
           </ThemedText>
         </View>
       </ScrollView>

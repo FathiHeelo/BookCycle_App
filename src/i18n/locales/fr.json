@@ -1,0 +1,383 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "back": "Retour",
+    "next": "Suivant",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "or": "OU",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "ok": "OK",
+    "error": "Erreur",
+    "search": "Recherche",
+    "sorry": "Désolé"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "chat": "Messages",
+    "add": "Ajouter",
+    "profile": "Profil",
+    "settings": "Paramètres"
+  },
+  "auth": {
+    "loginTitle": "Bienvenue sur BookCycle",
+    "loginSubtitle": "Échangez des ressources académiques avec les étudiants d’An-Najah.",
+    "emailPlaceholder": "E-mail universitaire",
+    "passwordPlaceholder": "Mot de passe",
+    "loginButton": "Se connecter",
+    "login": {
+      "title": "Bon retour",
+      "subtitle": "Veuillez entrer vos identifiants universitaires pour continuer.",
+      "emailLabel": "E-mail universitaire",
+      "emailPlaceholder": "nomdutilisateur@stu.najah.edu",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "Oublié?",
+      "loginButton": "Se connecter",
+      "signupButton": "S'inscrire",
+      "footer": "Rejoignez votre communauté universitaire et commencez à donner."
+    },
+    "signup": {
+      "title": "Rejoignez le cercle du savoir",
+      "subtitle": "Créez votre profil académique pour commencer à donner et à demander du matériel d'étude au sein de la communauté Najah.",
+      "fullNameLabel": "Nom complet",
+      "fullNamePlaceholder": "Entrez votre nom complet",
+      "emailLabel": "E-mail de l'étudiant",
+      "emailPlaceholder": "nomdutilisateur@stu.najah.edu",
+      "passwordLabel": "Mot de passe",
+      "confirmPasswordLabel": "Confirmer",
+      "passwordPlaceholder": "••••••••",
+      "facultyLabel": "Faculté",
+      "facultyPlaceholder": "Sélectionnez votre faculté",
+      "majorLabel": "Majeure",
+      "majorPlaceholder": "Sélectionnez votre majeure",
+      "universityIdLabel": "Identifiant universitaire",
+      "universityIdPlaceholder": "ex. 11920345",
+      "legalText": "En cliquant sur S'inscrire, vous acceptez nos conditions d'utilisation et notre politique de confidentialité concernant les données académiques.",
+      "signupButton": "S'inscrire",
+      "roleLabel": "Rôle académique",
+      "rolePlaceholder": "Sélectionnez votre rôle",
+      "student": "Étudiant",
+      "professor": "Professeur / Docteur",
+      "alreadyAccount": "Vous avez déjà un compte ? ",
+      "loginLink": "Se connecter"
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "subtitle": "Entrez votre e-mail universitaire et nous vous enverrons un lien de réinitialisation.",
+      "emailLabel": "E-mail universitaire",
+      "emailPlaceholder": "nomdutilisateur@stu.najah.edu",
+      "sendButton": "Envoyer le lien de réinitialisation",
+      "backToLogin": "Retour à la connexion"
+    },
+    "changePassword": {
+      "title": "Changer le mot de passe",
+      "description": "Sécurisez votre compte en mettant à jour votre mot de passe périodiquement.",
+      "currentPassword": "Mot de passe actuel",
+      "enterCurrentPassword": "Entrer le mot de passe actuel",
+      "newPassword": "Nouveau mot de passe",
+      "min6Characters": "Min. 6 caractères",
+      "updatePassword": "Mettre à jour le mot de passe"
+    },
+    "success": {
+      "passwordChanged": "Mot de passe modifié avec succès !",
+      "resetLinkSent": "Un lien de réinitialisation de mot de passe a été envoyé à votre e-mail."
+    },
+    "errors": {
+      "invalidEmail": "Veuillez entrer un e-mail universitaire valide",
+      "userNotFound": "Aucun compte trouvé avec cet e-mail",
+      "wrongPassword": "Mot de passe incorrect",
+      "failedToSignIn": "E-mail ou mot de passe invalide. Veuillez réessayer.",
+      "tooManyRequests": "Trop de tentatives échouées. Réessayez plus tard.",
+      "emailAlreadyInUse": "E-mail déjà utilisé.",
+      "failedToSignup": "Échec de la création du compte.",
+      "currentPasswordRequired": "Veuillez entrer votre mot de passe actuel.",
+      "newPasswordTooWidth": "Le nouveau mot de passe doit comporter au moins 6 caractères.",
+      "newPasswordTooWeak": "Le nouveau mot de passe est trop faible.",
+      "failedToUpdatePassword": "Échec de la mise à jour du mot de passe.",
+      "currentPasswordIncorrect": "Votre mot de passe actuel est incorrect.",
+      "emailRequired": "L'e-mail est obligatoire",
+      "passwordRequired": "Le mot de passe est obligatoire",
+      "passwordMinLength": "Le mot de passe doit comporter au moins 6 caractères",
+      "useUniversityEmail": "Utilisez votre e-mail universitaire @stu.najah.edu",
+      "fullNameMinLength": "Le nom complet doit comporter au moins 2 caractères",
+      "selectFaculty": "Veuillez sélectionner votre faculté",
+      "selectMajor": "Veuillez sélectionner votre majeure",
+      "universityIdLength": "Entrez un identifiant universitaire valide (8 à 10 chiffres)",
+      "passwordsDoNotMatch": "Les mots de passe ne correspondent pas"
+    }
+  },
+  "home": {
+    "title": "BookCycle",
+    "subtitle": "Trouvez, échangez et partagez des ressources académiques.",
+    "emptyState": "Aucune ressource trouvée pour le moment.",
+    "givingHub": "Centre Académique",
+    "hubSubtitle": "Partagez des ressources, diffusez le savoir",
+    "searchPlaceholder": "Rechercher des ressources...",
+    "browseFaculty": "Mes facultés préférées",
+    "browseFacultySubtitle": "Accès rapide à vos départements sélectionnés",
+    "uniRequirements": "Tronc Commun",
+    "featuredGifts": "Ressources en vedette",
+    "customizeDescription": "Choisissez les facultés que vous souhaitez suivre. Elles apparaîtront sur votre écran principal pour un filtrage rapide.",
+    "availableMaterials": "Ressources disponibles",
+    "giftedBy": "Partagé par",
+    "giveBook": "Partager une ressource",
+    "viewAll": "Personnaliser",
+    "emptySearch": "Aucun don correspondant à votre recherche",
+    "customizeTitle": "Personnaliser les facultés",
+    "selectUpTo": "Sélectionnez jusqu'à"
+  },
+  "explore": {
+    "status": {
+      "requested": "Demandé",
+      "given": "Donné"
+    },
+    "new": "NOUVEAU",
+    "untitled": "Ressource sans titre",
+    "available": "Disponible",
+    "contributor": "Contributeur Académique",
+    "hubTitle": "Centre de Ressources",
+    "hubSubtitle": "Académique Ouvert",
+    "searchPlaceholder": "Quelle ressource recherchez-vous ?",
+    "empty": "Aucune ressource ne correspond à votre recherche",
+    "filter": {
+      "title": "Filtrer les résultats",
+      "clear": "Tout effacer",
+      "time": "Temps",
+      "latest": "Le plus récent",
+      "anytime": "N'importe quand",
+      "faculties": "Facultés préférées",
+      "apply": "Appliquer"
+    }
+  },
+  "listing": {
+    "addTitle": "Ajouter une ressource",
+    "titlePlaceholder": "Titre de la ressource",
+    "descriptionPlaceholder": "Décrivez la ressource",
+    "category": "Catégorie",
+    "contactOwner": "Contacter le propriétaire"
+  },
+  "chat": {
+    "title": "Messages",
+    "placeholder": "Écrivez un message...",
+    "send": "Envoyer",
+    "generalInquiry": "Demande générale",
+    "searchPlaceholder": "Rechercher des discussions...",
+    "emptyState": "Aucun message pour le moment"
+  },
+  "faculties": {
+    "med": "Médecine & Sciences de la Santé",
+    "eng": "Ingénierie",
+    "bus": "Commerce & Communication",
+    "grad": "Études Supérieures",
+    "hon": "Collège d'Honneur",
+    "sha": "Charia",
+    "vet": "Médecine Vétérinaire & Agriculture",
+    "sci": "Sciences",
+    "hum": "Humanités & Éducation",
+    "art": "Beaux-Arts",
+    "law": "Droit & Science Politique",
+    "it": "Informatique & Intelligence Artificielle",
+    "den": "Médecine Dentaire",
+    "pha": "Pharmacie",
+    "nur": "Soins Infirmiers"
+  },
+  "majors": {
+    "med": ["Médecine", "Analyse Médicale", "Physiothérapie"],
+    "eng": ["Génie Civil", "Génie Mécanique", "Mécatronique", "Génie Électrique"],
+    "it": ["Informatique", "Génie Logiciel", "Intelligence Artificielle", "Cybersécurité"],
+    "bus": ["Comptabilité", "Administration des Affaires", "Marketing", "Finance"],
+    "sci": ["Biologie", "Chimie", "Physique", "Mathématiques"],
+    "hum": ["Langue Arabe", "Langue Anglaise", "Histoire", "Psychologie"],
+    "law": ["Droit Public", "Droit Privé", "Science Politique"],
+    "art": ["Musique", "Peinture", "Design d'Intérieur"],
+    "pha": ["Pharmacie", "Pharmacie Clinique"],
+    "den": ["Médecine Dentaire"],
+    "nur": ["Soins Infirmiers"],
+    "vet": ["Médecine Vétérinaire", "Agro-industrie"],
+    "sha": ["Charia", "Études Islamiques"],
+    "hon": ["Programme d'Honneur"],
+    "grad": ["MBA", "MSc Informatique", "MA Langues"]
+  },
+  "profile": {
+    "title": "Profil",
+    "rating": "Évaluation",
+    "resourcesShared": "Ressources partagées",
+    "contributorProfile": "Profil du contributeur",
+    "resources": "Ressources",
+    "cannotRateSelf": "Vous ne pouvez pas vous évaluer vous-même",
+    "rateContributor": "Évaluer le contributeur",
+    "availableResources": "Ressources disponibles",
+    "noResources": "Aucune ressource disponible pour le moment",
+    "card": {
+      "verified": "Contributeur Vérifié",
+      "edit": "Modifier le profil",
+      "share": "Partager l'impact",
+      "university": "Université Nationale An-Najah"
+    },
+    "stats": {
+      "communityImpact": "Impact Communautaire",
+      "totalBooks": "Total de Matériel d'Étude",
+      "given": "Partagé",
+      "thankYou": "Merci pour votre contribution !"
+    },
+    "reliability": {
+      "title": "Fiabilité du Contributeur",
+      "punctuality": "Ponctualité",
+      "bookCondition": "État du Matériel",
+      "punctualityStatements": {
+        "always": "Rencontre toujours à l'heure au Centre Étudiant.",
+        "veryReliable": "Très fiable, presque toujours à l'heure.",
+        "generally": "Généralement ponctuel et fiable.",
+        "improving": "Améliore sa ponctualité et son temps de réponse."
+      },
+      "conditionStatements": {
+        "excellent": "État de qualité supérieure constant du matériel.",
+        "good": "Le matériel est généralement en très bon état.",
+        "fair": "Le matériel est dans un état passable et utilisable.",
+        "improving": "Travaille à maintenir une meilleure qualité de matériel."
+      }
+    },
+    "history": {
+      "booksGiven": "Matériel d'Étude que j'ai partagé",
+      "booksReceived": "Matériel d'Étude que j'ai reçu",
+      "viewAll": "Voir Tout",
+      "viewHistory": "Voir l'Historique",
+      "givenTo": "Partagé avec",
+      "donor": "Contributeur",
+      "received": "Reçu"
+    }
+  },
+  "rewards": {
+    "loyalty": "Fidélité Étudiant",
+    "currentLevel": "Niveau Actuel",
+    "pointsUnit": "PTS",
+    "ptsToReach": "{{pts}} pts pour atteindre {{levelTitle}}",
+    "shared": "Partagé",
+    "exchanges": "Échanges",
+    "badges": "Badges",
+    "activeCoupons": "Mes Coupons Actifs",
+    "expires": "Expire le : ",
+    "availableRewards": "Récompenses Disponibles",
+    "redeem": "Échanger",
+    "infoDesc": "Gagnez des points en partageant des ressources, en aidant vos pairs et en recevant des évaluations positives."
+  },
+  "bookDetails": {
+    "title": "Détails de la ressource",
+    "description": "Description",
+    "donor": "Contributeur",
+    "price": "Prix",
+    "free": "Gratuit",
+    "noDescription": "Aucune description fournie.",
+    "general": "GÉNÉRAL",
+    "hardcover": "RELIÉ",
+    "by": "par",
+    "academicFaculty": "Faculté Académique",
+    "requestedPrice": "PRIX DEMANDÉ",
+    "availableForSale": "Cette ressource est disponible à la vente",
+    "studyResource": "Ressource d'étude",
+    "editionModel": "ÉDITION/MODÈLE",
+    "latest": "Plus récent",
+    "conditionLabel": "ÉTAT",
+    "availableQuantity": "QUANTITÉ DISPONIBLE",
+    "copiesAvailable": "exemplaires disponibles",
+    "giftingBy": "PARTAGÉ PAR",
+    "contributions": "Contributions",
+    "viewProfile": "Voir le profil",
+    "notAvailable": "Non disponible",
+    "notAvailableDesc": "Cette ressource n'est actuellement pas disponible.",
+    "requestSent": "Demande envoyée",
+    "requestResource": "Demander cette ressource",
+    "confirmRequestTitle": "Confirmer la demande",
+    "confirmRequestDesc": "Vous êtes sur le point de demander ce livre. Le contributeur sera averti pour approuver votre demande.",
+    "confirmRequestBtn": "Confirmer la demande"
+  },
+  "conditions": {
+    "new": "Neuf",
+    "like_new": "Comme Neuf",
+    "good": "Bon",
+    "fair": "Passable",
+    "poor": "Mauvais"
+  },
+  "categories": {
+    "title": "Catégorie",
+    "placeholder": "Sélectionner la catégorie",
+    "books": "Manuels Scolaires",
+    "notes": "Notes & Résumés",
+    "hardware": "Outils & Fournitures",
+    "others": "Autres"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": "Profil",
+    "preferences": "Préférences",
+    "language": "Langue",
+    "languageSubtitle": "Choisissez votre langue préférée",
+    "chooseLanguage": "Choisir la langue",
+    "darkMode": "Mode Sombre",
+    "darkModeSubtitle": "Basculez entre les thèmes clair et sombre",
+    "studentId": "Identifiant de l'étudiant",
+    "logout": "Se déconnecter",
+    "logoutSubtitle": "Se déconnecter de votre compte",
+    "english": "Anglais",
+    "arabic": "Arabe",
+    "appearance": "Apparence",
+    "account": "Compte",
+    "accessibility": "Accessibilité",
+    "colorBlindMode": "Mode daltonien",
+    "colorBlindSubtitle": "Ajuste les couleurs, le contraste, les icônes et les étiquettes pour rendre l'application plus facile à utiliser pour les personnes ayant des difficultés de vision des couleurs.",
+    "notifications": "Notifications"
+  },
+  "requests": {
+    "title": "Mes Demandes",
+    "empty": "Aucune demande trouvée.",
+    "incoming": "Entrantes",
+    "outgoing": "Sortantes",
+    "status": {
+      "pending": "En attente d'approbation",
+      "accepted": "Acceptée",
+      "rejected": "Rejetée",
+      "received": "Reçue",
+      "completed": "Terminée",
+      "active": "Disponible"
+    },
+    "accept": "Accepter",
+    "reject": "Rejeter",
+    "markAsReceived": "Marquer comme Reçu",
+    "notifications": {
+      "acceptSuccess": "Demande acceptée, contactez votre collègue pour organiser la récupération",
+      "cancelTitle": "Annuler la Demande",
+      "cancelConfirm": "Êtes-vous sûr de vouloir annuler cette demande ?",
+      "cancelSuccess": "Demande annulée avec succès",
+      "cancelError": "Échec de l'annulation de la demande"
+    }
+  },
+  "shared": {
+    "title": "Mes Articles Partagés",
+    "empty": "Aucun matériel partagé pour le moment.",
+    "deleteConfirmTitle": "Supprimer la Ressource",
+    "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer cette ressource de manière permanente ?",
+    "deleteSuccess": "Supprimé avec succès",
+    "deleteError": "Échec de la suppression",
+    "overlay": {
+      "requested": "Demandé",
+      "given": "Donné"
+    }
+  },
+  "welcome": {
+    "title": "Bienvenue sur BookCycle",
+    "subtitle": "La meilleure façon de partager le savoir.",
+    "features": {
+      "exchangeTitle": "Échanger des Livres",
+      "exchangeDesc": "Donnez une seconde vie à vos livres en les échangeant avec vos collègues.",
+      "ecoTitle": "Écologique",
+      "ecoDesc": "Réduisez le gaspillage de papier et favorisez la durabilité."
+    },
+    "footer": "d'étudiant à étudiant"
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire.",
+    "invalidUniversityEmail": "Veuillez utiliser votre e-mail universitaire."
+  }
+}

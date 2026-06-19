@@ -117,7 +117,7 @@ export default function PublicProfileScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name={isRTL ? "arrow-forward" : "arrow-back"} size={24} color={theme.primary} />
         </Pressable>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>{isRTL ? 'ملف المساهم' : 'Contributor Profile'}</Text>
+        <Text style={[styles.headerTitle, { color: theme.text }]}>{t('profile.contributorProfile')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -132,18 +132,18 @@ export default function PublicProfileScreen() {
             </View>
           </View>
 
-          <Text style={[styles.userName, { color: theme.text }]}>{user?.fullName || 'Academic Contributor'}</Text>
+          <Text style={[styles.userName, { color: theme.text }]}>{user?.fullName || t('explore.contributor')}</Text>
           <Text style={[styles.userSub, { color: theme.textSecondary }]}>{user?.faculty ? t(`faculties.${user.faculty}`) : t('profile.card.university')}</Text>
 
           <View style={[styles.statsRow, { flexDirection, borderTopColor: theme.border }]}>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: theme.text }]}>{books.length}</Text>
-              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'مصادر' : 'Resources'}</Text>
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{t('profile.resources')}</Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: theme.text }]}>{stats.rating > 0 ? stats.rating.toFixed(1) : '0.0'}</Text>
-              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{isRTL ? 'تقييم' : 'Rating'}</Text>
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>{t('profile.rating')}</Text>
             </View>
           </View>
 
@@ -156,30 +156,30 @@ export default function PublicProfileScreen() {
                 return;
               }
               if (currentUser.uid === id) {
-                Alert.alert(isRTL ? 'عذراً' : 'Sorry', isRTL ? 'لا يمكنك تقييم نفسك' : 'You cannot rate yourself');
+                Alert.alert(t('common.sorry'), t('profile.cannotRateSelf'));
                 return;
               }
               setRatingVisible(true);
             }}
           >
             <Ionicons name="star" size={18} color={themeKey === 'dark' ? '#0B1020' : '#FFF'} />
-            <Text style={[styles.rateBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF', fontWeight: isAccessible ? '900' : '800' }]}>{isRTL ? 'تقييم المساهم' : 'Rate Contributor'}</Text>
+            <Text style={[styles.rateBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF', fontWeight: isAccessible ? '900' : '800' }]}>{t('profile.rateContributor')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Books List */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { textAlign, color: theme.text }]}>
-            {isRTL ? 'المصادر المتوفرة' : 'Available Resources'}
+            {t('profile.availableResources')}
           </Text>
           
           {books.length === 0 ? (
-            <Text style={[styles.emptyText, { textAlign, color: theme.textSecondary }]}>{isRTL ? 'لا توجد مصادر معروضة حالياً' : 'No resources available at the moment'}</Text>
+            <Text style={[styles.emptyText, { textAlign, color: theme.textSecondary }]}>{t('profile.noResources')}</Text>
           ) : (
             <View style={styles.booksGrid}>
               {books.map((book) => {
                 const isUnavailable = book.status === 'requested' || book.status === 'received' || book.status === 'completed';
-                const statusText = book.status === 'requested' ? (isRTL ? 'قيد الطلب' : 'Requested') : (isRTL ? 'تم التسليم' : 'Given');
+                const statusText = book.status === 'requested' ? t('explore.status.requested') : t('explore.status.given');
 
                 return (
                   <Pressable 

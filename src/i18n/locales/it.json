@@ -1,0 +1,383 @@
+{
+  "common": {
+    "loading": "Caricamento...",
+    "back": "Indietro",
+    "next": "Avanti",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "or": "O",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "ok": "OK",
+    "error": "Errore",
+    "search": "Cerca",
+    "sorry": "Scusa"
+  },
+  "tabs": {
+    "home": "Home",
+    "chat": "Chat",
+    "add": "Aggiungi",
+    "profile": "Profilo",
+    "settings": "Impostazioni"
+  },
+  "auth": {
+    "loginTitle": "Benvenuto su BookCycle",
+    "loginSubtitle": "Scambia risorse accademiche con gli studenti di An-Najah.",
+    "emailPlaceholder": "Email universitaria",
+    "passwordPlaceholder": "Password",
+    "loginButton": "Accedi",
+    "login": {
+      "title": "Bentornato",
+      "subtitle": "Inserisci le tue credenziali universitarie per continuare.",
+      "emailLabel": "Email universitaria",
+      "emailPlaceholder": "nomeutente@stu.najah.edu",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "Dimenticata?",
+      "loginButton": "Accedi",
+      "signupButton": "Registrati",
+      "footer": "Unisciti alla tua comunità universitaria e inizia a donare."
+    },
+    "signup": {
+      "title": "Unisciti al cerchio della conoscenza",
+      "subtitle": "Crea il tuo profilo accademico per iniziare a donare e richiedere materiale di studio all'interno della comunità Najah.",
+      "fullNameLabel": "Nome Completo",
+      "fullNamePlaceholder": "Inserisci il tuo nome completo",
+      "emailLabel": "Email dello studente",
+      "emailPlaceholder": "nomeutente@stu.najah.edu",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Conferma",
+      "passwordPlaceholder": "••••••••",
+      "facultyLabel": "Facoltà",
+      "facultyPlaceholder": "Seleziona la tua facoltà",
+      "majorLabel": "Corso di Laurea",
+      "majorPlaceholder": "Seleziona il tuo corso di laurea",
+      "universityIdLabel": "Matricola",
+      "universityIdPlaceholder": "es. 11920345",
+      "legalText": "Cliccando su Registrati, accetti i nostri Termini di Utilizzo e l'Informativa sulla Privacy riguardanti i dati accademici.",
+      "signupButton": "Registrati",
+      "roleLabel": "Ruolo Accademico",
+      "rolePlaceholder": "Seleziona il tuo ruolo",
+      "student": "Studente",
+      "professor": "Professore / Docente",
+      "alreadyAccount": "Hai già un account? ",
+      "loginLink": "Accedi"
+    },
+    "forgotPassword": {
+      "title": "Reimposta Password",
+      "subtitle": "Inserisci la tua email universitaria e ti invieremo un link di ripristino.",
+      "emailLabel": "Email universitaria",
+      "emailPlaceholder": "nomeutente@stu.najah.edu",
+      "sendButton": "Invia link di ripristino",
+      "backToLogin": "Torna al login"
+    },
+    "changePassword": {
+      "title": "Cambia Password",
+      "description": "Proteggi il tuo account aggiornando la password periodicamente.",
+      "currentPassword": "Password Attuale",
+      "enterCurrentPassword": "Inserisci la password attuale",
+      "newPassword": "Nuova Password",
+      "min6Characters": "Min. 6 caratteri",
+      "updatePassword": "Aggiorna Password"
+    },
+    "success": {
+      "passwordChanged": "Password modificata con successo!",
+      "resetLinkSent": "Un link di reimpostazione della password è stato inviato alla tua email."
+    },
+    "errors": {
+      "invalidEmail": "Inserisci un'email universitaria valida",
+      "userNotFound": "Nessun account trovato con questa email",
+      "wrongPassword": "Password errata",
+      "failedToSignIn": "Email o password non valide. Riprova.",
+      "tooManyRequests": "Troppi tentativi falliti. Riprova più tardi.",
+      "emailAlreadyInUse": "Email già in uso.",
+      "failedToSignup": "Impossibile creare l'account.",
+      "currentPasswordRequired": "Inserisci la tua password attuale.",
+      "newPasswordTooWidth": "La nuova password deve essere di almeno 6 caratteri.",
+      "newPasswordTooWeak": "La nuova password è troppo debole.",
+      "failedToUpdatePassword": "Impossibile aggiornare la password.",
+      "currentPasswordIncorrect": "La tua password attuale è errata.",
+      "emailRequired": "L'email è obbligatoria",
+      "passwordRequired": "La password è obbligatoria",
+      "passwordMinLength": "La password deve essere di almeno 6 caratteri",
+      "useUniversityEmail": "Usa la tua email universitaria @stu.najah.edu",
+      "fullNameMinLength": "Il nome completo deve essere di almeno 2 caratteri",
+      "selectFaculty": "Seleziona la tua facoltà",
+      "selectMajor": "Seleziona il tuo corso di laurea",
+      "universityIdLength": "Inserisci una Matricola valida (8-10 cifre)",
+      "passwordsDoNotMatch": "Le password non corrispondono"
+    }
+  },
+  "home": {
+    "title": "BookCycle",
+    "subtitle": "Trova, scambia e condividi risorse accademiche.",
+    "emptyState": "Nessuna risorsa trovata al momento.",
+    "givingHub": "Hub Accademico",
+    "hubSubtitle": "Condividi Risorse, Diffondi Conoscenza",
+    "searchPlaceholder": "Cerca risorse...",
+    "browseFaculty": "Le mie facoltà preferite",
+    "browseFacultySubtitle": "Accesso rapido ai dipartimenti selezionati",
+    "uniRequirements": "Tronco Comune",
+    "featuredGifts": "Risorse in primo piano",
+    "customizeDescription": "Scegli le facoltà che vuoi seguire. Appariranno nella tua schermata principale per un filtraggio rapido.",
+    "availableMaterials": "Risorse disponibili",
+    "giftedBy": "Condiviso da",
+    "giveBook": "Condividi una risorsa",
+    "viewAll": "Personalizza",
+    "emptySearch": "Nessun regalo corrispondente alla tua ricerca",
+    "customizeTitle": "Personalizza facoltà",
+    "selectUpTo": "Seleziona fino a"
+  },
+  "explore": {
+    "status": {
+      "requested": "Richiesto",
+      "given": "Donato"
+    },
+    "new": "NUOVO",
+    "untitled": "Risorsa senza titolo",
+    "available": "Disponibile",
+    "contributor": "Collaboratore Accademico",
+    "hubTitle": "Hub delle Risorse",
+    "hubSubtitle": "Accademico Aperto",
+    "searchPlaceholder": "Quale risorsa stai cercando?",
+    "empty": "Nessuna risorsa corrisponde alla tua ricerca",
+    "filter": {
+      "title": "Filtra i risultati",
+      "clear": "Cancella tutto",
+      "time": "Tempo",
+      "latest": "Più recente",
+      "anytime": "Qualsiasi momento",
+      "faculties": "Facultà preferite",
+      "apply": "Applica"
+    }
+  },
+  "listing": {
+    "addTitle": "Aggiungi risorsa",
+    "titlePlaceholder": "Titolo della risorsa",
+    "descriptionPlaceholder": "Descrivi la risorsa",
+    "category": "Categoria",
+    "contactOwner": "Contatta il proprietario"
+  },
+  "chat": {
+    "title": "Messaggi",
+    "placeholder": "Scrivi un messaggio...",
+    "send": "Invia",
+    "generalInquiry": "Richiesta generale",
+    "searchPlaceholder": "Cerca conversazioni...",
+    "emptyState": "Ancora nessun messaggio"
+  },
+  "faculties": {
+    "med": "Medicina e Scienze della Salute",
+    "eng": "Ingegneria",
+    "bus": "Economia e Comunicazione",
+    "grad": "Studi Post-Laurea",
+    "hon": "Scuola Superiore di Studi Avanzati",
+    "sha": "Legge Islamica (Sharia)",
+    "vet": "Medicina Veterinaria e Agricoltura",
+    "sci": "Scienze",
+    "hum": "Studi Umanistici e Formazione",
+    "art": "Belle Arti",
+    "law": "Giurisprudenza e Scienze Politiche",
+    "it": "Informatica e Intelligenza Artificiale",
+    "den": "Odontoiatria",
+    "pha": "Farmacia",
+    "nur": "Infermieristica"
+  },
+  "majors": {
+    "med": ["Medicina", "Analisi Cliniche", "Fisioterapia"],
+    "eng": ["Ingegneria Civile", "Ingegneria Meccanica", "Meccatronica", "Ingegneria Elettrica"],
+    "it": ["Informatica", "Ingegneria del Software", "Intelligenza Artificiale", "Cyber Security"],
+    "bus": ["Contabilità", "Amministrazione Aziendale", "Marketing", "Finanza"],
+    "sci": ["Biologia", "Chimica", "Fisica", "Matematica"],
+    "hum": ["Lingua Araba", "Lingua Inglese", "Storia", "Psicologia"],
+    "law": ["Diritto Pubblico", "Diritto Privato", "Scienze Politiche"],
+    "art": ["Musica", "Pittura", "Interior Design"],
+    "pha": ["Farmacia", "Farmacia Clinica"],
+    "den": ["Odontoiatria"],
+    "nur": ["Infermieristica"],
+    "vet": ["Medicina Veterinaria", "Agroalimentare"],
+    "sha": ["Sharia", "Studi Islamici"],
+    "hon": ["Programma d'Onore"],
+    "grad": ["MBA", "MSc Informatica", "MA Lingue"]
+  },
+  "profile": {
+    "title": "Profilo",
+    "rating": "Valutazione",
+    "resourcesShared": "Risorse condivise",
+    "contributorProfile": "Profilo del collaboratore",
+    "resources": "Risorse",
+    "cannotRateSelf": "Non puoi valutare te stesso",
+    "rateContributor": "Valuta il collaboratore",
+    "availableResources": "Risorse disponibili",
+    "noResources": "Nessuna risorsa disponibile al momento",
+    "card": {
+      "verified": "Collaboratore Verificato",
+      "edit": "Modifica Profilo",
+      "share": "Condividi Impatto",
+      "university": "Università Nazionale An-Najah"
+    },
+    "stats": {
+      "communityImpact": "Impatto sulla Comunità",
+      "totalBooks": "Totale Materiali di Studio",
+      "given": "Condivisi",
+      "thankYou": "Grazie per il tuo contributo!"
+    },
+    "reliability": {
+      "title": "Affidabilità Collaboratore",
+      "punctuality": "Puntualità",
+      "bookCondition": "Condizioni del Materiale",
+      "punctualityStatements": {
+        "always": "Sempre puntuale al Centro Studenti.",
+        "veryReliable": "Molto affidabile, quasi sempre puntuale.",
+        "generally": "Generalmente puntuale e affidabile.",
+        "improving": "Sta migliorando la puntualità e i tempi di risposta."
+      },
+      "conditionStatements": {
+        "excellent": "Materiali costantemente in condizioni eccellenti.",
+        "good": "I materiali sono solitamente in ottime condizioni.",
+        "fair": "I materiali sono in condizioni accettabili e utilizzabili.",
+        "improving": "Impegno costante nel mantenere una migliore qualità dei materiali."
+      }
+    },
+    "history": {
+      "booksGiven": "Materiali di Studio che ho Condiviso",
+      "booksReceived": "Materiali di Studio che ho Ricevuto",
+      "viewAll": "Visualizza Tutti",
+      "viewHistory": "Visualizza Cronologia",
+      "givenTo": "Condiviso con",
+      "donor": "Collaboratore",
+      "received": "Ricevuto"
+    }
+  },
+  "rewards": {
+    "loyalty": "Fedeltà Studente",
+    "currentLevel": "Livello Attuale",
+    "pointsUnit": "PT",
+    "ptsToReach": "{{pts}} pt per raggiungere {{levelTitle}}",
+    "shared": "Condivisi",
+    "exchanges": "Scambi",
+    "badges": "Distintivi",
+    "activeCoupons": "I Miei Coupon Attivi",
+    "expires": "Scade il: ",
+    "availableRewards": "Premi Disponibili",
+    "redeem": "Riscatta",
+    "infoDesc": "Guadagna punti condividendo risorse, aiutando i compagni e ricevendo valutazioni positive."
+  },
+  "bookDetails": {
+    "title": "Dettagli della risorsa",
+    "description": "Descrizione",
+    "donor": "Collaboratore",
+    "price": "Prezzo",
+    "free": "Gratuito",
+    "noDescription": "Nessuna descrizione fornita.",
+    "general": "GENERALE",
+    "hardcover": "COPERTINA RIGIDA",
+    "by": "da",
+    "academicFaculty": "Facoltà Accademica",
+    "requestedPrice": "PREZZO RICHIESTO",
+    "availableForSale": "Questa risorsa è disponibile per la vendita",
+    "studyResource": "Risorsa di studio",
+    "editionModel": "EDIZIONE/MODELLO",
+    "latest": "Più recente",
+    "conditionLabel": "CONDIZIONE",
+    "availableQuantity": "QUANTITÀ DISPONIBILE",
+    "copiesAvailable": "copie disponibili",
+    "giftingBy": "CONDIVISO DA",
+    "contributions": "Contributi",
+    "viewProfile": "Visualizza profilo",
+    "notAvailable": "Non disponibile",
+    "notAvailableDesc": "Questa risorsa non è attualmente disponibile.",
+    "requestSent": "Richiesta inviata",
+    "requestResource": "Richiedi questa risorsa",
+    "confirmRequestTitle": "Conferma richiesta",
+    "confirmRequestDesc": "Stai per richiedere questo libro. Il collaboratore riceverà una notifica per approvare la tua richiesta.",
+    "confirmRequestBtn": "Conferma richiesta"
+  },
+  "conditions": {
+    "new": "Nuovo",
+    "like_new": "Come Nuovo",
+    "good": "Buono",
+    "fair": "Accettabile",
+    "poor": "Rovinato"
+  },
+  "categories": {
+    "title": "Categoria",
+    "placeholder": "Seleziona categoria",
+    "books": "Libri di Testo",
+    "notes": "Appunti e Riassunti",
+    "hardware": "Strumenti e Attrezzature",
+    "others": "Altro"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "profile": "Profilo",
+    "preferences": "Preferenze",
+    "language": "Lingua",
+    "languageSubtitle": "Scegli la tua lingua preferita",
+    "chooseLanguage": "Scegli lingua",
+    "darkMode": "Modalità Scura",
+    "darkModeSubtitle": "Passa dal tema chiaro a quello scuro",
+    "studentId": "Matricola",
+    "logout": "Esci",
+    "logoutSubtitle": "Disconnettiti dal tuo account",
+    "english": "Inglese",
+    "arabic": "Arabo",
+    "appearance": "Aspetto",
+    "account": "Account",
+    "accessibility": "Accessibilità",
+    "colorBlindMode": "Modalità per daltonici",
+    "colorBlindSubtitle": "Regola colori, contrasto, icone e etichette per rendere l'app più facile da usare per le persone con difficoltà di visione dei colori.",
+    "notifications": "Notifiche"
+  },
+  "requests": {
+    "title": "Le Mie Richieste",
+    "empty": "Nessuna richiesta trovata.",
+    "incoming": "In Entrata",
+    "outgoing": "In Uscita",
+    "status": {
+      "pending": "In attesa di approvazione",
+      "accepted": "Accettata",
+      "rejected": "Rifiutata",
+      "received": "Ricevuta",
+      "completed": "Completata",
+      "active": "Disponibile"
+    },
+    "accept": "Accetta",
+    "reject": "Rifiuta",
+    "markAsReceived": "Segna come Ricevuto",
+    "notifications": {
+      "acceptSuccess": "Richiesta accettata, contatta il tuo collega per organizzare il ritiro",
+      "cancelTitle": "Annulla Richiesta",
+      "cancelConfirm": "Sei sicuro di voler annullare questa richiesta?",
+      "cancelSuccess": "Richiesta annullata con successo",
+      "cancelError": "Impossibile annullare la richiesta"
+    }
+  },
+  "shared": {
+    "title": "Miei Articoli Condivisi",
+    "empty": "Nessun materiale condiviso finora.",
+    "deleteConfirmTitle": "Elimina Risorsa",
+    "deleteConfirmMessage": "Sei sicuro di voler eliminare questa risorsa permanentemente?",
+    "deleteSuccess": "Eliminata con successo",
+    "deleteError": "Impossibile eliminare",
+    "overlay": {
+      "requested": "Richiesto",
+      "given": "Donato"
+    }
+  },
+  "welcome": {
+    "title": "Benvenuto su BookCycle",
+    "subtitle": "Il modo migliore per condividere la conoscenza.",
+    "features": {
+      "exchangeTitle": "Scambia Libri",
+      "exchangeDesc": "Dai una seconda vita ai tuoi libri scambiandoli con i tuoi colleghi.",
+      "ecoTitle": "Ecologico",
+      "ecoDesc": "Riduci lo spreco di carta e promuovi la sostenibilità."
+    },
+    "footer": "studente per studente"
+  },
+  "validation": {
+    "required": "Questo campo è obbligatorio.",
+    "invalidUniversityEmail": "Utilizza la tua email universitaria."
+  }
+}

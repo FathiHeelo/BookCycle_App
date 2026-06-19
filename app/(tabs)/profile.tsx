@@ -38,7 +38,7 @@ export default function Profile() {
     <View style={[styles.screen, { backgroundColor: themeColors.background }]}>
       <StatusBar barStyle={themeKey === 'dark' ? "light-content" : "dark-content"} backgroundColor={themeColors.background} />
       <CustomHeader 
-        title={isRTL ? 'ملفي الشخصي' : 'Profile'}
+        title={t('profile.title')}
         leftMode="none"
         rightIcons={['search']}
         hideSafeArea={true}

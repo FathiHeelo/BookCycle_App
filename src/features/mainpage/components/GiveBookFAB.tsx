@@ -3,11 +3,12 @@ import { TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Radius, Spacing } from '@/constants/theme';
 import { GiveBookFABProps } from '../types';
-import { TITLES } from '../constants';
 import { useRouter } from 'expo-router';
+import { useI18n } from '@/hooks/use-i18n';
 
 export const GiveBookFAB: React.FC<GiveBookFABProps> = ({ isRTL, theme, isAccessible }) => {
   const router = useRouter();
+  const { t } = useI18n();
   
   return (
     <TouchableOpacity 
@@ -27,7 +28,7 @@ export const GiveBookFAB: React.FC<GiveBookFABProps> = ({ isRTL, theme, isAccess
     >
       <Ionicons name="add-circle" size={24} color={theme.background} />
       <Text style={[styles.fabText, { color: theme.background }]}>
-{isRTL ? 'شارك شيئًا جديدًا' : 'Share something new'}
+        {t('home.giveBook')}
       </Text>
     </TouchableOpacity>
   );

@@ -62,7 +62,7 @@ export const SettingsScreenUI = () => {
         </SettingsCard>
 
         {/* Notifications Section */}
-        <SectionLabel label={isRTL ? 'التنبيهات' : 'Notifications'} />
+        <SectionLabel label={t('settings.notifications')} />
         <SettingsCard>
           <NotificationToggleUI />
         </SettingsCard>
@@ -87,7 +87,7 @@ export const SettingsScreenUI = () => {
               <Ionicons name="lock-closed-outline" size={20} color={themeColors.primary} />
             </View>
             <View style={{ flex: 1, marginLeft: isRTL ? 0 : 12, marginRight: isRTL ? 12 : 0 }}>
-              <Text style={[styles.logoutLabel, { textAlign, color: themeColors.text }]}>{isRTL ? 'تغيير كلمة المرور' : 'Change Password'}</Text>
+              <Text style={[styles.logoutLabel, { textAlign, color: themeColors.text }]}>{t('auth.changePassword.title')}</Text>
             </View>
             <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={18} color={themeColors.textSecondary} />
           </Pressable>

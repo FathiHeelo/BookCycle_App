@@ -24,8 +24,8 @@ export const BookCard: React.FC<BookCardProps> = ({
                        item.status === 'completed';
                        
   const statusText = (item.quantity !== undefined && item.quantity <= 0) || item.status === 'requested' 
-    ? (isRTL ? 'قيد الطلب' : 'Requested') 
-    : (isRTL ? 'تم التسليم' : 'Given');
+    ? t('explore.status.requested')
+    : t('explore.status.given');
   
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
@@ -59,7 +59,7 @@ export const BookCard: React.FC<BookCardProps> = ({
         {isNew && !isUnavailable && (
           <View style={[BookCardStyles.newBadge, { backgroundColor: COLORS.VIBRANT_GOLD }]}>
             <Text style={[BookCardStyles.newBadgeText, { color: COLORS.PRIMARY_NAVY }]}>
-              {isRTL ? 'أضيف حديثاً' : 'NEWLY ADDED'}
+              {t('explore.new')}
             </Text>
           </View>
         )}
@@ -77,20 +77,20 @@ export const BookCard: React.FC<BookCardProps> = ({
         {facultyId && (
           <View style={[BookCardStyles.categoryBadge, { backgroundColor: themeKey === 'dark' ? 'rgba(245, 158, 11, 0.15)' : '#E0F2FE' }]}>
             <Text style={[BookCardStyles.categoryText, { color: theme.primary }]}>
-              {facultyId === 'all' ? (isRTL ? 'إجباري جامعة' : 'University Requirements') : t(`faculties.${facultyId}`).toUpperCase()}
+              {facultyId === 'all' ? t('home.uniRequirements') : t(`faculties.${facultyId}`).toUpperCase()}
             </Text>
           </View>
         )}
         
         <Text style={[BookCardStyles.resourceTitle, { color: theme.text, textAlign }]} numberOfLines={2}>
-          {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مادة بدون عنوان' : 'Untitled Material')}
+          {isRTL ? (item.titleAr || item.title) : item.title || t('explore.untitled')}
         </Text>
 
         {item.quantity !== undefined && !isUnavailable && (
           <View style={{ flexDirection, alignItems: 'center', marginBottom: 6, gap: 4 }}>
             <Ionicons name="copy-outline" size={12} color={theme.primary} />
             <Text style={{ fontSize: 11, fontWeight: '800', color: theme.primary }}>
-              {item.quantity} {isRTL ? 'متوفر' : 'Available'}
+              {item.quantity} {t('explore.available')}
             </Text>
           </View>
         )}
@@ -102,7 +102,7 @@ export const BookCard: React.FC<BookCardProps> = ({
               <Ionicons name="person" size={10} color={theme.textSecondary} />
             </View>
             <Text style={[styles.donorText, { color: theme.textSecondary }]} numberOfLines={1}>
-              {item.donorName || (isRTL ? 'مساهم' : 'Contributor')}
+              {item.donorName || t('explore.contributor')}
             </Text>
           </View>
           

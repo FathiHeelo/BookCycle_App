@@ -197,8 +197,8 @@ export default function ExploreScreen() {
                          item.status === 'completed';
                          
     const statusText = (item.quantity !== undefined && item.quantity <= 0) || item.status === 'requested' 
-      ? (isRTL ? 'قيد الطلب' : 'Requested') 
-      : (isRTL ? 'تم التسليم' : 'Given');
+      ? t('explore.status.requested')
+      : t('explore.status.given');
       
     const statusColor = (item.quantity !== undefined && item.quantity <= 0) || item.status === 'requested' 
       ? (isAccessible ? theme.accent : '#F59E0B') 
@@ -223,7 +223,7 @@ export default function ExploreScreen() {
           )}
           {isNew && !isUnavailable && (
             <View style={[styles.newBadge, { backgroundColor: theme.primary }]}>
-              <Text style={[styles.newBadgeText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{isRTL ? 'جديد' : 'NEW'}</Text>
+              <Text style={[styles.newBadgeText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{t('explore.new')}</Text>
             </View>
           )}
         </View>
@@ -238,14 +238,14 @@ export default function ExploreScreen() {
           )}
           
           <Text style={[styles.resourceTitle, { color: theme.text, textAlign }]} numberOfLines={2}>
-            {isRTL ? (item.titleAr || item.title) : item.title || (isRTL ? 'مصدر بدون عنوان' : 'Untitled Resource')}
+            {isRTL ? (item.titleAr || item.title) : item.title || t('explore.untitled')}
           </Text>
 
           {item.quantity !== undefined && !isUnavailable && (
             <View style={{ flexDirection, alignItems: 'center', marginBottom: 4, gap: 4 }}>
               <Ionicons name="copy-outline" size={12} color={theme.primary} />
               <Text style={{ fontSize: 11, fontWeight: '700', color: theme.primary }}>
-                {item.quantity} {isRTL ? 'متوفر' : 'Available'}
+                {item.quantity} {t('explore.available')}
               </Text>
             </View>
           )}
@@ -257,7 +257,7 @@ export default function ExploreScreen() {
                 <Ionicons name="person" size={10} color={theme.textSecondary} />
               </View>
               <Text style={[styles.donorText, { color: theme.textSecondary }]} numberOfLines={1}>
-                {item.donorName || (isRTL ? 'مساهم أكاديمي' : 'Academic Contributor')}
+                {item.donorName || t('explore.contributor')}
               </Text>
             </View>
             
@@ -286,8 +286,8 @@ export default function ExploreScreen() {
       <View style={styles.header}>
         <View style={[styles.headerTop, { flexDirection }]}>
           <View style={{ flex: 1 }}>
-            <Text style={[styles.headerTitle, { color: theme.text, textAlign }]}>{isRTL ? 'منصة المصادر' : 'Resource Hub'}</Text>
-            <Text style={[styles.headerSubtitle, { color: theme.primary, textAlign }]}>{isRTL ? 'الأكاديمية المفتوحة' : 'Open Academic'}</Text>
+            <Text style={[styles.headerTitle, { color: theme.text, textAlign }]}>{t('explore.hubTitle')}</Text>
+            <Text style={[styles.headerSubtitle, { color: theme.primary, textAlign }]}>{t('explore.hubSubtitle')}</Text>
           </View>
           <View style={[styles.headerActions, { flexDirection }]}>
             <Pressable 
@@ -311,7 +311,7 @@ export default function ExploreScreen() {
           <TextInput 
             ref={searchInputRef}
             style={[styles.searchInput, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}
-            placeholder={isRTL ? 'عن أي مصدر أكاديمي تبحث؟' : 'What resource are you looking for?'}
+            placeholder={t('explore.searchPlaceholder')}
             placeholderTextColor={theme.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -352,7 +352,7 @@ export default function ExploreScreen() {
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Ionicons name="search-outline" size={64} color={theme.border} />
-              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{isRTL ? 'لم نجد أي مصادر تطابق بحثك' : 'No resources match your search'}</Text>
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>{t('explore.empty')}</Text>
             </View>
           }
         />
@@ -368,22 +368,22 @@ export default function ExploreScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setIsFilterModalVisible(false)}>
           <Pressable style={[styles.modalContent, { backgroundColor: theme.card }]}>
             <View style={[styles.modalHeader, { flexDirection }]}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>{isRTL ? 'تصفية النتائج' : 'Filter Results'}</Text>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>{t('explore.filter.title')}</Text>
               <Pressable onPress={clearFilters}>
-                <Text style={{ color: theme.primary, fontWeight: '700' }}>{isRTL ? 'مسح الكل' : 'Clear All'}</Text>
+                <Text style={{ color: theme.primary, fontWeight: '700' }}>{t('explore.filter.clear')}</Text>
               </Pressable>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
               {/* Time Filter */}
-              <Text style={[styles.filterSectionTitle, { color: theme.text, textAlign }]}>{isRTL ? 'الوقت' : 'Time'}</Text>
+              <Text style={[styles.filterSectionTitle, { color: theme.text, textAlign }]}>{t('explore.filter.time')}</Text>
               <View style={[styles.filterOptions, { flexDirection }]}>
                 <Pressable 
                   onPress={() => handleSortChange('latest')}
                   style={[styles.filterOption, sortBy === 'latest' && { backgroundColor: theme.primary }]}
                 >
                   <Text style={[styles.filterOptionText, sortBy === 'latest' && { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>
-                    {isRTL ? 'الأحدث' : 'Latest'}
+                    {t('explore.filter.latest')}
                   </Text>
                 </Pressable>
                 <Pressable 
@@ -391,13 +391,13 @@ export default function ExploreScreen() {
                   style={[styles.filterOption, sortBy === 'all' && { backgroundColor: theme.primary }]}
                 >
                   <Text style={[styles.filterOptionText, sortBy === 'all' && { color: themeKey === 'dark' ? '#0B1020' : '#FFF', fontWeight: isAccessible ? '900' : '600' }]}>
-                    {isRTL ? 'مش مهم' : 'Anytime'}
+                    {t('explore.filter.anytime')}
                   </Text>
                 </Pressable>
               </View>
 
               {/* Faculty Filter */}
-              <Text style={[styles.filterSectionTitle, { color: theme.text, textAlign, marginTop: 24 }]}>{isRTL ? 'الكليات المفضلة' : 'Preferred Faculties'}</Text>
+              <Text style={[styles.filterSectionTitle, { color: theme.text, textAlign, marginTop: 24 }]}>{t('explore.filter.faculties')}</Text>
               <View style={[styles.facultyGrid, { flexDirection }]}>
                 {faculties.map((f) => (
                   <Pressable 
@@ -428,7 +428,7 @@ export default function ExploreScreen() {
               style={[styles.applyBtn, { backgroundColor: theme.primary }]}
               onPress={() => setIsFilterModalVisible(false)}
             >
-              <Text style={[styles.applyBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{isRTL ? 'تطبيق' : 'Apply'}</Text>
+              <Text style={[styles.applyBtnText, { color: themeKey === 'dark' ? '#0B1020' : '#FFF' }]}>{t('explore.filter.apply')}</Text>
             </Pressable>
           </Pressable>
         </Pressable>

@@ -86,10 +86,10 @@ const MainPage: React.FC = () => {
       <View style={styles.topSection}>
         <View style={styles.titleSection}>
           <Text style={[styles.mainTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '900' : '900' }]}>
-            {isRTL ? TITLES.GIVING_HUB_AR : TITLES.GIVING_HUB_EN}
+            {t('home.givingHub')}
           </Text>
           <Text style={[styles.subtitle, { color: theme.primary, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '900' : '800' }]}>
-            {isRTL ? TITLES.SUBTITLE_AR : TITLES.SUBTITLE_EN}
+            {t('home.hubSubtitle')}
           </Text>
         </View>
 
@@ -101,7 +101,7 @@ const MainPage: React.FC = () => {
             onPredictionSelect={(p) => setSearchQuery(p)}
             isRTL={isRTL}
             theme={theme}
-            placeholder={isRTL ? TITLES.SEARCH_PLACEHOLDER_AR : TITLES.SEARCH_PLACEHOLDER_EN}
+            placeholder={t('home.searchPlaceholder')}
             isAccessible={isAccessible}
           />
         </View>
@@ -111,10 +111,10 @@ const MainPage: React.FC = () => {
         <View style={styles.sectionHeader}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.sectionTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '900' : '800' }]}>
-              {isRTL ? TITLES.BROWSE_FACULTY_AR : TITLES.BROWSE_FACULTY_EN}
+              {t('home.browseFaculty')}
             </Text>
             <Text style={[styles.sectionSubtitle, { color: theme.textSecondary, textAlign: isRTL ? 'right' : 'left', fontWeight: isAccessible ? '700' : '600' }]}>
-              {isRTL ? TITLES.BROWSE_FACULTY_SUBTITLE_AR : TITLES.BROWSE_FACULTY_SUBTITLE_EN}
+              {t('home.browseFacultySubtitle')}
             </Text>
           </View>
           <TouchableOpacity 
@@ -122,7 +122,7 @@ const MainPage: React.FC = () => {
             style={[styles.customizeBtn, { borderColor: theme.primary, borderWidth: isAccessible ? 2 : 1.5 }]}
           >
             <Text style={[styles.viewAll, { color: theme.primary, fontWeight: isAccessible ? '900' : '800' }]}>
-              {isRTL ? TITLES.VIEW_ALL_AR : TITLES.VIEW_ALL_EN}
+              {t('home.viewAll')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -143,7 +143,7 @@ const MainPage: React.FC = () => {
         <View style={[styles.featuredBadge, { backgroundColor: theme.card, borderColor: theme.primary, borderWidth: isAccessible ? 2 : 1 }]}>
           <Ionicons name="sparkles" size={14} color={theme.primary} />
           <Text style={[styles.featuredTitle, { color: theme.text, fontWeight: isAccessible ? '900' : '800' }]}>
-            {isRTL ? TITLES.FEATURED_GIFTS_AR : TITLES.FEATURED_GIFTS_EN}
+            {t('home.featuredGifts')}
           </Text>
         </View>
         <View style={[styles.line, { backgroundColor: theme.border }]} />
@@ -220,7 +220,7 @@ const MainPage: React.FC = () => {
             <View style={MainStyles.emptyState}>
               <Ionicons name="library-outline" size={64} color={theme.border} />
               <Text style={[MainStyles.emptyText, { color: theme.textSecondary }]}>
-                {isRTL ? 'لا توجد هدايا متاحة تطابق بحثك' : 'No gifts available matching your search'}
+                {t('home.emptySearch')}
               </Text>
             </View>
           }
@@ -240,17 +240,17 @@ const MainPage: React.FC = () => {
           <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
             <View style={[styles.modalHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
               <Text style={[styles.modalTitle, { color: theme.text }]}>
-                {isRTL ? 'تخصيص الكليات المعروضة' : 'Customize Faculties'}
+                {t('home.customizeTitle')}
               </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Ionicons name="close" size={24} color={theme.text} />
               </TouchableOpacity>
             </View>
             <Text style={[styles.modalSubtitle, { color: theme.primary, fontWeight: '700', textAlign: isRTL ? 'right' : 'left', marginBottom: 8 }]}>
-              {isRTL ? `اختر حتى ${TITLES.MAX_FACULTIES_LIMIT} كليات لعرضها` : `Select up to ${TITLES.MAX_FACULTIES_LIMIT} faculties`}
+              {`${t('home.selectUpTo')} ${TITLES.MAX_FACULTIES_LIMIT}`}
             </Text>
             <Text style={[styles.modalDescription, { color: theme.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-              {isRTL ? TITLES.CUSTOMIZE_DESCRIPTION_AR : TITLES.CUSTOMIZE_DESCRIPTION_EN}
+              {t('home.customizeDescription')}
             </Text>
             
             <FlatList
@@ -266,7 +266,7 @@ const MainPage: React.FC = () => {
                   >
                     <Ionicons name={item.icon as any} size={22} color={isSelected ? theme.primary : theme.textSecondary} />
                     <Text style={[styles.modalItemText, { color: theme.text, flex: 1, textAlign: isRTL ? 'right' : 'left', marginHorizontal: 12 }]}>
-                      {item.id === 'all' ? (isRTL ? 'إجباري جامعة' : 'University Requirements') : t(`faculties.${item.id}`)}
+                      {item.id === 'all' ? t('home.uniRequirements') : t(`faculties.${item.id}`)}
                     </Text>
                     {isSelected ? (
                       <Ionicons name="checkmark-circle" size={24} color={theme.primary} />
