@@ -3,10 +3,12 @@ import { ref, onValue } from 'firebase/database';
 import { FIREBASE_DB } from '@/firebaseConfig';
 import { Store, Offer, OfferCategory } from '../types';
 import { MOCK_STORES, MOCK_OFFERS } from '../mockData';
+import { filterByUniversity } from '@/src/utils/universityFilter';
+import { DEFAULT_UNIVERSITY_ID } from '@/src/config/universities';
 
-export const useMarketplace = () => {
-  const [stores, setStores] = useState<Store[]>(MOCK_STORES);
-  const [offers, setOffers] = useState<Offer[]>(MOCK_OFFERS);
+export const useMarketplace = (universityId: string = DEFAULT_UNIVERSITY_ID) => {
+  const [allStores, setAllStores] = useState<Store[]>(MOCK_STORES);
+  const [allOffers, setAllOffers] = useState<Offer[]>(MOCK_OFFERS);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<OfferCategory | 'all'>('all');
@@ -24,7 +26,7 @@ export const useMarketplace = () => {
           ...data[key],
         }));
         const approvedList = list.filter((s) => s.isApproved);
-        setStores(approvedList.length > 0 ? approvedList : MOCK_STORES);
+        setAllStores(approvedList.length > 0 ? approvedList : MOCK_STORES);
       }
     }, () => {
       // Firebase error – keep mock data
@@ -38,7 +40,7 @@ export const useMarketplace = () => {
           ...data[key],
         }));
         const activeList = list.filter((o) => o.isActive);
-        setOffers(activeList.length > 0 ? activeList : MOCK_OFFERS);
+        setAllOffers(activeList.length > 0 ? activeList : MOCK_OFFERS);
       }
       setLoading(false);
     }, () => {
@@ -50,6 +52,17 @@ export const useMarketplace = () => {
       unsubOffers();
     };
   }, []);
+
+  // Filter all data to the current university (with backward-compat fallback)
+  const stores = useMemo(
+    () => filterByUniversity(allStores, universityId),
+    [allStores, universityId]
+  );
+
+  const offers = useMemo(
+    () => filterByUniversity(allOffers, universityId),
+    [allOffers, universityId]
+  );
 
   const featuredOffers = useMemo(
     () => offers.filter((o) => o.isFeatured && o.isActive),
@@ -73,9 +86,10 @@ export const useMarketplace = () => {
     return list;
   }, [offers, selectedCategory, searchQuery]);
 
-  const getOfferById = (id: string) => offers.find((o) => o.id === id);
-  const getStoreById = (id: string) => stores.find((s) => s.id === id);
-  const getOffersByStore = (storeId: string) => offers.filter((o) => o.storeId === storeId);
+  const getOfferById = (id: string) => allOffers.find((o) => o.id === id);
+  const getStoreById = (id: string) => allStores.find((s) => s.id === id);
+  const getOffersByStore = (storeId: string) =>
+    offers.filter((o) => o.storeId === storeId);
 
   return {
     stores,

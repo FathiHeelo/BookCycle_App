@@ -21,17 +21,24 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useUniversity } from '@/context/UniversityContext';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 export default function ForgotPasswordScreen() {
   const { theme: themeKey } = useAppTheme();
   const theme = Colors[themeKey];
-  const { t } = useI18n();
+  const { t, isRTL } = useI18n();
+  const { selectedUniversity, isValidEmail } = useUniversity();
+  const isLive = selectedUniversity.mode === 'live';
   
   const forgotPasswordSchema = z.object({
     email: z.string()
       .min(1, t('auth.errors.emailRequired'))
       .email(t('auth.errors.invalidEmail'))
-      .endsWith('@stu.najah.edu', t('auth.errors.useUniversityEmail')),
+      .refine(
+        (email) => isValidEmail(email),
+        { message: t('auth.errors.useUniversityEmail', { domain: selectedUniversity.domain }) }
+      ),
   });
 
   type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
@@ -67,6 +74,8 @@ export default function ForgotPasswordScreen() {
     }
   };
 
+  const flexDirection = isRTL ? 'row-reverse' : 'row';
+
   return (
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: theme.background }]}
@@ -77,19 +86,40 @@ export default function ForgotPasswordScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.brandingContainer}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+        {/* Header */}
+        <View style={[styles.brandingContainer, { flexDirection }]}>
+          <View style={{ flexDirection, alignItems: 'center', flex: 1 }}>
             <Pressable onPress={() => router.back()} style={styles.backBtn}>
-              <Ionicons name="arrow-back" size={24} color={theme.primary} />
+              <Ionicons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color={theme.primary} />
             </Pressable>
             <Text style={[styles.appName, { color: theme.primary }]}>BookCycle</Text>
           </View>
-          <ThemeToggle />
+          <View style={{ flexDirection, gap: 12, alignItems: 'center' }}>
+            <ThemeToggle />
+            <LanguageToggle />
+          </View>
         </View>
 
+        {/* University chip */}
+        <Pressable
+          style={[styles.uniChip, { backgroundColor: theme.surface ?? theme.card, borderColor: theme.border }]}
+          onPress={() => router.push('/university-select' as any)}
+        >
+          <Text style={{ fontSize: 16 }}>{selectedUniversity.flag}</Text>
+          <Text style={[styles.uniChipText, { color: theme.text }]} numberOfLines={1}>
+            {selectedUniversity.shortName}
+          </Text>
+          <View style={[styles.uniChipBadge, { backgroundColor: isLive ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' }]}>
+            <Text style={[styles.uniChipBadgeText, { color: isLive ? '#10B981' : '#F59E0B' }]}>
+              {isLive ? t('university.mode.live', 'Live') : t('university.mode.preview', 'Preview')}
+            </Text>
+          </View>
+          <Ionicons name="swap-horizontal-outline" size={14} color={theme.textSecondary} />
+        </Pressable>
+
         <View style={styles.welcomeContainer}>
-          <Text style={[styles.welcomeTitle, { color: theme.text }]}>{t('auth.forgotPassword.title')}</Text>
-          <Text style={[styles.welcomeSubtitle, { color: theme.textSecondary }]}>
+          <Text style={[styles.welcomeTitle, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.forgotPassword.title')}</Text>
+          <Text style={[styles.welcomeSubtitle, { color: theme.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
             {t('auth.forgotPassword.subtitle')}
           </Text>
         </View>
@@ -117,16 +147,16 @@ export default function ForgotPasswordScreen() {
           {!successMsg && (
             <>
               <View style={styles.inputGroup}>
-                <Text style={[styles.label, { color: theme.text }]}>{t('auth.forgotPassword.emailLabel')}</Text>
+                <Text style={[styles.label, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.forgotPassword.emailLabel')}</Text>
                 <Controller
                   control={control}
                   name="email"
                   render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={[styles.inputWrapper, { backgroundColor: themeKey === 'dark' ? theme.card : '#F1F4F7', borderColor: errors.email ? theme.error : theme.border }]}>
+                    <View style={[styles.inputWrapper, { flexDirection, backgroundColor: themeKey === 'dark' ? theme.card : '#F1F4F7', borderColor: errors.email ? theme.error : theme.border }]}>
                       <Ionicons name="mail" size={18} color="#8E9BAE" style={styles.inputIcon} />
                       <TextInput
-                        style={[styles.input, { color: theme.text }]}
-                        placeholder={t('auth.forgotPassword.emailPlaceholder')}
+                        style={[styles.input, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}
+                        placeholder={t('auth.forgotPassword.emailPlaceholder', { domain: selectedUniversity.domain })}
                         placeholderTextColor={theme.textSecondary}
                         onBlur={onBlur}
                         onChangeText={onChange}
@@ -273,5 +303,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  uniChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginBottom: 20,
+  },
+  uniChipText: {
+    fontSize: 13,
+    fontWeight: '700',
+    maxWidth: 160,
+  },
+  uniChipBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  uniChipBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });

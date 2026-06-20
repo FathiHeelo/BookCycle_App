@@ -12,15 +12,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
-import { useI18n } from '@/hooks/use-i18n'; // استيراد الـ hook الخاص بالترجمة
+import { useI18n } from '@/hooks/use-i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAppTheme } from '@/context/ThemeContext';
+import { useUniversity } from '@/context/UniversityContext';
 
 export default function WelcomeScreen() {
-  const { t } = useI18n(); // تفعيل التراجم
+  const { t } = useI18n();
   const { theme: themeKey } = useAppTheme();
   const themeColors = Colors[themeKey];
+  const { selectedUniversity } = useUniversity();
+  const isLive = selectedUniversity.mode === 'live';
 
   // مصفوفة الميزات مع استخدام نصوص مترجمة
   const WELCOME_FEATURES = [
@@ -47,6 +50,26 @@ export default function WelcomeScreen() {
            <ThemeToggle />
            <LanguageToggle />
         </View>
+
+        {/* University chip */}
+        <Pressable
+          style={[styles.universityChip, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
+          onPress={() => router.push('/university-select' as any)}
+        >
+          <Text style={styles.chipFlag}>{selectedUniversity.flag}</Text>
+          <View style={styles.chipTextBlock}>
+            <Text style={[styles.chipName, { color: themeColors.text }]} numberOfLines={1}>
+              {selectedUniversity.shortName}
+            </Text>
+            <View style={[styles.chipBadge, { backgroundColor: isLive ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' }]}>
+              <View style={[styles.chipDot, { backgroundColor: isLive ? '#10B981' : '#F59E0B' }]} />
+              <Text style={[styles.chipBadgeText, { color: isLive ? '#10B981' : '#F59E0B' }]}>
+                {isLive ? 'Live' : 'Preview'}
+              </Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={14} color={themeColors.textSecondary} />
+        </Pressable>
 
         <View style={styles.header}>
           <View style={styles.brandingContainer}>
@@ -200,5 +223,45 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  universityChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderRadius: Radius.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    gap: 8,
+    marginBottom: 16,
+  },
+  chipFlag: {
+    fontSize: 18,
+  },
+  chipTextBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  chipName: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  chipBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 99,
+    gap: 3,
+  },
+  chipDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+  },
+  chipBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
   },
 });

@@ -23,18 +23,24 @@ import { useAppTheme } from '@/context/ThemeContext';
 import { useI18n } from '@/hooks/use-i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useUniversity } from '@/context/UniversityContext';
 
 export default function LoginScreen() {
   const { theme: themeKey } = useAppTheme();
   const themeColors = Colors[themeKey];
   const { t, isRTL } = useI18n();
   const flexDirection = isRTL ? 'row-reverse' : 'row';
+  const { selectedUniversity, isValidEmail } = useUniversity();
+  const isLive = selectedUniversity.mode === 'live';
 
   const loginSchema = z.object({
     email: z.string()
       .min(1, t('auth.errors.emailRequired'))
       .email(t('auth.errors.invalidEmail'))
-      .endsWith('@stu.najah.edu', t('auth.errors.useUniversityEmail')),
+      .refine(
+        (email) => isValidEmail(email),
+        { message: t('auth.errors.useUniversityEmail', { domain: selectedUniversity.domain }) }
+      ),
     password: z.string()
       .min(1, t('auth.errors.passwordRequired'))
       .min(6, t('auth.errors.passwordMinLength')),
@@ -102,6 +108,23 @@ export default function LoginScreen() {
           </View>
         </View>
 
+        {/* University chip */}
+        <Pressable
+          style={[styles.uniChip, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
+          onPress={() => router.push('/university-select' as any)}
+        >
+          <Text style={{ fontSize: 16 }}>{selectedUniversity.flag}</Text>
+          <Text style={[styles.uniChipText, { color: themeColors.text }]} numberOfLines={1}>
+            {selectedUniversity.shortName}
+          </Text>
+          <View style={[styles.uniChipBadge, { backgroundColor: isLive ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' }]}>
+            <Text style={[styles.uniChipBadgeText, { color: isLive ? '#10B981' : '#F59E0B' }]}>
+              {isLive ? t('university.mode.live', 'Live') : t('university.mode.preview', 'Preview')}
+            </Text>
+          </View>
+          <Ionicons name="swap-horizontal-outline" size={14} color={themeColors.textSecondary} />
+        </Pressable>
+
         <View style={styles.welcomeContainer}>
           <Text style={[styles.welcomeTitle, { color: themeColors.text }]}>{t('auth.login.title')}</Text>
           <Text style={[styles.welcomeSubtitle, { color: themeColors.textSecondary }]}>
@@ -127,7 +150,7 @@ export default function LoginScreen() {
                   <Ionicons name="mail" size={18} color={themeColors.textSecondary} style={styles.inputIcon} />
                   <TextInput
                     style={[styles.input, { color: themeColors.text }]}
-                    placeholder={t('auth.login.emailPlaceholder')}
+                    placeholder={t('auth.login.emailPlaceholder', { domain: selectedUniversity.domain })}
                     placeholderTextColor={themeColors.textSecondary}
                     onBlur={onBlur}
                     onChangeText={onChange}
@@ -376,5 +399,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  uniChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderRadius: Radius.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 8,
+    marginBottom: Spacing.lg,
+  },
+  uniChipText: {
+    fontSize: 13,
+    fontWeight: '700',
+    maxWidth: 160,
+  },
+  uniChipBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.pill,
+  },
+  uniChipBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
   },
 });

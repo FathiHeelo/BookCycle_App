@@ -19,6 +19,7 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { ThemedText } from '@/components/themed-text';
 import { useI18n } from '@/hooks/use-i18n';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useUniversity } from '@/context/UniversityContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -29,8 +30,9 @@ export default function OfferDetailsScreen() {
   const themeColors = Colors[theme];
   const { t, isRTL } = useI18n();
   const insets = useSafeAreaInsets();
+  const { selectedUniversity } = useUniversity();
 
-  const { getOfferById, getStoreById } = useMarketplace();
+  const { getOfferById, getStoreById } = useMarketplace(selectedUniversity?.id);
   const { generateVoucher } = useVoucher();
   const [generating, setGenerating] = useState(false);
   const [imageError, setImageError] = useState(false);

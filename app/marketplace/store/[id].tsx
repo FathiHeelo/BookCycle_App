@@ -17,6 +17,7 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { ThemedText } from '@/components/themed-text';
 import { useI18n } from '@/hooks/use-i18n';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
+import { useUniversity } from '@/context/UniversityContext';
 
 export default function StoreDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -24,8 +25,9 @@ export default function StoreDetailsScreen() {
   const { theme, isAccessible } = useAppTheme();
   const themeColors = Colors[theme];
   const { t, isRTL } = useI18n();
+  const { selectedUniversity } = useUniversity();
 
-  const { getStoreById, getOffersByStore } = useMarketplace();
+  const { getStoreById, getOffersByStore } = useMarketplace(selectedUniversity?.id);
   const store = getStoreById(id as string);
   const storeOffers = getOffersByStore(id as string);
 

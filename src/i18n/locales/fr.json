@@ -22,7 +22,7 @@
   },
   "auth": {
     "loginTitle": "Bienvenue sur BookCycle",
-    "loginSubtitle": "Échangez des ressources académiques avec les étudiants d’An-Najah.",
+    "loginSubtitle": "Échangez des ressources académiques avec les étudiants de {{university}}.",
     "emailPlaceholder": "E-mail universitaire",
     "passwordPlaceholder": "Mot de passe",
     "loginButton": "Se connecter",
@@ -30,7 +30,7 @@
       "title": "Bon retour",
       "subtitle": "Veuillez entrer vos identifiants universitaires pour continuer.",
       "emailLabel": "E-mail universitaire",
-      "emailPlaceholder": "nomdutilisateur@stu.najah.edu",
+      "emailPlaceholder": "nomdutilisateur@{{domain}}",
       "passwordLabel": "Mot de passe",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "Oublié?",
@@ -40,11 +40,11 @@
     },
     "signup": {
       "title": "Rejoignez le cercle du savoir",
-      "subtitle": "Créez votre profil académique pour commencer à donner et à demander du matériel d'étude au sein de la communauté Najah.",
+      "subtitle": "Créez votre profil académique pour commencer à donner et à demander du matériel d'étude au sein de la communauté {{university}}.",
       "fullNameLabel": "Nom complet",
       "fullNamePlaceholder": "Entrez votre nom complet",
       "emailLabel": "E-mail de l'étudiant",
-      "emailPlaceholder": "nomdutilisateur@stu.najah.edu",
+      "emailPlaceholder": "nomdutilisateur@{{domain}}",
       "passwordLabel": "Mot de passe",
       "confirmPasswordLabel": "Confirmer",
       "passwordPlaceholder": "••••••••",
@@ -53,7 +53,7 @@
       "majorLabel": "Majeure",
       "majorPlaceholder": "Sélectionnez votre majeure",
       "universityIdLabel": "Identifiant universitaire",
-      "universityIdPlaceholder": "ex. 11920345",
+      "universityIdPlaceholder": "ex. {{placeholder}}",
       "legalText": "En cliquant sur S'inscrire, vous acceptez nos conditions d'utilisation et notre politique de confidentialité concernant les données académiques.",
       "signupButton": "S'inscrire",
       "roleLabel": "Rôle académique",
@@ -67,7 +67,7 @@
       "title": "Réinitialiser le mot de passe",
       "subtitle": "Entrez votre e-mail universitaire et nous vous enverrons un lien de réinitialisation.",
       "emailLabel": "E-mail universitaire",
-      "emailPlaceholder": "nomdutilisateur@stu.najah.edu",
+      "emailPlaceholder": "nomdutilisateur@{{domain}}",
       "sendButton": "Envoyer le lien de réinitialisation",
       "backToLogin": "Retour à la connexion"
     },
@@ -100,11 +100,11 @@
       "emailRequired": "L'e-mail est obligatoire",
       "passwordRequired": "Le mot de passe est obligatoire",
       "passwordMinLength": "Le mot de passe doit comporter au moins 6 caractères",
-      "useUniversityEmail": "Utilisez votre e-mail universitaire @stu.najah.edu",
+      "useUniversityEmail": "Utilisez votre e-mail universitaire @{{domain}}",
       "fullNameMinLength": "Le nom complet doit comporter au moins 2 caractères",
       "selectFaculty": "Veuillez sélectionner votre faculté",
       "selectMajor": "Veuillez sélectionner votre majeure",
-      "universityIdLength": "Entrez un identifiant universitaire valide (8 à 10 chiffres)",
+      "universityIdLength": "Entrez un ID universitaire valide ({{min}}-{{max}} chiffres)",
       "passwordsDoNotMatch": "Les mots de passe ne correspondent pas"
     }
   },
@@ -442,5 +442,21 @@
     },
     "empty": "Aucune offre trouvée",
     "discount": "REDUCTION"
+  },
+  "university": {
+    "mode": {
+      "live": "En direct",
+      "preview": "Aperçu",
+      "liveEnv": "Environnement en direct",
+      "previewEnv": "Aperçu partenaire"
+    },
+    "select": {
+      "title": "Choisissez votre université",
+      "subtitle": "Votre université détermine quels livres, ressources et offres vous sont accessibles.",
+      "sectionLabel": "SÉLECTIONNEZ VOTRE INSTITUTION",
+      "previewDisclaimer": "Ceci est un environnement prototype. Le contenu sera activé après approbation officielle du partenariat.",
+      "changeLater": "Vous pourrez modifier votre université ultérieurement dans les paramètres de votre profil.",
+      "continue": "Continuer avec l'université sélectionnée"
+    }
   }
 }

@@ -27,6 +27,8 @@ export interface Store {
   totalOffers: number;
   createdAt: string;
   description?: string;
+  /** Which university this store belongs to. Missing = 'najah' (backward compat) */
+  universityId?: string;
 }
 
 export interface Offer {
@@ -47,6 +49,8 @@ export interface Offer {
   validUntil: string;
   createdAt: string;
   isFeatured?: boolean;
+  /** Which university this offer belongs to. Missing = 'najah' (backward compat) */
+  universityId?: string;
 }
 
 export interface Voucher {

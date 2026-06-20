@@ -22,6 +22,7 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 import { ThemedText } from '@/components/themed-text';
 import { useI18n } from '@/hooks/use-i18n';
 import { CustomHeader } from '@/src/components/shared/CustomHeader';
+import { useUniversity } from '@/context/UniversityContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -30,6 +31,7 @@ export const MarketplaceScreen: React.FC = () => {
   const { theme, isAccessible } = useAppTheme();
   const themeColors = Colors[theme];
   const { t, isRTL } = useI18n();
+  const { selectedUniversity } = useUniversity();
 
   const {
     stores,
@@ -40,7 +42,7 @@ export const MarketplaceScreen: React.FC = () => {
     setSearchQuery,
     selectedCategory,
     setSelectedCategory,
-  } = useMarketplace();
+  } = useMarketplace(selectedUniversity?.id);
 
   const { vouchers } = useVoucher();
   const activeVouchersCount = vouchers.filter(

@@ -27,11 +27,14 @@ import { useI18n } from '@/hooks/use-i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { FACULTIES } from '@/src/constants/faculties';
+import { useUniversity } from '@/context/UniversityContext';
 
 export default function SignupScreen() {
   const { theme: themeKey } = useAppTheme();
   const themeColors = Colors[themeKey];
   const { t, isRTL } = useI18n();
+  const { selectedUniversity, isValidEmail } = useUniversity();
+  const isLive = selectedUniversity.mode === 'live';
 
   const signupSchema = useMemo(() => z.object({
     fullName: z.string().min(2, t('auth.errors.fullNameMinLength')),
@@ -39,8 +42,8 @@ export default function SignupScreen() {
       .min(1, t('auth.errors.emailRequired'))
       .email(t('auth.errors.invalidEmail'))
       .refine(
-        (email) => email.endsWith('@stu.najah.edu') || email.endsWith('@najah.edu'),
-        { message: t('auth.errors.useUniversityEmail') }
+        (email) => isValidEmail(email),
+        { message: t('auth.errors.useUniversityEmail', { domain: selectedUniversity.domain }) }
       ),
     password: z.string()
       .min(1, t('auth.errors.passwordRequired'))
@@ -49,15 +52,15 @@ export default function SignupScreen() {
     facultyId: z.string().min(1, t('auth.errors.selectFaculty')),
     major: z.string().min(1, t('auth.errors.selectMajor')),
     universityID: z.string()
-      .min(8, t('auth.errors.universityIdLength'))
-      .max(10, t('auth.errors.universityIdLength')),
+      .min(selectedUniversity.idMinLength, t('auth.errors.universityIdLength', { min: selectedUniversity.idMinLength, max: selectedUniversity.idMaxLength }))
+      .max(selectedUniversity.idMaxLength, t('auth.errors.universityIdLength', { min: selectedUniversity.idMinLength, max: selectedUniversity.idMaxLength })),
     role: z.string().refine((val) => val === 'student' || val === 'professor', {
       message: isRTL ? 'يرجى اختيار المسمى الأكاديمي' : 'Please select your role'
     }),
   }).refine((data) => data.password === data.confirmPassword, {
     message: t('auth.errors.passwordsDoNotMatch'),
     path: ["confirmPassword"],
-  }), [t, isRTL]);
+  }), [t, isRTL, selectedUniversity]);
 
   type SignupData = z.infer<typeof signupSchema>;
   const [loading, setLoading] = useState(false);
@@ -109,6 +112,7 @@ export default function SignupScreen() {
         major: data.major,
         universityID: data.universityID,
         role: data.role,
+        universityId: selectedUniversity.id,   // multi-university field
         createdAt: new Date().toISOString(),
       });
       router.replace('/verify-phone');
@@ -143,10 +147,27 @@ export default function SignupScreen() {
             </View>
           </View>
 
+          {/* University chip */}
+          <Pressable
+            style={[styles.uniChip, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
+            onPress={() => router.push('/university-select' as any)}
+          >
+            <Text style={{ fontSize: 16 }}>{selectedUniversity.flag}</Text>
+            <Text style={[styles.uniChipText, { color: themeColors.text }]} numberOfLines={1}>
+              {selectedUniversity.shortName}
+            </Text>
+            <View style={[styles.uniChipBadge, { backgroundColor: isLive ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' }]}>
+              <Text style={[styles.uniChipBadgeText, { color: isLive ? '#10B981' : '#F59E0B' }]}>
+                {isLive ? t('university.mode.live', 'Live') : t('university.mode.preview', 'Preview')}
+              </Text>
+            </View>
+            <Ionicons name="swap-horizontal-outline" size={14} color={themeColors.textSecondary} />
+          </Pressable>
+
           <View style={styles.heroSection}>
             <Text style={[styles.heroTitle, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.title')}</Text>
             <Text style={[styles.heroSubtitle, { color: themeColors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-              {t('auth.signup.subtitle')}
+              {t('auth.signup.subtitle', { university: selectedUniversity.shortName })}
             </Text>
           </View>
 
@@ -179,7 +200,7 @@ export default function SignupScreen() {
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.emailLabel')}</Text>
               <Controller control={control} name="email" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.emailPlaceholder')} placeholderTextColor={themeColors.textSecondary} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="email-address" autoCapitalize="none" />
+                <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.emailPlaceholder', { domain: selectedUniversity.domain })} placeholderTextColor={themeColors.textSecondary} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="email-address" autoCapitalize="none" />
               )} />
               {!!errors.email && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.email.message}</Text>}
             </View>
@@ -199,32 +220,60 @@ export default function SignupScreen() {
               </View>
             </View>
 
+            {/* Faculty — modal picker for Najah, free-text for partner universities */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.facultyLabel')}</Text>
-              <Pressable onPress={() => setFacultyModalVisible(true)} style={[styles.input, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center' }]}>
-                <Text style={{ color: selectedFacultyId ? themeColors.text : themeColors.textSecondary, fontSize: 13, fontWeight: '600' }}>
-                  {selectedFacultyId ? t(`faculties.${selectedFacultyId}`) : t('auth.signup.facultyPlaceholder')}
-                </Text>
-                <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
-              </Pressable>
+              {selectedUniversity.id === 'najah' ? (
+                <Pressable onPress={() => setFacultyModalVisible(true)} style={[styles.input, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center' }]}>
+                  <Text style={{ color: selectedFacultyId ? themeColors.text : themeColors.textSecondary, fontSize: 13, fontWeight: '600' }}>
+                    {selectedFacultyId ? t(`faculties.${selectedFacultyId}`) : t('auth.signup.facultyPlaceholder')}
+                  </Text>
+                  <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
+                </Pressable>
+              ) : (
+                <Controller control={control} name="facultyId" render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]}
+                    placeholder={t('auth.signup.facultyPlaceholder')}
+                    placeholderTextColor={themeColors.textSecondary}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )} />
+              )}
               {!!errors.facultyId && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.facultyId.message}</Text>}
             </View>
 
+            {/* Major — modal picker for Najah, free-text for partner universities */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.majorLabel')}</Text>
-              <Pressable onPress={() => { if (selectedFacultyId) setMajorModalVisible(true); }} style={[styles.input, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center', opacity: selectedFacultyId ? 1 : 0.6 }]}>
-                <Text style={{ color: watch('major') ? themeColors.text : themeColors.textSecondary, fontSize: 13, fontWeight: '600' }}>
-                  {watch('major') || t('auth.signup.majorPlaceholder')}
-                </Text>
-                <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
-              </Pressable>
+              {selectedUniversity.id === 'najah' ? (
+                <Pressable onPress={() => { if (selectedFacultyId) setMajorModalVisible(true); }} style={[styles.input, { backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', flexDirection, justifyContent: 'space-between', alignItems: 'center', opacity: selectedFacultyId ? 1 : 0.6 }]}>
+                  <Text style={{ color: watch('major') ? themeColors.text : themeColors.textSecondary, fontSize: 13, fontWeight: '600' }}>
+                    {watch('major') || t('auth.signup.majorPlaceholder')}
+                  </Text>
+                  <Ionicons name="chevron-down" size={20} color={themeColors.textSecondary} />
+                </Pressable>
+              ) : (
+                <Controller control={control} name="major" render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]}
+                    placeholder={t('auth.signup.majorPlaceholder')}
+                    placeholderTextColor={themeColors.textSecondary}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )} />
+              )}
               {!!errors.major && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.major.message}</Text>}
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: themeColors.text, textAlign: isRTL ? 'right' : 'left' }]}>{t('auth.signup.universityIdLabel')}</Text>
               <Controller control={control} name="universityID" render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.universityIdPlaceholder')} placeholderTextColor={themeColors.textSecondary} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="numeric" />
+                <TextInput style={[styles.input, { color: themeColors.text, backgroundColor: themeKey === 'dark' ? themeColors.card : '#F1F4F7', textAlign: isRTL ? 'right' : 'left' }]} placeholder={t('auth.signup.universityIdPlaceholder', { placeholder: selectedUniversity.idPlaceholder })} placeholderTextColor={themeColors.textSecondary} onBlur={onBlur} onChangeText={onChange} value={value} keyboardType="numeric" />
               )} />
               {!!errors.universityID && <Text style={[styles.fieldError, { color: themeColors.error }]}>{errors.universityID.message}</Text>}
             </View>
@@ -343,4 +392,29 @@ const styles = StyleSheet.create({
   modalItem: { alignItems: 'center', padding: 20 },
   modalItemText: { fontSize: 15, fontWeight: '600', color: '#1A1A1A', flexShrink: 1 },
   divider: { height: 1, backgroundColor: '#F1F3F5', marginHorizontal: 20 },
+  uniChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderRadius: Radius.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 8,
+    marginBottom: Spacing.lg,
+  },
+  uniChipText: {
+    fontSize: 13,
+    fontWeight: '700',
+    maxWidth: 160,
+  },
+  uniChipBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.pill,
+  },
+  uniChipBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+  },
 });

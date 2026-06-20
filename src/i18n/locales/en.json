@@ -22,7 +22,7 @@
   },
   "auth": {
     "loginTitle": "Welcome to BookCycle",
-    "loginSubtitle": "Exchange academic resources with An-Najah students.",
+    "loginSubtitle": "Exchange academic resources with {{university}} students.",
     "emailPlaceholder": "University email",
     "passwordPlaceholder": "Password",
     "loginButton": "Log in",
@@ -30,7 +30,7 @@
       "title": "Welcome Back",
       "subtitle": "Please enter your university credentials to continue.",
       "emailLabel": "University Email",
-      "emailPlaceholder": "username@stu.najah.edu",
+      "emailPlaceholder": "username@{{domain}}",
       "passwordLabel": "Password",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "Forgot?",
@@ -40,11 +40,11 @@
     },
     "signup": {
       "title": "Join the Circle of Knowledge",
-      "subtitle": "Create your academic profile to start gifting and requesting study materials within the Najah community.",
+      "subtitle": "Create your academic profile to start gifting and requesting study materials within the {{university}} community.",
       "fullNameLabel": "Full Name",
       "fullNamePlaceholder": "Enter your full name",
       "emailLabel": "Student Email",
-      "emailPlaceholder": "username@stu.najah.edu",
+      "emailPlaceholder": "username@{{domain}}",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Confirm",
       "passwordPlaceholder": "••••••••",
@@ -53,7 +53,7 @@
       "majorLabel": "Major",
       "majorPlaceholder": "Select your major",
       "universityIdLabel": "University ID",
-      "universityIdPlaceholder": "e.g. 11920345",
+      "universityIdPlaceholder": "e.g. {{placeholder}}",
       "legalText": "By clicking Sign Up, you agree to our Terms of Use and Privacy Policy regarding academic data.",
       "signupButton": "Sign Up",
       "roleLabel": "Academic Role",
@@ -67,7 +67,7 @@
       "title": "Reset Password",
       "subtitle": "Enter your university email and we'll send a reset link.",
       "emailLabel": "University Email",
-      "emailPlaceholder": "username@stu.najah.edu",
+      "emailPlaceholder": "username@{{domain}}",
       "sendButton": "Send Reset Link",
       "backToLogin": "Back to Login"
     },
@@ -100,11 +100,11 @@
       "emailRequired": "Email is required",
       "passwordRequired": "Password is required",
       "passwordMinLength": "Password must be at least 6 characters",
-      "useUniversityEmail": "Use your university @stu.najah.edu email",
+      "useUniversityEmail": "Use your university @{{domain}} email",
       "fullNameMinLength": "Full name must be at least 2 characters",
       "selectFaculty": "Please select your faculty",
       "selectMajor": "Please select your major",
-      "universityIdLength": "Enter a valid University ID (8-10 digits)",
+      "universityIdLength": "Enter a valid University ID ({{min}}-{{max}} digits)",
       "passwordsDoNotMatch": "Passwords don't match"
     }
   },
@@ -442,5 +442,21 @@
     },
     "empty": "No offers found",
     "discount": "DISCOUNT"
+  },
+  "university": {
+    "mode": {
+      "live": "Live",
+      "preview": "Preview",
+      "liveEnv": "Live Environment",
+      "previewEnv": "Partner Preview"
+    },
+    "select": {
+      "title": "Choose Your University",
+      "subtitle": "Your university determines which books, resources, and offers are available to you.",
+      "sectionLabel": "SELECT YOUR INSTITUTION",
+      "previewDisclaimer": "This is a prototype environment. Content will be activated after official partnership approval.",
+      "changeLater": "You can change your university later from your profile settings.",
+      "continue": "Continue with Selected University"
+    }
   }
 }

@@ -22,7 +22,7 @@
   },
   "auth": {
     "loginTitle": "أهلاً بك في BookCycle",
-    "loginSubtitle": "تبادل المصادر الأكاديمية مع طلاب جامعة النجاح.",
+    "loginSubtitle": "تبادل المصادر الأكاديمية مع طلاب {{university}}.",
     "emailPlaceholder": "البريد الجامعي",
     "passwordPlaceholder": "كلمة المرور",
     "loginButton": "تسجيل الدخول",
@@ -30,7 +30,7 @@
       "title": "أهلاً بك مجدداً",
       "subtitle": "يرجى إدخال بياناتك الجامعية للمتابعة.",
       "emailLabel": "البريد الإلكتروني الجامعي",
-      "emailPlaceholder": "username@stu.najah.edu",
+      "emailPlaceholder": "username@{{domain}}",
       "passwordLabel": "كلمة المرور",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "نسيت؟",
@@ -40,11 +40,11 @@
     },
     "signup": {
       "title": "انضم إلى دائرة المعرفة",
-      "subtitle": "قم بإنشاء ملفك الأكاديمي لبدء إهداء وطلب المواد الدراسية داخل مجتمع النجاح.",
+      "subtitle": "قم بإنشاء ملفك الأكاديمي لبدء إهداء وطلب المواد الدراسية داخل مجتمع {{university}}.",
       "fullNameLabel": "الاسم الكامل",
       "fullNamePlaceholder": "أدخل اسمك الكامل",
       "emailLabel": "البريد الإلكتروني للطالب",
-      "emailPlaceholder": "username@stu.najah.edu",
+      "emailPlaceholder": "username@{{domain}}",
       "passwordLabel": "كلمة المرور",
       "confirmPasswordLabel": "تأكيد",
       "passwordPlaceholder": "••••••••",
@@ -53,7 +53,7 @@
       "majorLabel": "التخصص",
       "majorPlaceholder": "اختر تخصصك",
       "universityIdLabel": "الرقم الجامعي",
-      "universityIdPlaceholder": "مثال: 11920345",
+      "universityIdPlaceholder": "مثال: {{placeholder}}",
       "legalText": "بالنقر فوق إنشاء حساب، فإنك توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بنا فيما يتعلق بالبيانات الأكاديمية.",
       "signupButton": "إنشاء حساب",
       "roleLabel": "المسمى الأكاديمي",
@@ -67,7 +67,7 @@
       "title": "إعادة تعيين كلمة المرور",
       "subtitle": "أدخل بريدك الإلكتروني الجامعي وسنرسل لك رابط إعادة التعيين.",
       "emailLabel": "البريد الإلكتروني الجامعي",
-      "emailPlaceholder": "username@stu.najah.edu",
+      "emailPlaceholder": "username@{{domain}}",
       "sendButton": "إرسال رابط إعادة التعيين",
       "backToLogin": "العودة لتسجيل الدخول"
     },
@@ -100,11 +100,11 @@
       "emailRequired": "البريد الإلكتروني مطلوب",
       "passwordRequired": "كلمة المرور مطلوبة",
       "passwordMinLength": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
-      "useUniversityEmail": "استخدم بريدك الجامعي @stu.najah.edu",
+      "useUniversityEmail": "استخدم بريدك الجامعي @{{domain}}",
       "fullNameMinLength": "يجب أن يكون الاسم الكامل حرفين على الأقل",
       "selectFaculty": "يرجى اختيار الكلية",
       "selectMajor": "يرجى اختيار التخصص",
-      "universityIdLength": "أدخل رقماً جامعياً صالحاً (8-10 أرقام)",
+      "universityIdLength": "أدخل رقماً جامعياً صالحاً ({{min}}-{{max}} أرقام)",
       "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين"
     }
   },
@@ -442,5 +442,21 @@
     },
     "empty": "لم يتم العثور على عروض",
     "discount": "خصم خاص"
+  },
+  "university": {
+    "mode": {
+      "live": "نشط",
+      "preview": "تجريبي",
+      "liveEnv": "بيئة نشطة",
+      "previewEnv": "بيئة شريكة تجريبية"
+    },
+    "select": {
+      "title": "اختر جامعتك",
+      "subtitle": "تحدد جامعتك الكتب والمصادر والعروض المتاحة لك.",
+      "sectionLabel": "اختر مؤسستك التعليمية",
+      "previewDisclaimer": "هذه بيئة تجريبية للنموذج الأولي. سيتم تفعيل المحتوى بعد الموافقة الرسمية على الشراكة.",
+      "changeLater": "يمكنك تغيير جامعتك لاحقاً من إعدادات ملفك الشخصي.",
+      "continue": "المتابعة مع الجامعة المختارة"
+    }
   }
 }

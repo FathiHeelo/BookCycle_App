@@ -21,8 +21,8 @@
     "settings": "Impostazioni"
   },
   "auth": {
-    "loginTitle": "Benvenuto su BookCycle",
-    "loginSubtitle": "Scambia risorse accademiche con gli studenti di An-Najah.",
+    "loginTitle": "Benvenuto in BookCycle",
+    "loginSubtitle": "Scambia risorse accademiche con gli studenti di {{university}}.",
     "emailPlaceholder": "Email universitaria",
     "passwordPlaceholder": "Password",
     "loginButton": "Accedi",
@@ -30,7 +30,7 @@
       "title": "Bentornato",
       "subtitle": "Inserisci le tue credenziali universitarie per continuare.",
       "emailLabel": "Email universitaria",
-      "emailPlaceholder": "nomeutente@stu.najah.edu",
+      "emailPlaceholder": "nomeutente@{{domain}}",
       "passwordLabel": "Password",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "Dimenticata?",
@@ -40,11 +40,11 @@
     },
     "signup": {
       "title": "Unisciti al cerchio della conoscenza",
-      "subtitle": "Crea il tuo profilo accademico per iniziare a donare e richiedere materiale di studio all'interno della comunità Najah.",
+      "subtitle": "Crea il tuo profilo accademico per iniziare a donare e richiedere materiale di studio all'interno della comunità {{university}}.",
       "fullNameLabel": "Nome Completo",
       "fullNamePlaceholder": "Inserisci il tuo nome completo",
       "emailLabel": "Email dello studente",
-      "emailPlaceholder": "nomeutente@stu.najah.edu",
+      "emailPlaceholder": "nomeutente@{{domain}}",
       "passwordLabel": "Password",
       "confirmPasswordLabel": "Conferma",
       "passwordPlaceholder": "••••••••",
@@ -53,7 +53,7 @@
       "majorLabel": "Corso di Laurea",
       "majorPlaceholder": "Seleziona il tuo corso di laurea",
       "universityIdLabel": "Matricola",
-      "universityIdPlaceholder": "es. 11920345",
+      "universityIdPlaceholder": "es. {{placeholder}}",
       "legalText": "Cliccando su Registrati, accetti i nostri Termini di Utilizzo e l'Informativa sulla Privacy riguardanti i dati accademici.",
       "signupButton": "Registrati",
       "roleLabel": "Ruolo Accademico",
@@ -67,7 +67,7 @@
       "title": "Reimposta Password",
       "subtitle": "Inserisci la tua email universitaria e ti invieremo un link di ripristino.",
       "emailLabel": "Email universitaria",
-      "emailPlaceholder": "nomeutente@stu.najah.edu",
+      "emailPlaceholder": "nomeutente@{{domain}}",
       "sendButton": "Invia link di ripristino",
       "backToLogin": "Torna al login"
     },
@@ -100,11 +100,11 @@
       "emailRequired": "L'email è obbligatoria",
       "passwordRequired": "La password è obbligatoria",
       "passwordMinLength": "La password deve essere di almeno 6 caratteri",
-      "useUniversityEmail": "Usa la tua email universitaria @stu.najah.edu",
+      "useUniversityEmail": "Usa la tua email universitaria @{{domain}}",
       "fullNameMinLength": "Il nome completo deve essere di almeno 2 caratteri",
       "selectFaculty": "Seleziona la tua facoltà",
       "selectMajor": "Seleziona il tuo corso di laurea",
-      "universityIdLength": "Inserisci una Matricola valida (8-10 cifre)",
+      "universityIdLength": "Inserisci una Matricola valida ({{min}}-{{max}} cifre)",
       "passwordsDoNotMatch": "Le password non corrispondono"
     }
   },
@@ -442,5 +442,21 @@
     },
     "empty": "Nessuna offerta trovata",
     "discount": "SCONTO"
+  },
+  "university": {
+    "mode": {
+      "live": "Live",
+      "preview": "Anteprima",
+      "liveEnv": "Ambiente live",
+      "previewEnv": "Anteprima partner"
+    },
+    "select": {
+      "title": "Scegli la tua università",
+      "subtitle": "La tua università determina quali libri, risorse e offerte sono a te accessibili.",
+      "sectionLabel": "SELEZIONA IL TUO ISTITUTO",
+      "previewDisclaimer": "Questo è un ambiente prototipo. Il contenuto sarà attivato dopo l'approvazione ufficiale della partnership.",
+      "changeLater": "Puoi cambiare la tua università in seguito dalle impostazioni del tuo profilo.",
+      "continue": "Continua con l'università selezionata"
+    }
   }
 }

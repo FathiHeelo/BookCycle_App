@@ -20,6 +20,7 @@ import { Colors } from '@/constants/theme';
 import { initI18n } from '@/src/i18n';
 import { ThemeProvider as AppThemeProvider, useAppTheme } from '@/context/ThemeContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { UniversityProvider, useUniversity } from '@/context/UniversityContext';
 import { useNotifications } from '@/hooks/use-notifications';
 import { NotificationToast } from '@/src/components/shared/NotificationToast';
 
@@ -30,23 +31,29 @@ export const unstable_settings = {
 
 function AuthGuard({ user, splashVisible }: { user: User | null | undefined; splashVisible: boolean }) {
   const segments = useSegments();
+  const { hasSelected, loading: uniLoading } = useUniversity();
 
   useEffect(() => {
-    // Only handle redirects after the splash screen is finished and auth is initialized
-    if (splashVisible || user === undefined) return;
+    // Wait until splash is done, auth is initialized, and university selection is loaded
+    if (splashVisible || user === undefined || uniLoading) return;
 
     const firstSegment = segments[0] as string;
     const inAuthGroup = firstSegment === '(auth)';
     const isWelcome = firstSegment === 'welcome';
+    const isUniversitySelect = firstSegment === 'university-select';
 
-    if (!user && !inAuthGroup && !isWelcome) {
-      // Not signed in -> send to welcome landing page
-      router.replace('/welcome' as any);
-    } else if (user && (inAuthGroup || isWelcome)) {
-      // Signed in and trying to access auth/welcome screens -> send to home
+    if (!user && !inAuthGroup && !isWelcome && !isUniversitySelect) {
+      if (!hasSelected) {
+        // First launch — show university selection before anything else
+        router.replace('/university-select' as any);
+      } else {
+        router.replace('/welcome' as any);
+      }
+    } else if (user && (inAuthGroup || isWelcome || isUniversitySelect)) {
+      // Signed in and trying to access auth/welcome/university-select → send to home
       router.replace('/' as any);
     }
-  }, [user, segments, splashVisible]);
+  }, [user, segments, splashVisible, hasSelected, uniLoading]);
 
   return null;
 }
@@ -54,9 +61,11 @@ function AuthGuard({ user, splashVisible }: { user: User | null | undefined; spl
 export default function RootLayout() {
   return (
     <AppThemeProvider>
-      <AuthProvider>
-        <RootLayoutInner />
-      </AuthProvider>
+      <UniversityProvider>
+        <AuthProvider>
+          <RootLayoutInner />
+        </AuthProvider>
+      </UniversityProvider>
     </AppThemeProvider>
   );
 }
@@ -127,6 +136,7 @@ function RootLayoutInner() {
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <AuthGuard user={user} splashVisible={splashVisible} />
       <Stack>
+        <Stack.Screen name="university-select" options={{ headerShown: false }} />
         <Stack.Screen name="welcome" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
