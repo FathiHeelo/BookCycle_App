@@ -105,7 +105,7 @@
       "selectFaculty": "يرجى اختيار الكلية",
       "selectMajor": "يرجى اختيار التخصص",
       "universityIdLength": "أدخل رقماً جامعياً صالحاً (8-10 أرقام)",
-      "passwordsDoNotMatch": "passwordsDoNotMatch"
+      "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين"
     }
   },
   "home": {

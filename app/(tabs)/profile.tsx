@@ -24,7 +24,7 @@ export default function Profile() {
   const { stats, userProfile, loading } = useProfileData();
   const { theme: themeKey } = useAppTheme();
   const themeColors = Colors[themeKey];
-  const { isRTL } = useI18n();
+  const { isRTL, t } = useI18n();
 
   if (loading) {
     return (

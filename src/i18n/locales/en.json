@@ -213,6 +213,14 @@
     "card": {
       "verified": "Verified Contributor",
       "edit": "Edit Profile",
+      "share": "Share Impact",
+      "university": "An-Najah National University"
+    },
+    "stats": {
+      "communityImpact": "Community Impact",
+      "totalBooks": "Total Study Materials",
+      "given": "Shared",
+      "thankYou": "Thank you for your contribution!"
     },
     "reliability": {
       "title": "Contributor Reliability",
