@@ -124,7 +124,7 @@ export const MOCK_OFFERS: Offer[] = [
     title: 'USB-C Hub (7-in-1)',
     description: 'Compatible with laptops and tablets. Includes HDMI, USB 3.0, SD card reader.',
     category: 'electronics',
-    imageUrl: 'https://images.unsplash.com/photo-1625891825975-d7ca1c5a1c63?w=400&h=300&fit=crop',
+    imageUrl: 'https://cdn.shopify.com/s/files/1/0697/8207/7746/files/ugreen-7-in-1-usb-c-hub-100w-pd-4k-hdmi-APP-1.jpg?v=1692674278',
     originalPrice: 120,
     discountedPrice: 99,
     commissionValue: 10,

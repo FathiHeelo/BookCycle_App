@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -52,79 +52,106 @@ export const FeaturedOffersCarousel: React.FC<FeaturedOffersCarouselProps> = ({ 
           { flexDirection: isRTL ? 'row-reverse' : 'row' },
         ]}
       >
-        {offers.map((offer) => {
-          const discountPercent = Math.round(
-            ((offer.originalPrice - offer.discountedPrice) / offer.originalPrice) * 100
-          );
-
-          return (
-            <Pressable
-              key={offer.id}
-              style={({ pressed }) => [
-                styles.card,
-                {
-                  borderColor: themeColors.border,
-                  borderWidth: isAccessible ? 2 : 0,
-                  transform: [{ scale: pressed ? 0.98 : 1 }],
-                },
-              ]}
-              onPress={() => router.push(`/marketplace/offer-details/${offer.id}` as any)}
-            >
-              {offer.imageUrl ? (
-                <Image source={{ uri: offer.imageUrl }} style={styles.cardImage} />
-              ) : (
-                <View style={[styles.placeholderImage, { backgroundColor: themeColors.surface }]}>
-                  <ThemedText style={{ color: themeColors.textSecondary }}>No Image Available</ThemedText>
-                </View>
-              )}
-
-              {/* Gradient Overlay for premium look and text readability */}
-              <LinearGradient
-                colors={['transparent', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.95)']}
-                locations={[0.2, 0.6, 1.0]}
-                style={styles.gradient}
-              />
-
-              {/* Content overlaid on image */}
-              <View style={[styles.cardContent, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-                {/* Upper tags row */}
-                <View style={[styles.tagRow, { flexDirection }]}>
-                  <View style={[styles.badge, { backgroundColor: '#F59E0B' }]}>
-                    <ThemedText style={styles.badgeText}>
-                      {t('marketplace.discount', 'SPECIAL')}
-                    </ThemedText>
-                  </View>
-                  {discountPercent > 0 && (
-                    <View style={[styles.badge, { backgroundColor: '#10B981' }]}>
-                      <ThemedText style={styles.badgeText}>-{discountPercent}%</ThemedText>
-                    </View>
-                  )}
-                </View>
-
-                {/* Title and Store */}
-                <ThemedText style={[styles.offerTitle, { textAlign }]} numberOfLines={1}>
-                  {offer.title}
-                </ThemedText>
-                
-                <ThemedText style={[styles.storeName, { textAlign }]} numberOfLines={1}>
-                  {offer.storeName || 'Partner Store'}
-                </ThemedText>
-
-                {/* Pricing Details */}
-                <View style={[styles.priceRow, { flexDirection }]}>
-                  <ThemedText style={styles.priceText}>
-                    {offer.discountedPrice} NIS
-                  </ThemedText>
-                  <ThemedText style={styles.oldPriceText}>
-                    {offer.originalPrice} NIS
-                  </ThemedText>
-                </View>
-              </View>
-            </Pressable>
-          );
-        })}
+        {offers.map((offer) => (
+          <FeaturedCard
+            key={offer.id}
+            offer={offer}
+            themeColors={themeColors}
+            isAccessible={isAccessible}
+            isRTL={isRTL}
+            router={router}
+            t={t}
+          />
+        ))}
       </ScrollView>
     </View>
+  );
+};
+
+const FeaturedCard: React.FC<{
+  offer: Offer;
+  themeColors: any;
+  isAccessible: boolean;
+  isRTL: boolean;
+  router: any;
+  t: any;
+}> = ({ offer, themeColors, isAccessible, isRTL, router, t }) => {
+  const [imageError, setImageError] = useState(false);
+
+  const flexDirection = isRTL ? 'row-reverse' : 'row';
+  const textAlign = isRTL ? 'right' : 'left';
+
+  const discountPercent = Math.round(
+    ((offer.originalPrice - offer.discountedPrice) / offer.originalPrice) * 100
+  );
+
+  return (
+    <Pressable
+      style={({ pressed }) => [
+        styles.card,
+        {
+          borderColor: themeColors.border,
+          borderWidth: isAccessible ? 2 : 0,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
+        },
+      ]}
+      onPress={() => router.push(`/marketplace/offer-details/${offer.id}` as any)}
+    >
+      {offer.imageUrl && !imageError ? (
+        <Image
+          source={{ uri: offer.imageUrl }}
+          style={styles.cardImage}
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <View style={[styles.placeholderImage, { backgroundColor: themeColors.surface }]}>
+          <ThemedText style={{ color: themeColors.textSecondary }}>No Image Available</ThemedText>
+        </View>
+      )}
+
+      {/* Gradient Overlay for premium look and text readability */}
+      <LinearGradient
+        colors={['transparent', 'rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.95)']}
+        locations={[0.2, 0.6, 1.0]}
+        style={styles.gradient}
+      />
+
+      {/* Content overlaid on image */}
+      <View style={[styles.cardContent, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+        {/* Upper tags row */}
+        <View style={[styles.tagRow, { flexDirection }]}>
+          <View style={[styles.badge, { backgroundColor: '#F59E0B' }]}>
+            <ThemedText style={styles.badgeText}>
+              {t('marketplace.discount', 'SPECIAL')}
+            </ThemedText>
+          </View>
+          {discountPercent > 0 && (
+            <View style={[styles.badge, { backgroundColor: '#10B981' }]}>
+              <ThemedText style={styles.badgeText}>-{discountPercent}%</ThemedText>
+            </View>
+          )}
+        </View>
+
+        {/* Title and Store */}
+        <ThemedText style={[styles.offerTitle, { textAlign }]} numberOfLines={1}>
+          {offer.title}
+        </ThemedText>
+
+        <ThemedText style={[styles.storeName, { textAlign }]} numberOfLines={1}>
+          {offer.storeName || 'Partner Store'}
+        </ThemedText>
+
+        {/* Pricing Details */}
+        <View style={[styles.priceRow, { flexDirection }]}>
+          <ThemedText style={styles.priceText}>
+            {offer.discountedPrice} NIS
+          </ThemedText>
+          <ThemedText style={styles.oldPriceText}>
+            {offer.originalPrice} NIS
+          </ThemedText>
+        </View>
+      </View>
+    </Pressable>
   );
 };
 

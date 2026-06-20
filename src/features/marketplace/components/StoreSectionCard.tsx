@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View, Image, Pressable, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -40,53 +40,73 @@ export const StoreSectionCard: React.FC<StoreSectionCardProps> = ({ stores }) =>
         ]}
       >
         {stores.map((store) => {
-          return (
-            <Pressable
-              key={store.id}
-              style={({ pressed }) => [
-                styles.card,
-                {
-                  backgroundColor: themeColors.card,
-                  borderColor: themeColors.border,
-                  borderWidth: isAccessible ? 2 : 1,
-                  transform: [{ scale: pressed ? 0.98 : 1 }],
-                },
-              ]}
-              onPress={() => router.push(`/marketplace/store/${store.id}` as any)}
-            >
-              {/* Logo / Avatar */}
-              <View style={styles.logoContainer}>
-                {store.logoUrl ? (
-                  <Image source={{ uri: store.logoUrl }} style={styles.logo} />
-                ) : (
-                  <View style={[styles.placeholderLogo, { backgroundColor: themeColors.surface }]}>
-                    <Ionicons name="storefront-outline" size={24} color={themeColors.textSecondary} />
-                  </View>
-                )}
-              </View>
-
-              {/* Store Details */}
-              <View style={styles.details}>
-                <ThemedText style={[styles.storeName, { color: themeColors.text, textAlign }]} numberOfLines={1}>
-                  {store.name}
-                </ThemedText>
-
-                {/* Rating & Count Row */}
-                <View style={[styles.infoRow, { flexDirection }]}>
-                  <View style={[styles.ratingContainer, { flexDirection }]}>
-                    <Ionicons name="star" size={12} color="#F59E0B" />
-                    <ThemedText style={styles.ratingText}>{store.rating.toFixed(1)}</ThemedText>
-                  </View>
-                  <ThemedText style={[styles.offerCount, { color: themeColors.textSecondary }]}>
-                    {store.totalOffers} {t('marketplace.offerCard.offersAvailable', 'offers')}
-                  </ThemedText>
-                </View>
-              </View>
-            </Pressable>
-          );
+          // Track per-store logo errors
+          return <StoreCard key={store.id} store={store} themeColors={themeColors} isAccessible={isAccessible} router={router} t={t} flexDirection={flexDirection} textAlign={textAlign} isRTL={isRTL} />;
         })}
       </ScrollView>
     </View>
+  );
+};
+
+// Inner component to manage per-card logo error state
+const StoreCard: React.FC<{
+  store: any;
+  themeColors: any;
+  isAccessible: boolean;
+  router: any;
+  t: any;
+  flexDirection: any;
+  textAlign: any;
+  isRTL: boolean;
+}> = ({ store, themeColors, isAccessible, router, t, flexDirection, textAlign }) => {
+  const [logoError, setLogoError] = useState(false);
+
+  return (
+    <Pressable
+      style={({ pressed }) => [
+        styles.card,
+        {
+          backgroundColor: themeColors.card,
+          borderColor: themeColors.border,
+          borderWidth: isAccessible ? 2 : 1,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
+        },
+      ]}
+      onPress={() => router.push(`/marketplace/store/${store.id}` as any)}
+    >
+      {/* Logo / Avatar */}
+      <View style={styles.logoContainer}>
+        {store.logoUrl && !logoError ? (
+          <Image
+            source={{ uri: store.logoUrl }}
+            style={styles.logo}
+            onError={() => setLogoError(true)}
+          />
+        ) : (
+          <View style={[styles.placeholderLogo, { backgroundColor: themeColors.surface }]}>
+            <Ionicons name="storefront-outline" size={24} color={themeColors.textSecondary} />
+          </View>
+        )}
+      </View>
+
+      {/* Store Details */}
+      <View style={styles.details}>
+        <ThemedText style={[styles.storeName, { color: themeColors.text, textAlign }]} numberOfLines={1}>
+          {store.name}
+        </ThemedText>
+
+        {/* Rating & Count Row */}
+        <View style={[styles.infoRow, { flexDirection }]}>
+          <View style={[styles.ratingContainer, { flexDirection }]}>
+            <Ionicons name="star" size={12} color="#F59E0B" />
+            <ThemedText style={styles.ratingText}>{store.rating.toFixed(1)}</ThemedText>
+          </View>
+          <ThemedText style={[styles.offerCount, { color: themeColors.textSecondary }]}>
+            {store.totalOffers} {t('marketplace.offerCard.offersAvailable', 'offers')}
+          </ThemedText>
+        </View>
+      </View>
+    </Pressable>
   );
 };
 

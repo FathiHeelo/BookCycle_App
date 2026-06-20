@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
   Image,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
   Linking,
   Platform,
-  Dimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,6 +28,8 @@ export default function StoreDetailsScreen() {
   const { getStoreById, getOffersByStore } = useMarketplace();
   const store = getStoreById(id as string);
   const storeOffers = getOffersByStore(id as string);
+
+  const [logoError, setLogoError] = useState(false);
 
   if (!store) {
     return (
@@ -64,94 +65,107 @@ export default function StoreDetailsScreen() {
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <CustomHeader title={store.name} leftMode="back" hideSafeArea={true} />
 
-      <FlatList
-        data={storeOffers}
-        renderItem={({ item }) => (
-          <View style={styles.offerCardWrapper}>
-            <OfferCard offer={item} />
-          </View>
-        )}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={[styles.columnWrapper, { flexDirection }]}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <View style={styles.headerComponent}>
-            {/* Store Information */}
-            <View style={[styles.infoCard, { backgroundColor: themeColors.card, borderColor: themeColors.border, borderWidth: isAccessible ? 2 : 1 }]}>
-              <View style={[styles.profileRow, { flexDirection }]}>
-                {store.logoUrl ? (
-                  <Image source={{ uri: store.logoUrl }} style={styles.logo} />
-                ) : (
-                  <View style={[styles.placeholderLogo, { backgroundColor: themeColors.surface }]}>
-                    <Ionicons name="storefront-outline" size={32} color={themeColors.textSecondary} />
-                  </View>
-                )}
-                
-                <View style={[styles.metaData, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-                  <ThemedText style={[styles.storeTitle, { color: themeColors.text }]}>
-                    {store.name}
-                  </ThemedText>
-                  
-                  <View style={[styles.ratingRow, { flexDirection }]}>
-                    <Ionicons name="star" size={14} color="#F59E0B" />
-                    <ThemedText style={styles.ratingText}>{store.rating.toFixed(1)}</ThemedText>
-                    <ThemedText style={[styles.dot, { color: themeColors.textSecondary }]}>•</ThemedText>
-                    <ThemedText style={[styles.offersAvailable, { color: themeColors.textSecondary }]}>
-                      {storeOffers.length} {t('marketplace.store.offers', 'offers available')}
-                    </ThemedText>
-                  </View>
-                </View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Store Information Card */}
+        <View
+          style={[
+            styles.infoCard,
+            {
+              backgroundColor: themeColors.card,
+              borderColor: themeColors.border,
+              borderWidth: isAccessible ? 2 : 1,
+            },
+          ]}
+        >
+          <View style={[styles.profileRow, { flexDirection }]}>
+            {/* Store Logo with error fallback */}
+            {store.logoUrl && !logoError ? (
+              <Image
+                source={{ uri: store.logoUrl }}
+                style={styles.logo}
+                onError={() => setLogoError(true)}
+              />
+            ) : (
+              <View style={[styles.placeholderLogo, { backgroundColor: themeColors.surface }]}>
+                <Ionicons name="storefront-outline" size={32} color={themeColors.textSecondary} />
               </View>
+            )}
 
-              {store.description && (
-                <ThemedText style={[styles.description, { color: themeColors.text, textAlign }]} numberOfLines={3}>
-                  {store.description}
+            <View style={[styles.metaData, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+              <ThemedText style={[styles.storeTitle, { color: themeColors.text }]}>
+                {store.name}
+              </ThemedText>
+
+              <View style={[styles.ratingRow, { flexDirection }]}>
+                <Ionicons name="star" size={14} color="#F59E0B" />
+                <ThemedText style={styles.ratingText}>{store.rating.toFixed(1)}</ThemedText>
+                <ThemedText style={[styles.dot, { color: themeColors.textSecondary }]}>•</ThemedText>
+                <ThemedText style={[styles.offersAvailable, { color: themeColors.textSecondary }]}>
+                  {storeOffers.length} {t('marketplace.store.offers', 'offers available')}
                 </ThemedText>
-              )}
-
-              {/* Action Buttons (Call / Location) */}
-              <View style={[styles.actionsRow, { flexDirection }]}>
-                {store.phone && (
-                  <TouchableOpacity
-                    style={[styles.actionBtn, { backgroundColor: themeColors.surface }]}
-                    onPress={handleCall}
-                  >
-                    <Ionicons name="call" size={18} color={themeColors.primary} />
-                    <ThemedText style={[styles.actionBtnText, { color: themeColors.primary }]}>
-                      {t('marketplace.store.contact', 'Contact')}
-                    </ThemedText>
-                  </TouchableOpacity>
-                )}
-
-                <TouchableOpacity
-                  style={[styles.actionBtn, { backgroundColor: themeColors.surface }]}
-                  onPress={handleLocation}
-                >
-                  <Ionicons name="location" size={18} color={themeColors.primary} />
-                  <ThemedText style={[styles.actionBtnText, { color: themeColors.primary }]}>
-                    {t('marketplace.store.location', 'Location')}
-                  </ThemedText>
-                </TouchableOpacity>
               </View>
             </View>
-
-            {/* Title for Offers Section */}
-            <ThemedText style={[styles.sectionTitle, { color: themeColors.text, textAlign }]} type="subtitle">
-              {t('marketplace.store.offers', 'Offers')}
-            </ThemedText>
           </View>
-        }
-        ListEmptyComponent={
+
+          {store.description && (
+            <ThemedText
+              style={[styles.description, { color: themeColors.text, textAlign }]}
+              numberOfLines={3}
+            >
+              {store.description}
+            </ThemedText>
+          )}
+
+          {/* Action Buttons (Call / Location) */}
+          <View style={[styles.actionsRow, { flexDirection }]}>
+            {store.phone && (
+              <TouchableOpacity
+                style={[styles.actionBtn, { backgroundColor: themeColors.surface }]}
+                onPress={handleCall}
+              >
+                <Ionicons name="call" size={18} color={themeColors.primary} />
+                <ThemedText style={[styles.actionBtnText, { color: themeColors.primary }]}>
+                  {t('marketplace.store.contact', 'Contact')}
+                </ThemedText>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={[styles.actionBtn, { backgroundColor: themeColors.surface }]}
+              onPress={handleLocation}
+            >
+              <Ionicons name="location" size={18} color={themeColors.primary} />
+              <ThemedText style={[styles.actionBtnText, { color: themeColors.primary }]}>
+                {t('marketplace.store.location', 'Location')}
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Offers Section Title */}
+        <ThemedText
+          style={[styles.sectionTitle, { color: themeColors.text, textAlign }]}
+          type="subtitle"
+        >
+          {t('marketplace.store.offersSection', 'Available Offers')}
+        </ThemedText>
+
+        {/* Offers Grid — flexWrap approach fixes the odd-item-last-row issue */}
+        {storeOffers.length > 0 ? (
+          <View style={[styles.grid, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            {storeOffers.map((offer) => (
+              <OfferCard key={offer.id} offer={offer} />
+            ))}
+          </View>
+        ) : (
           <View style={styles.emptyState}>
             <Ionicons name="pricetag-outline" size={48} color={themeColors.textSecondary} />
             <ThemedText style={[styles.emptyText, { color: themeColors.textSecondary }]}>
               {t('marketplace.empty', 'No offers found from this store')}
             </ThemedText>
           </View>
-        }
-      />
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -171,18 +185,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: Radius.md,
   },
-  headerComponent: {
-    marginBottom: Spacing.md,
+  scrollContent: {
+    padding: Spacing.md,
+    paddingBottom: 80,
   },
   infoCard: {
     borderRadius: Radius.lg,
     padding: Spacing.md,
     marginBottom: Spacing.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   profileRow: {
     alignItems: 'center',
@@ -250,18 +271,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '800',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
-  listContent: {
-    padding: Spacing.md,
-    paddingBottom: 60,
-  },
-  columnWrapper: {
+  // flexWrap grid — same approach as MarketplaceScreen, no FlatList numColumns issues
+  grid: {
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: Spacing.sm,
-  },
-  offerCardWrapper: {
-    width: '49%',
   },
   emptyState: {
     alignItems: 'center',

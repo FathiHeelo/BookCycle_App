@@ -33,6 +33,8 @@ export default function OfferDetailsScreen() {
   const { getOfferById, getStoreById } = useMarketplace();
   const { generateVoucher } = useVoucher();
   const [generating, setGenerating] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const offer = getOfferById(id as string);
   const store = offer ? getStoreById(offer.storeId) : undefined;
@@ -101,8 +103,12 @@ export default function OfferDetailsScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Product Image */}
         <View style={styles.imageContainer}>
-          {offer.imageUrl ? (
-            <Image source={{ uri: offer.imageUrl }} style={styles.image} />
+          {offer.imageUrl && !imageError ? (
+            <Image
+              source={{ uri: offer.imageUrl }}
+              style={styles.image}
+              onError={() => setImageError(true)}
+            />
           ) : (
             <View style={[styles.placeholderImage, { backgroundColor: themeColors.surface }]}>
               <Ionicons name="gift-outline" size={64} color={themeColors.textSecondary} />
@@ -202,7 +208,19 @@ export default function OfferDetailsScreen() {
               onPress={() => router.push(`/marketplace/store/${store.id}` as any)}
             >
               <View style={[styles.storeRow, { flexDirection }]}>
-                <Image source={{ uri: store.logoUrl }} style={styles.storeLogo} />
+                {store.logoUrl && !logoError ? (
+                  <Image
+                    source={{ uri: store.logoUrl }}
+                    style={styles.storeLogo}
+                    onError={() => setLogoError(true)}
+                  />
+                ) : (
+                  <View style={[styles.storeLogo, { backgroundColor: themeColors.surface, alignItems: 'center', justifyContent: 'center', borderRadius: Radius.md }]}>
+                    <ThemedText style={{ fontSize: 18, fontWeight: '900', color: themeColors.primary }}>
+                      {store.name.charAt(0).toUpperCase()}
+                    </ThemedText>
+                  </View>
+                )}
                 <View style={[styles.storeDetails, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
                   <ThemedText style={[styles.storeLabel, { color: themeColors.textSecondary }]}>
                     {t('marketplace.offerDetail.store', 'Available At')}

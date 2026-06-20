@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -18,6 +18,8 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer, onPress }) => {
   const themeColors = Colors[theme];
   const { t, isRTL } = useI18n();
   const router = useRouter();
+
+  const [imageError, setImageError] = useState(false);
 
   const flexDirection = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
@@ -48,14 +50,18 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer, onPress }) => {
       onPress={handlePress}
     >
       <View style={styles.imageContainer}>
-        {offer.imageUrl ? (
-          <Image source={{ uri: offer.imageUrl }} style={styles.image} />
+        {offer.imageUrl && !imageError ? (
+          <Image
+            source={{ uri: offer.imageUrl }}
+            style={styles.image}
+            onError={() => setImageError(true)}
+          />
         ) : (
           <View style={[styles.placeholderImage, { backgroundColor: themeColors.surface }]}>
             <Ionicons name="gift-outline" size={32} color={themeColors.textSecondary} />
           </View>
         )}
-        
+
         {/* Discount Badge */}
         {!isOutOfStock && discountPercent > 0 && (
           <View style={[styles.discountBadge, { backgroundColor: theme === 'dark' ? '#F59E0B' : '#10B981' }]}>
@@ -96,7 +102,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer, onPress }) => {
               {offer.originalPrice} NIS
             </ThemedText>
           </View>
-          
+
           <TouchableOpacity
             style={[
               styles.actionBtn,
