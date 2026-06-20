@@ -136,6 +136,10 @@ function RootLayoutInner() {
         <Stack.Screen name="all-messages" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         <Stack.Screen name="change-password" options={{ title: 'Change Password', headerShown: false }} />
+        <Stack.Screen name="marketplace/offer-details/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="marketplace/store/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="marketplace/my-vouchers" options={{ headerShown: false }} />
+        <Stack.Screen name="marketplace/voucher/[id]" options={{ headerShown: false }} />
       </Stack>
       <NotificationToast 
         visible={toastVisible}

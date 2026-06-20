@@ -103,7 +103,7 @@ export default function TabLayout() {
         name="explore"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} name="search" label={isRTL ? 'استكشف' : 'Explore'} themeColors={themeColors} />
+            <TabIcon focused={focused} name="storefront" label={isRTL ? 'السوق' : 'Marketplace'} themeColors={themeColors} />
           ),
         }}
       />

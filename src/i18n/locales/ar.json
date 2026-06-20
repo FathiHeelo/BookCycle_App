@@ -379,5 +379,68 @@
   "validation": {
     "required": "هذا الحقل مطلوب.",
     "invalidUniversityEmail": "يرجى استخدام البريد الجامعي."
+  },
+  "marketplace": {
+    "title": "السوق الطلابية",
+    "subtitle": "عروض وخصومات حصرية للطلاب",
+    "searchPlaceholder": "ابحث عن العروض...",
+    "featured": "عروض مميزة",
+    "partnerStores": "المحلات الشريكة",
+    "allOffers": "كل العروض",
+    "searchResults": "عروض مصفاة",
+    "categories": {
+      "all": "الكل",
+      "books": "كتب دراسية",
+      "stationery": "قرطاسية",
+      "printing": "طباعة وتصوير",
+      "tools": "أدوات دراسة",
+      "electronics": "إلكترونيات",
+      "bundles": "حزم دراسية"
+    },
+    "offerCard": {
+      "getCode": "احصل على الكوبون",
+      "offersAvailable": "عروض",
+      "validUntil": "صالح لغاية",
+      "inStock": "في المخزن",
+      "outOfStock": "نفدت الكمية"
+    },
+    "offerDetail": {
+      "originalPrice": "السعر الأصلي",
+      "yourPrice": "سعرك الخاص",
+      "save": "توفيرك",
+      "getDiscount": "احصل على كوبون الخصم",
+      "store": "متوفر في",
+      "validity": "صالح لغاية",
+      "stock": "الكمية"
+    },
+    "voucher": {
+      "title": "كوبون الخصم الخاص بك",
+      "showAtStore": "اعرض رمز الـ QR أو الرمز القصير للبائع عند الدفع لتفعيل الخصم.",
+      "expiresIn": "ينتهي خلال",
+      "code": "الرمز",
+      "cancel": "إلغاء الكوبون",
+      "status": {
+        "pending": "نشط",
+        "completed": "تم الاستخدام",
+        "expired": "منتهي الصلاحية",
+        "cancelled": "ملغى",
+        "rejected": "مرفوض"
+      }
+    },
+    "myVouchers": {
+      "title": "كوبونات الخصم الخاصة بي",
+      "empty": "لا توجد كوبونات بعد",
+      "active": "نشطة",
+      "past": "سابقة",
+      "activeAlert": "لديك {{count}} كوبونات خصم نشطة! اضغط للعرض"
+    },
+    "store": {
+      "offers": "عروض متوفرة",
+      "contact": "اتصل بنا",
+      "location": "الموقع",
+      "rating": "التقييم"
+    },
+    "empty": "لم يتم العثور على عروض",
+    "discount": "خصم خاص"
   }
 }

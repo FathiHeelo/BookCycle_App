@@ -379,5 +379,68 @@
   "validation": {
     "required": "Questo campo è obbligatorio.",
     "invalidUniversityEmail": "Utilizza la tua email universitaria."
+  },
+  "marketplace": {
+    "title": "Mercato",
+    "subtitle": "Offerte esclusive per studenti",
+    "searchPlaceholder": "Cerca offerte...",
+    "featured": "Offerte in evidenza",
+    "partnerStores": "Negozi partner",
+    "allOffers": "Tutte le offerte",
+    "searchResults": "Offerte filtrate",
+    "categories": {
+      "all": "Tutto",
+      "books": "Libri",
+      "stationery": "Cancelleria",
+      "printing": "Stampa",
+      "tools": "Materiale di studio",
+      "electronics": "Elettronica",
+      "bundles": "Pacchetti"
+    },
+    "offerCard": {
+      "getCode": "Ottieni",
+      "offersAvailable": "offenerte",
+      "validUntil": "Valido fino al",
+      "inStock": "disponibile",
+      "outOfStock": "Esaurito"
+    },
+    "offerDetail": {
+      "originalPrice": "Prezzo originale",
+      "yourPrice": "Il tuo prezzo",
+      "save": "Risparmi",
+      "getDiscount": "Ottieni codice sconto",
+      "store": "Disponibile presso",
+      "validity": "Valido fino al",
+      "stock": "Disponibilità"
+    },
+    "voucher": {
+      "title": "Il tuo codice sconto",
+      "showAtStore": "Mostra questo codice QR o codice corto alla cassa del negozio per ricevere lo sconto.",
+      "expiresIn": "Scade in",
+      "code": "Codice",
+      "cancel": "Annulla buono",
+      "status": {
+        "pending": "Attivo",
+        "completed": "Utilizzato",
+        "expired": "Scaduto",
+        "cancelled": "Annullato",
+        "rejected": "Rifiutato"
+      }
+    },
+    "myVouchers": {
+      "title": "I miei codici sconto",
+      "empty": "Nessun buono disponibile",
+      "active": "Attivi",
+      "past": "Passati",
+      "activeAlert": "Hai {{count}} codici sconto attivi! Tocca per visualizzare"
+    },
+    "store": {
+      "offers": "offerte disponibili",
+      "contact": "Contatta",
+      "location": "Posizione",
+      "rating": "Valutazione"
+    },
+    "empty": "Nessuna offerta trovata",
+    "discount": "SCONTO"
   }
 }

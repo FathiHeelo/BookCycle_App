@@ -379,5 +379,68 @@
   "validation": {
     "required": "Ce champ est obligatoire.",
     "invalidUniversityEmail": "Veuillez utiliser votre e-mail universitaire."
+  },
+  "marketplace": {
+    "title": "Boutique",
+    "subtitle": "Offres étudiantes exclusives",
+    "searchPlaceholder": "Rechercher des offres...",
+    "featured": "Offres à la une",
+    "partnerStores": "Partenaires",
+    "allOffers": "Toutes les offres",
+    "searchResults": "Offres filtrées",
+    "categories": {
+      "all": "Tout",
+      "books": "Livres",
+      "stationery": "Papeterie",
+      "printing": "Impression",
+      "tools": "Matériel d'étude",
+      "electronics": "Électronique",
+      "bundles": "Packs"
+    },
+    "offerCard": {
+      "getCode": "Obtenir",
+      "offersAvailable": "offres",
+      "validUntil": "Valable jusqu'au",
+      "inStock": "en stock",
+      "outOfStock": "Rupture de stock"
+    },
+    "offerDetail": {
+      "originalPrice": "Prix d'origine",
+      "yourPrice": "Votre Prix",
+      "save": "Vous économisez",
+      "getDiscount": "Obtenir le code de réduction",
+      "store": "Disponible chez",
+      "validity": "Valable jusqu'au",
+      "stock": "Stock"
+    },
+    "voucher": {
+      "title": "Votre code de réduction",
+      "showAtStore": "Présentez ce code QR ou code court au vendeur lors du paiement pour appliquer votre réduction.",
+      "expiresIn": "Expire dans",
+      "code": "Code",
+      "cancel": "Annuler le bon",
+      "status": {
+        "pending": "Actif",
+        "completed": "Utilisé",
+        "expired": "Expiré",
+        "cancelled": "Annulé",
+        "rejected": "Rejeté"
+      }
+    },
+    "myVouchers": {
+      "title": "Mes codes de réduction",
+      "empty": "Aucun bon pour le moment",
+      "active": "Actifs",
+      "past": "Passés",
+      "activeAlert": "Vous avez {{count}} codes de réduction actifs ! Touchez pour voir"
+    },
+    "store": {
+      "offers": "offres disponibles",
+      "contact": "Contacter",
+      "location": "Localisation",
+      "rating": "Évaluation"
+    },
+    "empty": "Aucune offre trouvée",
+    "discount": "REDUCTION"
   }
 }

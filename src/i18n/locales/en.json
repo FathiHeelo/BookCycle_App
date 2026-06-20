@@ -379,5 +379,68 @@
   "validation": {
     "required": "This field is required.",
     "invalidUniversityEmail": "Please use your university email."
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "subtitle": "Exclusive Student Offers",
+    "searchPlaceholder": "Search offers...",
+    "featured": "Featured Offers",
+    "partnerStores": "Partner Stores",
+    "allOffers": "All Offers",
+    "searchResults": "Filtered Offers",
+    "categories": {
+      "all": "All",
+      "books": "Books",
+      "stationery": "Stationery",
+      "printing": "Printing",
+      "tools": "Study Tools",
+      "electronics": "Electronics",
+      "bundles": "Bundles"
+    },
+    "offerCard": {
+      "getCode": "Get Code",
+      "offersAvailable": "offers",
+      "validUntil": "Valid until",
+      "inStock": "in stock",
+      "outOfStock": "Out of stock"
+    },
+    "offerDetail": {
+      "originalPrice": "Original Price",
+      "yourPrice": "Your Price",
+      "save": "You Save",
+      "getDiscount": "Get Discount Code",
+      "store": "Available At",
+      "validity": "Valid Until",
+      "stock": "Stock"
+    },
+    "voucher": {
+      "title": "Your Discount Code",
+      "showAtStore": "Show this QR code or Short Code to the store clerk at checkout to redeem your discount.",
+      "expiresIn": "Expires in",
+      "code": "Code",
+      "cancel": "Cancel Voucher",
+      "status": {
+        "pending": "Pending",
+        "completed": "Used",
+        "expired": "Expired",
+        "cancelled": "Cancelled",
+        "rejected": "Rejected"
+      }
+    },
+    "myVouchers": {
+      "title": "My Discount Codes",
+      "empty": "No vouchers yet",
+      "active": "Active",
+      "past": "Past",
+      "activeAlert": "You have {{count}} active discount codes! Tap to view"
+    },
+    "store": {
+      "offers": "offers available",
+      "contact": "Contact",
+      "location": "Location",
+      "rating": "Rating"
+    },
+    "empty": "No offers found",
+    "discount": "DISCOUNT"
   }
 }
